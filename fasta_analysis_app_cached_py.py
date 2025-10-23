@@ -589,7 +589,7 @@ class SequenceAnalyzer:
             else:
                 kept_subtypes_for_seq = set()
                 # Keep the first occurrence of each subtype for this identical sequence
-                for header, _, metadata in sorted(group, key=lambda x: x[0])): # Sort for consistency
+                for header, _, metadata in sorted(group, key=lambda x: x[0]): # Sort for consistency
                     subtype = metadata.get('type', DEFAULT_UNKNOWN)
                     if subtype not in kept_subtypes_for_seq:
                         unique.append([header, seq, metadata])
