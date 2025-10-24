@@ -622,11 +622,11 @@ class ProgressTracker:
     """Simplified tracker using Streamlit session state and update_status."""
     def log(self, message, status_key=None, level='info'):
         update_status_key = status_key if status_key else st.session_state.get('status_message', 'processing')
-        update_status(update_status_key, level=level, log=True)
+        update_status(update_status_key, status_type=level, log=True)  # Fixed: level -> status_type
 
     def start_operation(self, operation_name):
         st.session_state.start_time = time.time()
-        update_status("processing", level='info', log=True)
+        update_status("processing", status_type='info', log=True)  # Fixed: level -> status_type
         if 'analysis_log' in st.session_state:
             st.session_state.analysis_log.append(f"[{datetime.now().strftime('%H:%M:%S')}] INFO: Started: {operation_name}")
 
@@ -638,12 +638,12 @@ class ProgressTracker:
             duration_str = f" (Duration: {duration:.2f}s)"
 
         log_message = f"Completed: {operation_name}{duration_str}"
-        level = 'success' if status_key == 'complete' else ('warning' if status_key == 'warning' else 'info')
+        status_type = 'success' if status_key == 'complete' else ('warning' if status_key == 'warning' else 'info')  # Renamed 'level' to 'status_type' for clarity
 
         if 'analysis_log' in st.session_state:
-            st.session_state.analysis_log.append(f"[{datetime.now().strftime('%H:%M:%S')}] {level.upper()}: {log_message}")
+            st.session_state.analysis_log.append(f"[{datetime.now().strftime('%H:%M:%S')}] {status_type.upper()}: {log_message}")
 
-        update_status(status_key, level=level, log=False)
+        update_status(status_key, status_type=status_type, log=False)  # Fixed: level -> status_type
 
     def log_error(self, msg):
         timestamp = datetime.now().strftime('%H:%M:%S')
