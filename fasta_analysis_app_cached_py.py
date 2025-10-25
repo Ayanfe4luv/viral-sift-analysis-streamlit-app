@@ -1248,7 +1248,7 @@ def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar')
 
     if chart_type.lower() == 'pie':
         fig = px.pie(df, values='Count', names='Category', title=f"{title}",
-                     color_discrete_sequence=px.colors.Pastel1)
+                     color_discrete_sequence=px.colors.qualitative.Pastel1)
         fig.update_traces(textposition='inside', textinfo='percent+label', pull=[0.05]*len(df))
         fig.update_layout(legend_title_text='Categories', showlegend=True)
     else:
