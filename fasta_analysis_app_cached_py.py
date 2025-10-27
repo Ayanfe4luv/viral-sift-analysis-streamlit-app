@@ -1751,218 +1751,217 @@ def main():
     tab_map = dict(zip(tab_keys, tabs))
 
     # ==================== TAB 1: UPLOAD & SETUP ====================
-    # ==================== TAB 1: UPLOAD & SETUP ====================
-with tab_map["upload_tab"]:
-    st.header(T("upload_tab"))
+    with tab_map["upload_tab"]:
+        st.header(T("upload_tab"))
 
-    if not st.session_state.all_files:
-        st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #e0f2fe 0%, #ccfbf1 100%);
-                        color: #0c4a6e; padding: 25px; border-radius: 12px; border-left: 6px solid #0ea5e9;'>
-                <h3 style='color: #0c4a6e; border: none; margin-top: 0;'>{T('welcome_title')}</h3>
-                <p style='font-size: 1.05rem;'>{T('welcome_message')}</p>
-                <p>{T('welcome_subtitle')}</p>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        if not st.session_state.all_files:
+            st.markdown(f"""
+                <div style='background: linear-gradient(135deg, #e0f2fe 0%, #ccfbf1 100%);
+                            color: #0c4a6e; padding: 25px; border-radius: 12px; border-left: 6px solid #0ea5e9;'>
+                    <h3 style='color: #0c4a6e; border: none; margin-top: 0;'>{T('welcome_title')}</h3>
+                    <p style='font-size: 1.05rem;'>{T('welcome_message')}</p>
+                    <p>{T('welcome_subtitle')}</p>
+                </div>
+            """, unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- FIXED: Isolated upload methods based on radio selection ---
-    upload_options = [T("upload_widget"), T("upload_url")]
-    # Only add Drive option if potentially available
-    if COLAB_AVAILABLE or os.path.exists('/content/drive'):  # Basic check
-        upload_options.insert(1, T("upload_gdrive"))
+        # --- FIXED: Isolated upload methods based on radio selection ---
+        upload_options = [T("upload_widget"), T("upload_url")]
+        # Only add Drive option if potentially available
+        if COLAB_AVAILABLE or os.path.exists('/content/drive'):  # Basic check
+            upload_options.insert(1, T("upload_gdrive"))
 
-    selected_upload_method = st.radio("Select Upload Method:", upload_options, horizontal=True, label_visibility="collapsed")
+        selected_upload_method = st.radio("Select Upload Method:", upload_options, horizontal=True, label_visibility="collapsed")
 
-    # --- Widget Upload (only show if selected) ---
-    if selected_upload_method == T("upload_widget"):
-        st.subheader(T("upload_files_header"))
-        uploaded_files = st.file_uploader(
-            T("file_uploader_label"),
-            type=['fasta', 'fas', 'fa', 'fna', 'txt', 'gz'],
-            accept_multiple_files=True,
-            help=T("upload_help_text"),
-            key="main_file_uploader"
-        )
+        # --- Widget Upload (only show if selected) ---
+        if selected_upload_method == T("upload_widget"):
+            st.subheader(T("upload_files_header"))
+            uploaded_files = st.file_uploader(
+                T("file_uploader_label"),
+                type=['fasta', 'fas', 'fa', 'fna', 'txt', 'gz'],
+                accept_multiple_files=True,
+                help=T("upload_help_text"),
+                key="main_file_uploader"
+            )
 
-        if uploaded_files:
-            parser = FastaParser()  # FIXED: Instantiate parser here
-            with st.spinner(T("processing_files")):
-                progress_bar = st.progress(0, text=T("initializing"))
-                newly_loaded_count = 0
-                total_sequences_added = 0
-                has_errors = False
-
-                for idx, uploaded_file in enumerate(uploaded_files):
-                    filename = uploaded_file.name
-                    progress_text = f"{T('processing')}: {filename}"
-                    progress_bar.progress((idx) / len(uploaded_files), text=progress_text)
-
-                    if filename not in st.session_state.all_files:
-                        try:
-                            content_bytes = uploaded_file.getvalue()
-                            if filename.lower().endswith('.gz'):
-                                content_string = gzip.decompress(content_bytes).decode('utf-8', errors='replace')
-                            else:
-                                content_string = content_bytes.decode('utf-8', errors='replace')
-
-                            sequences, errors = parser.parse(content_string)  # Now uses local parser
-
-                            if errors:
-                                has_errors = True
-                                st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
-
-                            if sequences:
-                                st.session_state.all_files[filename] = sequences
-                                if filename not in st.session_state.original_sequences:
-                                    st.session_state.original_sequences[filename] = sequences
-                                newly_loaded_count += 1
-                                total_sequences_added += len(sequences)
-                            else:
-                                if not errors:
-                                    progress_tracker.log_error(f"No valid sequences found in {filename}")
-
-                        except Exception as e:
-                            progress_tracker.log_error(f"Failed to process {filename}: {str(e)}")
-                            has_errors = True
-
-                progress_bar.progress(1.0, text=T("processing_complete"))
-                time.sleep(1)
-                progress_bar.empty()
-
-                if newly_loaded_count > 0:
-                    msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
-                    st.success(msg)
-                    st.balloons()
-                    if not st.session_state.active_sequences:
-                        st.info(T("info_activate_files"))
-                elif not has_errors:
-                    st.warning(T("no_new_files"))
-
-    # --- URL Download (only show if selected) ---
-    elif selected_upload_method == T("upload_url"):
-        st.subheader(T("download_url_header"))
-        url_input = st.text_input(
-            T("url_input_label"),
-            placeholder=T("url_placeholder"),
-            key="url_downloader_input"
-        )
-        if st.button(T("download_url_btn"), use_container_width=True, key="url_download_button"):
-            if url_input and url_input.startswith(('http://', 'https://')):
-                with st.spinner(T("downloading_from_url").format(url=url_input[:50] + '...')):  # FIXED: Add '...' for truncation
-                    try:
-                        response = requests.get(url_input, timeout=DEFAULT_TIMEOUT, stream=True)
-                        response.raise_for_status()
-
-                        content_disp = response.headers.get('content-disposition')
-                        filename = None
-                        if content_disp:
-                            fname_match = re.search(r'filename="?([^"]+)"?', content_disp)
-                            filename = fname_match.group(1) if fname_match else None
-                        if not filename:
-                            filename = os.path.basename(urllib.parse.urlparse(url_input).path) or f"download_{int(time.time())}.fasta"
-
-                        is_gzipped = filename.lower().endswith('.gz') or response.headers.get('content-encoding') == 'gzip'
-                        content_bytes = response.content
-
-                        if is_gzipped:
-                            content_string = gzip.decompress(content_bytes).decode('utf-8', errors='replace')
-                            filename = filename[:-3] if filename.lower().endswith('.gz') else filename
-                        else:
-                            content_string = content_bytes.decode('utf-8', errors='replace')
-
-                        if content_string:
-                            parser = FastaParser()  # FIXED: Instantiate parser here
-                            sequences, errors = parser.parse(content_string)  # Now uses local parser
-
-                            if errors:
-                                st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
-
-                            if sequences:
-                                st.session_state.all_files[filename] = sequences
-                                st.session_state.original_sequences[filename] = sequences
-                                st.success(T("downloaded_processed").format(filename=filename, seqs=len(sequences)))
-                                st.session_state.active_filenames = [filename]
-                                st.session_state.active_sequences = sequences
-                                st.info(T("activated_file_info").format(filename=filename))
-                            else:
-                                progress_tracker.log_error("No valid sequences found in content from URL.")
-                        else:
-                            st.error(T("empty_url_content"))
-
-                    except requests.exceptions.RequestException as e:
-                        st.error(f"HTTP Error: {e}")
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-            else:
-                st.warning(T("invalid_url"))
-
-    # --- Google Drive Upload (only show if selected) ---
-    elif selected_upload_method == T("upload_gdrive"):
-        st.info(T("gdrive_info"), icon="ℹ️")
-        if COLAB_AVAILABLE:  # Only show mount button if in Colab
-            if st.button(T("mount_gdrive_btn")):
-                try:
-                    with st.spinner("Attempting to mount Google Drive..."):
-                        drive.mount('/content/drive', force_remount=True)
-                    update_status("gdrive_success", level="success")
-                    st.session_state.gdrive_mounted = True
-                except Exception as e:
-                    update_status(f"Drive Mount Error: {e}", level="error")
-                    st.session_state.gdrive_mounted = False
-        else:
-            # Check if drive might be mounted via Desktop app etc.
-            if not os.path.exists('/content/drive'):
-                st.warning(T("gdrive_fail"))
-
-        # Allow path input regardless
-        gdrive_path = st.text_input(T("gdrive_path_label"), placeholder="/content/drive/MyDrive/YourFolder/*.fasta")
-        if st.button(T("load_gdrive_btn"), disabled=not gdrive_path):
-            # Check again if accessible before trying glob
-            if not os.path.exists('/content/drive') and not st.session_state.get('gdrive_mounted'):
-                 st.error("Google Drive does not appear to be mounted...")
-            else:
+            if uploaded_files:
+                parser = FastaParser()  # FIXED: Instantiate parser here
                 with st.spinner(T("processing_files")):
-                    try:
-                        # Use glob to find matching FASTA files
-                        matching_files = glob.glob(gdrive_path)
-                        if not matching_files:
-                            st.warning("No matching FASTA files found at the specified path/pattern.")
-                            st.stop()  # FIXED: Replace 'return' with st.stop() to halt execution cleanly
-                        
-                        parser = FastaParser()  # FIXED: Instantiate parser here
-                        newly_loaded_count = 0
-                        total_sequences_added = 0
-                        
-                        for file_path in matching_files:
-                            filename = os.path.basename(file_path)
-                            if filename.lower().endswith(('.fasta', '.fas', '.fa', '.fna', '.txt')):
-                                with open(file_path, 'r') as f:
-                                    content_string = f.read()
-                                
+                    progress_bar = st.progress(0, text=T("initializing"))
+                    newly_loaded_count = 0
+                    total_sequences_added = 0
+                    has_errors = False
+
+                    for idx, uploaded_file in enumerate(uploaded_files):
+                        filename = uploaded_file.name
+                        progress_text = f"{T('processing')}: {filename}"
+                        progress_bar.progress((idx) / len(uploaded_files), text=progress_text)
+
+                        if filename not in st.session_state.all_files:
+                            try:
+                                content_bytes = uploaded_file.getvalue()
+                                if filename.lower().endswith('.gz'):
+                                    content_string = gzip.decompress(content_bytes).decode('utf-8', errors='replace')
+                                else:
+                                    content_string = content_bytes.decode('utf-8', errors='replace')
+
                                 sequences, errors = parser.parse(content_string)  # Now uses local parser
-                                
+
                                 if errors:
+                                    has_errors = True
                                     st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
-                                
+
                                 if sequences:
                                     st.session_state.all_files[filename] = sequences
                                     if filename not in st.session_state.original_sequences:
                                         st.session_state.original_sequences[filename] = sequences
                                     newly_loaded_count += 1
                                     total_sequences_added += len(sequences)
-                        
-                        if newly_loaded_count > 0:
-                            msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
-                            st.success(msg)
-                            st.balloons()
-                            if not st.session_state.active_sequences:
-                                st.info(T("info_activate_files"))
-                        else:
-                            st.warning(T("no_new_files"))
+                                else:
+                                    if not errors:
+                                        progress_tracker.log_error(f"No valid sequences found in {filename}")
+
+                            except Exception as e:
+                                progress_tracker.log_error(f"Failed to process {filename}: {str(e)}")
+                                has_errors = True
+
+                    progress_bar.progress(1.0, text=T("processing_complete"))
+                    time.sleep(1)
+                    progress_bar.empty()
+
+                    if newly_loaded_count > 0:
+                        msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
+                        st.success(msg)
+                        st.balloons()
+                        if not st.session_state.active_sequences:
+                            st.info(T("info_activate_files"))
+                    elif not has_errors:
+                        st.warning(T("no_new_files"))
+
+        # --- URL Download (only show if selected) ---
+        elif selected_upload_method == T("upload_url"):
+            st.subheader(T("download_url_header"))
+            url_input = st.text_input(
+                T("url_input_label"),
+                placeholder=T("url_placeholder"),
+                key="url_downloader_input"
+            )
+            if st.button(T("download_url_btn"), use_container_width=True, key="url_download_button"):
+                if url_input and url_input.startswith(('http://', 'https://')):
+                    with st.spinner(T("downloading_from_url").format(url=url_input[:50] + '...')):  # FIXED: Add '...' for truncation
+                        try:
+                            response = requests.get(url_input, timeout=DEFAULT_TIMEOUT, stream=True)
+                            response.raise_for_status()
+
+                            content_disp = response.headers.get('content-disposition')
+                            filename = None
+                            if content_disp:
+                                fname_match = re.search(r'filename="?([^"]+)"?', content_disp)
+                                filename = fname_match.group(1) if fname_match else None
+                            if not filename:
+                                filename = os.path.basename(urllib.parse.urlparse(url_input).path) or f"download_{int(time.time())}.fasta"
+
+                            is_gzipped = filename.lower().endswith('.gz') or response.headers.get('content-encoding') == 'gzip'
+                            content_bytes = response.content
+
+                            if is_gzipped:
+                                content_string = gzip.decompress(content_bytes).decode('utf-8', errors='replace')
+                                filename = filename[:-3] if filename.lower().endswith('.gz') else filename
+                            else:
+                                content_string = content_bytes.decode('utf-8', errors='replace')
+
+                            if content_string:
+                                parser = FastaParser()  # FIXED: Instantiate parser here
+                                sequences, errors = parser.parse(content_string)  # Now uses local parser
+
+                                if errors:
+                                    st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
+
+                                if sequences:
+                                    st.session_state.all_files[filename] = sequences
+                                    st.session_state.original_sequences[filename] = sequences
+                                    st.success(T("downloaded_processed").format(filename=filename, seqs=len(sequences)))
+                                    st.session_state.active_filenames = [filename]
+                                    st.session_state.active_sequences = sequences
+                                    st.info(T("activated_file_info").format(filename=filename))
+                                else:
+                                    progress_tracker.log_error("No valid sequences found in content from URL.")
+                            else:
+                                st.error(T("empty_url_content"))
+
+                        except requests.exceptions.RequestException as e:
+                            st.error(f"HTTP Error: {e}")
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                else:
+                    st.warning(T("invalid_url"))
+
+        # --- Google Drive Upload (only show if selected) ---
+        elif selected_upload_method == T("upload_gdrive"):
+            st.info(T("gdrive_info"), icon="ℹ️")
+            if COLAB_AVAILABLE:  # Only show mount button if in Colab
+                if st.button(T("mount_gdrive_btn")):
+                    try:
+                        with st.spinner("Attempting to mount Google Drive..."):
+                            drive.mount('/content/drive', force_remount=True)
+                        update_status("gdrive_success", level="success")
+                        st.session_state.gdrive_mounted = True
                     except Exception as e:
-                        progress_tracker.log_error(f"Failed to load from Google Drive: {str(e)}")
-    # --- END FIXED ---
+                        update_status(f"Drive Mount Error: {e}", level="error")
+                        st.session_state.gdrive_mounted = False
+            else:
+                # Check if drive might be mounted via Desktop app etc.
+                if not os.path.exists('/content/drive'):
+                    st.warning(T("gdrive_fail"))
+
+            # Allow path input regardless
+            gdrive_path = st.text_input(T("gdrive_path_label"), placeholder="/content/drive/MyDrive/YourFolder/*.fasta")
+            if st.button(T("load_gdrive_btn"), disabled=not gdrive_path):
+                # Check again if accessible before trying glob
+                if not os.path.exists('/content/drive') and not st.session_state.get('gdrive_mounted'):
+                     st.error("Google Drive does not appear to be mounted...")
+                else:
+                    with st.spinner(T("processing_files")):
+                        try:
+                            # Use glob to find matching FASTA files
+                            matching_files = glob.glob(gdrive_path)
+                            if not matching_files:
+                                st.warning("No matching FASTA files found at the specified path/pattern.")
+                                st.stop()  # FIXED: Replace 'return' with st.stop() to halt execution cleanly
+                            
+                            parser = FastaParser()  # FIXED: Instantiate parser here
+                            newly_loaded_count = 0
+                            total_sequences_added = 0
+                            
+                            for file_path in matching_files:
+                                filename = os.path.basename(file_path)
+                                if filename.lower().endswith(('.fasta', '.fas', '.fa', '.fna', '.txt')):
+                                    with open(file_path, 'r') as f:
+                                        content_string = f.read()
+                                    
+                                    sequences, errors = parser.parse(content_string)  # Now uses local parser
+                                    
+                                    if errors:
+                                        st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
+                                    
+                                    if sequences:
+                                        st.session_state.all_files[filename] = sequences
+                                        if filename not in st.session_state.original_sequences:
+                                            st.session_state.original_sequences[filename] = sequences
+                                        newly_loaded_count += 1
+                                        total_sequences_added += len(sequences)
+                            
+                            if newly_loaded_count > 0:
+                                msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
+                                st.success(msg)
+                                st.balloons()
+                                if not st.session_state.active_sequences:
+                                    st.info(T("info_activate_files"))
+                            else:
+                                st.warning(T("no_new_files"))
+                        except Exception as e:
+                            progress_tracker.log_error(f"Failed to load from Google Drive: {str(e)}")
+        # --- END FIXED ---
 
     # ==================== TAB 2: MANAGE DATASETS ====================
     with tab_map["manage_tab"]:
