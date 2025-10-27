@@ -1786,6 +1786,7 @@ with tab_map["upload_tab"]:
         )
 
         if uploaded_files:
+            parser = FastaParser()  # FIXED: Instantiate parser here
             with st.spinner(T("processing_files")):
                 progress_bar = st.progress(0, text=T("initializing"))
                 newly_loaded_count = 0
@@ -1805,7 +1806,7 @@ with tab_map["upload_tab"]:
                             else:
                                 content_string = content_bytes.decode('utf-8', errors='replace')
 
-                            sequences, errors = parser.parse(content_string)
+                            sequences, errors = parser.parse(content_string)  # Now uses local parser
 
                             if errors:
                                 has_errors = True
@@ -1848,7 +1849,7 @@ with tab_map["upload_tab"]:
         )
         if st.button(T("download_url_btn"), use_container_width=True, key="url_download_button"):
             if url_input and url_input.startswith(('http://', 'https://')):
-                with st.spinner(T("downloading_from_url").format(url=url_input[:50] + '...')):
+                with st.spinner(T("downloading_from_url").format(url=url_input[:50] + '...')):  # FIXED: Add '...' for truncation
                     try:
                         response = requests.get(url_input, timeout=DEFAULT_TIMEOUT, stream=True)
                         response.raise_for_status()
@@ -1871,7 +1872,8 @@ with tab_map["upload_tab"]:
                             content_string = content_bytes.decode('utf-8', errors='replace')
 
                         if content_string:
-                            sequences, errors = parser.parse(content_string)
+                            parser = FastaParser()  # FIXED: Instantiate parser here
+                            sequences, errors = parser.parse(content_string)  # Now uses local parser
 
                             if errors:
                                 st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
@@ -1926,8 +1928,9 @@ with tab_map["upload_tab"]:
                         matching_files = glob.glob(gdrive_path)
                         if not matching_files:
                             st.warning("No matching FASTA files found at the specified path/pattern.")
-                            return
+                            st.stop()  # FIXED: Replace 'return' with st.stop() to halt execution cleanly
                         
+                        parser = FastaParser()  # FIXED: Instantiate parser here
                         newly_loaded_count = 0
                         total_sequences_added = 0
                         
@@ -1937,7 +1940,7 @@ with tab_map["upload_tab"]:
                                 with open(file_path, 'r') as f:
                                     content_string = f.read()
                                 
-                                sequences, errors = parser.parse(content_string)
+                                sequences, errors = parser.parse(content_string)  # Now uses local parser
                                 
                                 if errors:
                                     st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
