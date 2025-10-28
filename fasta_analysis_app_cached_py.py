@@ -24,6 +24,7 @@ import io
 import gc
 import urllib.parse
 import glob
+import json
 
 # --- Attempt Google Colab Import ---
 try:
@@ -48,7 +49,7 @@ TRANSLATIONS = {
         "refine_tab": "🎯 Refine & Visualize",
         "export_tab": "📊 Export & Reports",
         "docs_tab": "📖 Documentation",
-        
+
         # Sidebar
         "sidebar_quick_stats": "📊 Quick Stats",
         "sidebar_files_loaded": "📁 Files Loaded",
@@ -61,7 +62,7 @@ TRANSLATIONS = {
         "sidebar_reset_success": "🔄 Session Reset!",
         "sidebar_quick_export": "💾 Quick Export Active FASTA",
         "sidebar_footer": "Vir-Seq-Sift v1.0",
-        
+
         # Upload Tab
         "file_uploader_label": "Upload FASTA files",
         "upload_help_text": "Supports single or multiple files, including .gz compressed",
@@ -82,7 +83,7 @@ TRANSLATIONS = {
         "gdrive_info": "Info: Mounting only works in Google Colab or similar environments.",
         "gdrive_success": "Google Drive mounted successfully at /content/drive.",
         "gdrive_fail": "Could not mount Google Drive (not in a compatible environment).",
-        
+
         # Manage Tab
         "file_manager_empty_title": "No Files Loaded Yet",
         "file_manager_empty_subtitle": "Upload FASTA files via the methods above.",
@@ -113,7 +114,7 @@ TRANSLATIONS = {
         "removed_files_msg": "Removed {count} file(s) from session.",
         "active_dataset": "Active Dataset",
         "active_dataset_info": "No dataset is currently active. Select files above and click 'Activate Selected Files'.",
-        
+
         # Analyze Tab
         "no_active_dataset_title": "⚠️ No Active Dataset",
         "no_active_dataset_msg": "Please activate a dataset in the **{tab}** tab first before running analysis.",
@@ -126,7 +127,7 @@ TRANSLATIONS = {
         "quality_filter": "Quality Filter",
         "subtype_operations": "Subtype Operations",
         "distribution_viewer_title": "📈 Advanced Distribution Viewer",
-        
+
         # Field Names
         "field_label": "Field to Visualize:",
         "field_subtype": "Subtype",
@@ -143,7 +144,7 @@ TRANSLATIONS = {
         "vis_field_clade": "Clade",
         "vis_field_year": "Year",
         "vis_field_month": "Month",
-        
+
         # Chart Types
         "chart_type_label": "Chart Type:",
         "chart_bar": "Bar",
@@ -160,7 +161,7 @@ TRANSLATIONS = {
         "top_n_label": "Show Top N:",
         "category1_label": "Primary Category (X-axis/Groups):",
         "category2_label": "Secondary Category (Stack/Color):",
-        
+
         # Buttons
         "convert_headers_btn": "Convert Headers",
         "quality_filter_btn": "Apply Quality Filter",
@@ -169,21 +170,21 @@ TRANSLATIONS = {
         "filter_subtype_btn": "Filter by Subtype",
         "check_subtypes_btn": "Check Subtype Distribution",
         "generate_chart_btn": "📊 Generate Chart",
-        
+
         # Help Text
         "help_convert_headers": "Standardize headers to pipe format",
         "help_dedup_basic": "Remove identical sequences",
         "help_dedup_advanced": "Remove identical sequences, keeping one per subtype",
         "help_min_length": "Sequences shorter than this will be removed",
         "help_max_n": "Sequences with N-runs longer than this will be removed",
-        
+
         # Labels
         "min_length_label": "Min Sequence Length",
         "max_n_run_label": "Max N-Run Length",
         "subtype_label": "Select Subtype",
         "custom_subtype_placeholder": "e.g., H5N1,H3N2",
         "custom_subtype_label": "Or Custom (comma-sep):",
-        
+
         # Refine Tab
         "clade_monthly_header": "Clade-Based Monthly Filter",
         "clade_mode_single": "Single Clade",
@@ -199,7 +200,7 @@ TRANSLATIONS = {
         "apply_clade_filter_button": "Apply Clade Monthly Filter",
         "no_clade_info": "No clade information available in the active dataset for this filter.",
         "warning_select_clade": "Please select at least one target clade.",
-        
+
         "enhanced_temporal_header": "Enhanced Temporal Diversity Filter",
         "temporal_group_location_host_month_clade": "Location+Host+Month+Clade",
         "temporal_group_location": "Location",
@@ -220,12 +221,12 @@ TRANSLATIONS = {
         "custom_grouping_label": "Custom Grouping Fields (comma-sep):",
         "custom_grouping_placeholder": "e.g., location,host",
         "apply_temporal_filter_button": "Apply Enhanced Temporal Filter",
-        
+
         "extract_accessions_btn": "Extract EPI_ISL Accessions",
         "accession_preview": "Accession Preview (first 20)",
         "accessions_found": "Found {count} accessions. Download available in '{tab}'.",
         "no_accessions_found": "No valid EPI_ISL accession numbers found in the current active dataset.",
-        
+
         # Export Tab
         "last_report_header": "Last Analysis Report",
         "report_content": "Report Content",
@@ -239,10 +240,10 @@ TRANSLATIONS = {
         "download_log_help": "Download complete analysis log",
         "show_log_expander": "Show Current Log",
         "log_preview": "Log Preview",
-        
+
         # Documentation Tab
         "docs_header": "📖 Documentation",
-        
+
         # Status Messages
         "no_data_msg": "No data loaded or activated. Please upload/activate data first.",
         "sequences_loaded": "sequences loaded",
@@ -256,7 +257,7 @@ TRANSLATIONS = {
         "warning_select_subtype": "Please select a subtype (or 'All') or enter custom subtypes.",
         "warning_no_subtype_info": "No subtype information found.",
         "analyzing": "Analyzing...",
-        
+
         # Processing Messages
         "processing_files": "Processing uploaded files...",
         "initializing": "Initializing...",
@@ -270,7 +271,7 @@ TRANSLATIONS = {
         "calculating_distribution": "Calculating Subtype Distribution",
         "applying_temporal_filter": "Applying enhanced temporal filter...",
         "applying_clade_filter": "Applying clade monthly filter...",
-        
+
         # General Messages
         "no_new_files": "No new valid files found or all files already loaded.",
         "empty_url_content": "Empty content received from URL.",
@@ -281,19 +282,19 @@ TRANSLATIONS = {
         "loaded_files": "Loaded {count} new files ({seqs} seqs).",
         "info_activate_files": "💡 Go to 'Manage Datasets' to activate files for analysis.",
         "activated_file_info": "Activated {filename}. Go to 'Manage Datasets' to change.",
-        
+
         # Metrics
         "metric_title": "Active Sequences",
         "gauge_title": "Avg Sequence Length",
         "distribution_title": "Subtype Distribution",
-        
+
         # Units
         "seqs_abbrev": "seqs",
         "bp": "bp",
         "IDs": "IDs",
         "files": "Files",
         "total_seqs": "Total Sequences",
-        
+
         # Footer
         "footer_text": "Vir-Seq-Sift - Viral Genome Analysis Toolkit",
         "keep_label": "Keep",
@@ -301,8 +302,24 @@ TRANSLATIONS = {
         "clade_filter_btn": "Apply Clade Monthly Filter",
         "export_fasta_btn": "Export FASTA",
         "lang_selector": "Language",
+
+        # In "en":
+        "clade_export_tips_single": "**Single Mode**: Gets one clean FASTA for focused analysis (e.g., phylogeny).",
+        "clade_export_tips_multiple": "**Multiple Mode**: Individual buttons for each + ZIP for batching. Sanitized filenames avoid OS issues.",
+        "clade_export_tips_no_filter": "**No Filters Applied**: Exports raw from active dataset—apply monthly filter afterward if needed.",
+
+        "clade_counts_header": "Clade | Sequences",
+        "no_logs_yet": "No logs yet.",
+        "chart_no_data": "Could not generate chart. No data available.",
+        "data_mode_label": "Data Mode:",
+        "data_mode_current": "Current (Filtered)",
+        "data_mode_original": "Original (Pre-Filter)",
+        "data_mode_help": "Current: Uses latest after filters. Original: Snapshots from activation.",
+        # In "en":
+        "docs_header": "## 🧬 Vir-Seq-Sift - User Guide\n\n### Overview\nThis tool provides comprehensive analysis capabilities for influenza and respiratory virus FASTA sequences. Use the tabs to navigate through the workflow: Upload -> Manage -> Analyze -> Refine -> Export.\n\n### Features & Guide\n\n| Feature Tab         | Action                      | Use Case                                                                 | Guide                                                                                                                               |\n| :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |\n| **📁 Upload & Setup**| File Upload / URL Download | Import sequence data from various sources.                               | Use the upload widget or paste a URL. Supports `.fasta`, `.fa`, `.txt`, `.gz`.                                                     |\n|                     | Google Drive (Colab)        | Load from mounted Google Drive in Colab.                                 | Select \"Google Drive\", mount if needed, enter path/pattern, load.                                                                  |\n| **🗂️ Manage Datasets**| Activate / Remove / Merge   | Work with multiple files, choose subsets for analysis.                 | Check files, click 'Activate Selected'. Use 'Remove' or 'Merge & Download'. Active data is used in Analyze/Refine tabs.              |\n| **🔬 Analyze & Process**| Convert Headers             | Standardize headers to `>name|type|...` format.                          | Click 'Convert Headers'. Useful if initial parsing seems incorrect.                                                               |\n|                     | Quality Filter              | Remove low-quality sequences (short or many N's).                        | Adjust sliders for 'Min Length' and 'Max N-Run', then click 'Apply Quality Filter'.                                                |\n|                     | Deduplication (Basic)       | Remove exact sequence duplicates.                                        | Click 'Deduplicate (Sequence Only)'. Keeps the first found instance.                                                              |\n|                     | Deduplication (Advanced)    | Remove duplicates, keeping one per subtype for each unique sequence.   | Click 'Deduplicate (Seq + Subtype)'. Maintains subtype diversity.                                                                   |\n|                     | Subtype Filter              | Isolate sequences of specific subtypes (e.g., H5N1).                     | Select from dropdown or enter custom subtypes (comma-sep), then click 'Apply Subtype Filter'.                                     |\n|                     | Check Subtypes              | Understand subtype proportions in the active dataset.                    | Click 'Check Subtype Distribution'. Displays Pie/Bar charts below.                                                                |\n|                     | Data Visualizer             | Explore distributions (hosts, locations, time, etc.).                    | Select field and chart type (Bar/Pie/Line/Heatmap/Stacked) in the expander, click 'Generate Chart'.                                |\n| **🎯 Refine & Visualize**| Clade Monthly Filter      | Subsample data to get representatives per clade per month.               | Select mode (Single/Multiple), choose clade(s), 'Keep' strategy (First/Last/Both), then click 'Apply'.                            |\n|                     | Enhanced Temporal Filter    | Subsample based on flexible time/metadata grouping.                      | Configure 'Group By', 'Sort By', 'Keep' options, then click 'Apply'. Useful for representative sampling over time/location etc. |\n|                     | Extract Accessions          | Get a list of GISAID EPI_ISL IDs.                                        | Click 'Extract EPI_ISL Accessions'. A download button appears in the **Export** tab.                                               |\n| **📊 Export & Reports** | Export FASTA / Report / Log | Download results, reports, and session logs.                           | Click download buttons for the current active FASTA, the last generated report, or the full session log.                              |\n\n### Tips\n- **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.\n- **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.\n- **Caching**: Parsing is cached; re-uploading the same file content should be faster.\n- **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results.",
+        "docs_tips": "### Tips\n- **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.\n- **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.\n- **Caching**: Parsing is cached; re-uploading the same file content should be faster.\n- **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results."
     },
-    
+
     "ru": {
         # Tab Names
         "app_title": "🧬 Инструмент Анализа FASTA",
@@ -312,7 +329,7 @@ TRANSLATIONS = {
         "refine_tab": "🎯 Уточнение и Визуализация",
         "export_tab": "📊 Экспорт и Отчеты",
         "docs_tab": "📖 Документация",
-        
+
         # Sidebar
         "sidebar_quick_stats": "📊 Быстрая Статистика",
         "sidebar_files_loaded": "📁 Файлов Загружено",
@@ -325,7 +342,7 @@ TRANSLATIONS = {
         "sidebar_reset_success": "🔄 Сессия Сброшена!",
         "sidebar_quick_export": "💾 Быстрый Экспорт FASTA",
         "sidebar_footer": "Vir-Seq-Sift v1.0",
-        
+
         # Upload Tab
         "file_uploader_label": "Загрузить файлы FASTA",
         "upload_help_text": "Поддерживает один или несколько файлов, включая сжатые .gz",
@@ -346,7 +363,7 @@ TRANSLATIONS = {
         "gdrive_info": "Инфо: Подключение работает только в Google Colab или аналогичных средах.",
         "gdrive_success": "Google Drive успешно подключен в /content/drive.",
         "gdrive_fail": "Не удалось подключить Google Drive (несовместимая среда).",
-        
+
         # Manage Tab
         "file_manager_empty_title": "Файлы Еще Не Загружены",
         "file_manager_empty_subtitle": "Загрузите файлы FASTA, используя методы выше.",
@@ -377,7 +394,7 @@ TRANSLATIONS = {
         "removed_files_msg": "Удалено {count} файлов из сессии.",
         "active_dataset": "Активный Набор",
         "active_dataset_info": "Набор данных в данный момент не активен. Выберите файлы выше и нажмите 'Активировать Выбранные'.",
-        
+
         # Analyze Tab
         "no_active_dataset_title": "⚠️ Нет Активного Набора",
         "no_active_dataset_msg": "Пожалуйста, активируйте набор данных на вкладке **{tab}** перед запуском анализа.",
@@ -390,7 +407,7 @@ TRANSLATIONS = {
         "quality_filter": "Фильтр Качества",
         "subtype_operations": "Операции с Подтипами",
         "distribution_viewer_title": "📈 Расширенный Просмотр Распределений",
-        
+
         # Field Names
         "field_label": "Поле для Визуализации:",
         "field_subtype": "Подтип",
@@ -407,7 +424,7 @@ TRANSLATIONS = {
         "vis_field_clade": "Клада",
         "vis_field_year": "Год",
         "vis_field_month": "Месяц",
-        
+
         # Chart Types
         "chart_type_label": "Тип Диаграммы:",
         "chart_bar": "Столбчатая",
@@ -424,7 +441,7 @@ TRANSLATIONS = {
         "top_n_label": "Показать Топ N:",
         "category1_label": "Основная Категория (Ось X/Группы):",
         "category2_label": "Вторичная Категория (Стек/Цвет):",
-        
+
         # Buttons
         "convert_headers_btn": "Конвертировать Заголовки",
         "quality_filter_btn": "Применить Фильтр Качества",
@@ -433,21 +450,21 @@ TRANSLATIONS = {
         "filter_subtype_btn": "Фильтр по Подтипу",
         "check_subtypes_btn": "Проверить Распределение Подтипов",
         "generate_chart_btn": "📊 Создать Диаграмму",
-        
+
         # Help Text
         "help_convert_headers": "Стандартизировать заголовки в формат с разделителями",
         "help_dedup_basic": "Удалить идентичные последовательности",
         "help_dedup_advanced": "Удалить идентичные последовательности, сохраняя по одной на подтип",
         "help_min_length": "Последовательности короче этой длины будут удалены",
         "help_max_n": "Последовательности с N-серией длиннее этого будут удалены",
-        
+
         # Labels
         "min_length_label": "Мин. Длина Последовательности",
         "max_n_run_label": "Макс. Длина N-Серии",
         "subtype_label": "Выбрать Подтип",
         "custom_subtype_placeholder": "например, H5N1,H3N2",
         "custom_subtype_label": "Или Пользовательские (через запятую):",
-        
+
         # Refine Tab
         "clade_monthly_header": "Фильтр по Кладам и Месяцам",
         "clade_mode_single": "Одна Клада",
@@ -463,7 +480,7 @@ TRANSLATIONS = {
         "apply_clade_filter_button": "Применить Фильтр Клад и Месяцев",
         "no_clade_info": "Информация о кладах недоступна в активном наборе для этого фильтра.",
         "warning_select_clade": "Пожалуйста, выберите хотя бы одну целевую кладу.",
-        
+
         "enhanced_temporal_header": "Улучшенный Временной Фильтр Разнообразия",
         "temporal_group_location_host_month_clade": "Место+Хозяин+Месяц+Клада",
         "temporal_group_location": "Местоположение",
@@ -484,12 +501,12 @@ TRANSLATIONS = {
         "custom_grouping_label": "Поля для Группировки (через запятую):",
         "custom_grouping_placeholder": "например, location,host",
         "apply_temporal_filter_button": "Применить Улучшенный Временной Фильтр",
-        
+
         "extract_accessions_btn": "Извлечь EPI_ISL Номера",
         "accession_preview": "Предпросмотр Номеров (первые 20)",
         "accessions_found": "Найдено {count} номеров. Скачать можно на '{tab}'.",
         "no_accessions_found": "Не найдено валидных EPI_ISL номеров в текущем активном наборе.",
-        
+
         # Export Tab
         "last_report_header": "Последний Отчет Анализа",
         "report_content": "Содержание Отчета",
@@ -503,10 +520,10 @@ TRANSLATIONS = {
         "download_log_help": "Скачать полный лог анализа",
         "show_log_expander": "Показать Текущий Лог",
         "log_preview": "Предпросмотр Лога",
-        
+
         # Documentation Tab
         "docs_header": "📖 Документация",
-        
+
         # Status Messages
         "no_data_msg": "Данные не загружены или не активированы. Сначала загрузите/активируйте данные.",
         "sequences_loaded": "последовательностей загружено",
@@ -520,7 +537,7 @@ TRANSLATIONS = {
         "warning_select_subtype": "Пожалуйста, выберите подтип (или 'Все') или введите пользовательские подтипы.",
         "warning_no_subtype_info": "Информация о подтипах не найдена.",
         "analyzing": "Анализ...",
-        
+
         # Processing Messages
         "processing_files": "Обработка загруженных файлов...",
         "initializing": "Инициализация...",
@@ -534,7 +551,7 @@ TRANSLATIONS = {
         "calculating_distribution": "Вычисление Распределения Подтипов",
         "applying_temporal_filter": "Применение улучшенного временного фильтра...",
         "applying_clade_filter": "Применение месячного фильтра клад...",
-        
+
         # General Messages
         "no_new_files": "Новые валидные файлы не найдены или все файлы уже загружены.",
         "empty_url_content": "Получен пустой контент из URL.",
@@ -545,19 +562,19 @@ TRANSLATIONS = {
         "loaded_files": "Загружено {count} новых файлов ({seqs} посл.).",
         "info_activate_files": "💡 Перейдите в 'Управление Наборами' для активации файлов.",
         "activated_file_info": "Активирован {filename}. Перейдите в 'Управление Наборами' для изменений.",
-        
+
         # Metrics
         "metric_title": "Активные Последовательности",
         "gauge_title": "Средняя Длина Последовательности",
         "distribution_title": "Распределение Подтипов",
-        
+
         # Units
         "seqs_abbrev": "посл.",
         "bp": "п.н.",
         "IDs": "ID",
         "files": "Файлы",
         "total_seqs": "Всего Последовательностей",
-        
+
         # Footer
         "footer_text": "Vir-Seq-Sift - Инструмент Анализа Вирусных Геномов",
         "keep_label": "Оставить",
@@ -565,6 +582,79 @@ TRANSLATIONS = {
         "clade_filter_btn": "Применить Фильтр Клады",
         "export_fasta_btn": "Экспорт FASTA",
         "lang_selector": "Язык",
+
+        # In "ru":
+        "clade_export_tips_single": "**Одиночный режим**: Получает один чистый FASTA для фокусированного анализа (например, филогении).",
+        "clade_export_tips_multiple": "**Множественный режим**: Индивидуальные кнопки для каждого + ZIP для пакетной обработки. Санитизированные имена файлов избегают проблем ОС.",
+        "clade_export_tips_no_filter": "**Фильтры не применяются**: Экспортирует сырые данные из активного набора—примените месячный фильтр после, если нужно.",
+
+        "clade_counts_header": "Клада | Последовательностей",
+        "no_logs_yet": "Логов пока нет.",
+        "chart_no_data": "Не удалось создать диаграмму. Данные недоступны.",
+        # Add to "ru" (before closing } ):
+      "data_mode_label": "Режим Данных:",
+      "data_mode_current": "Текущий (Отфильтрованный)",
+      "data_mode_original": "Оригинальный (До Фильтра)",
+      "data_mode_help": "Текущий: Использует последние после фильтров. Оригинальный: Снимки с активации.",
+        # In "ru" (translated equivalent—use Google Translate or manual for accuracy):
+        "docs_header": "## 🧬 Vir-Seq-Sift - Руководство пользователя\n\n### Обзор\nЭтот инструмент предоставляет комплексные возможности анализа для FASTA-последовательностей гриппа и респираторных вирусов. Используйте вкладки для навигации по рабочему процессу: Загрузка -> Управление -> Анализ -> Уточнение -> Экспорт.\n\n### Функции и руководство\n\n| Вкладка функции     | Действие                    | Случай использования                                                      | Руководство                                                                                                                         |\n| :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |\n| **📁 Загрузка и Настройка**| Загрузка файлов / Скачивание по URL | Импорт данных последовательностей из различных источников.               | Используйте виджет загрузки или вставьте URL. Поддерживает `.fasta`, `.fa`, `.txt`, `.gz`.                                         |\n|                     | Google Drive (Colab)        | Загрузка из подключенного Google Drive в Colab.                          | Выберите \"Google Drive\", подключите при необходимости, введите путь/шаблон, загрузите.                                            |\n| **🗂️ Управление Наборами**| Активация / Удаление / Объединение | Работа с несколькими файлами, выбор подмножеств для анализа.             | Отметьте файлы, нажмите 'Активировать Выбранные'. Используйте 'Удалить' или 'Объединить и Скачать'. Активные данные используются во вкладках Анализ/Уточнение. |\n| **🔬 Анализ и Обработка**| Конвертация Заголовков      | Стандартизация заголовков в формат `>name|type|...`.                     | Нажмите 'Конвертировать Заголовки'. Полезно, если начальный парсинг кажется неверным.                                              |\n|                     | Фильтр Качества             | Удаление низкокачественных последовательностей (коротких или с многими N). | Настройте слайдеры для 'Мин. Длина' и 'Макс. N-Серия', затем нажмите 'Применить Фильтр Качества'.                                   |\n|                     | Дедупликация (Базовая)      | Удаление точных дубликатов последовательностей.                          | Нажмите 'Дедупликация (Только Последовательность)'. Сохраняет первое найденное.                                                   |\n|                     | Дедупликация (Продвинутая)  | Удаление дубликатов, сохраняя по одной на подтип для уникальной последовательности. | Нажмите 'Дедупликация (Последовательность + Подтип)'. Сохраняет разнообразие подтипов.                                             |\n|                     | Фильтр Подтипа              | Изоляция последовательностей конкретных подтипов (например, H5N1).       | Выберите из выпадающего списка или введите пользовательские подтипы (через запятую), затем нажмите 'Применить Фильтр Подтипа'.       |\n|                     | Проверка Подтипов           | Понимание пропорций подтипов в активном наборе.                          | Нажмите 'Проверить Распределение Подтипов'. Отображает Круговые/Столбчатые диаграммы ниже.                                        |\n|                     | Визуализатор Данных         | Исследование распределений (хозяева, местоположения, время и т.д.).      | Выберите поле и тип диаграммы (Столбчатая/Круговая/Линейная/Тепловая/Составная) в расширителе, нажмите 'Создать Диаграмму'.           |\n| **🎯 Уточнение и Визуализация**| Месячный Фильтр по Кладам | Подвыборка данных для получения представителей на кладу в месяц.         | Выберите режим (Одиночный/Множественный), кладу(ы), стратегию 'Сохранить' (Первая/Последняя/Обе), затем нажмите 'Применить'.         |\n|                     | Улучшенный Временной Фильтр | Подвыборка на основе гибкой группировки по времени/метаданным.           | Настройте 'Группировать по', 'Сортировать по', опции 'Сохранить', затем нажмите 'Применить'. Полезно для репрезентативной выборки по времени/местоположению и т.д. |\n|                     | Извлечение Акцессий         | Получение списка ID EPI_ISL GISAID.                                      | Нажмите 'Извлечь EPI_ISL Акцессии'. Кнопка скачивания появляется во вкладке **Экспорт**.                                           |\n| **📊 Экспорт и Отчеты** | Экспорт FASTA / Отчет / Лог | Скачивание результатов, отчетов и логов сессии.                         | Нажмите кнопки скачивания для текущего активного FASTA, последнего отчета или полного лога сессии.                                 |\n\n### Советы\n- **Активация Ключ**: Только последовательности из *активированных* наборов (во вкладке Управление) используются для анализа и уточнения.\n- **Большие Файлы**: Обработка больших файлов может занять время. Используйте индикаторы спиннеров/прогресса.\n- **Кэширование**: Парсинг кэшируется; повторная загрузка того же содержимого файла должна быть быстрее.\n- **Данные Сессии**: Вся работа хранится в сессии браузера и потеряется при закрытии вкладки или обновлении без повторной загрузки. Используйте вкладку Экспорт для сохранения результатов.",
+        "docs_tips": "### Советы\n- **Активация Ключ**: Только последовательности из *активированных* наборов (во вкладке Управление) используются для анализа и уточнения.\n- **Большие Файлы**: Обработка больших файлов может занять время. Используйте индикаторы спиннеров/прогресса.\n- **Кэширование**: Парсинг кэшируется; повторная загрузка того же содержимого файла должна быть быстрее.\n- **Данные Сессии**: Вся работа хранится в сессии браузера и потеряется при закрытии вкладки или обновлении без повторной загрузки. Используйте вкладку Экспорт для сохранения результатов."
+    }
+}
+
+# ==================== COLOR SCHEMES ====================
+# 8 schemes per chart type: lists of hex for discrete (Bar/Pie/Stacked), scale names/lists for continuous (Line/Heatmap)
+# Discrete: Use as color_discrete_sequence; Continuous: Use as color_continuous_scale or extracted list
+schemes_by_chart = {
+    'bar': {
+        'Genomic Helix': px.colors.sequential.Viridis_r,  # Sequential, reverse for low-to-high
+        'Spike Protein Surge': ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#fccde5'],
+        'Nature Journal Clean': ['#E64B35', '#4DBBD5', '#00A087', '#3C5488', '#F39B7F', '#8491B4', '#91D1C2', '#B09C85'],
+        'Epi Alert': px.colors.sequential.Reds,
+        'Helix Blues': px.colors.qualitative.Pastel1,
+        'Mutation Spectrum': px.colors.diverging.RdBu_r,
+        'Sci-Fi Nebula': px.colors.qualitative.Dark2,
+        'BioPrint Neutral': px.colors.sequential.Greys
+    },
+    'pie': {
+        'Viral Mosaic': px.colors.qualitative.Set1,
+        'Outbreak Slices': ['#7fcdbb', '#2c7fb8', '#41b6c4', '#a63603', '#f03b20', '#fee0d2', '#fcbba1', '#fc9272'],
+        'Journal Crisp': ['#00A087', '#3C5488', '#F39B7F', '#8491B4', '#D55E00', '#CC79A7', '#0072B2', '#009E73'],
+        'Helix Harmony': px.colors.qualitative.Pastel2,
+        'Mutation Pie': px.colors.diverging.PRGn,
+        'Nebula Burst': px.colors.qualitative.Set2,
+        'Eco Gradient': px.colors.sequential.YlGn,
+        'PrintSafe': ['#000000', '#404040', '#808080', '#BFBFBF', '#C0C0C0', '#DFDFDF', '#F0F0F0', '#FFFFFF']
+    },
+    'line': {
+        'Timeline Helix': px.colors.sequential.Plasma,
+        'Pandemic Wave': px.colors.diverging.Spectral,
+        'Evo Path': px.colors.sequential.Greens,
+        'Journal Timeline': ['#E31A1C', '#1F78B4', '#33A02C', '#FF7F00', '#6A3A4C', '#FB9A99', '#B15928', '#FDBF6F'],
+        'Quantum Fluctuation': px.colors.diverging.PiYG,
+        'Bio Rhythm': px.colors.sequential.Oranges,
+        'Nebula Trail': px.colors.sequential.Purples,
+        'Uniform Flow': px.colors.sequential.Cividis
+    },
+    'heatmap': {
+        'Global Outbreak': px.colors.sequential.Reds,
+        'Genomic Density': px.colors.diverging.RdBu_r,
+        'Eco Layers': px.colors.sequential.YlGnBu,
+        'Journal Matrix': ['#E69F00', '#56B4E9', '#009E73', '#F0E442', '#0072B2', '#D55E00', '#CC79A7', '#F39B7F'],
+        'Helix Intensity': px.colors.sequential.Inferno,
+        'Variant Clash': px.colors.diverging.PRGn_r,
+        'Nebula Density': px.colors.sequential.Magma,
+        'Print Heat': px.colors.sequential.Greys
+    },
+    'stacked': {
+        'Layered Genomes': px.colors.qualitative.Set2,
+        'Host Stacks': ['#8c510a', '#d8b365', '#f6e8c3', '#c7eae5', '#5ab4ac', '#01665e', '#f03b20', '#fee0d2'],
+        'Pub Stack': ['#D55E00', '#0072B2', '#009E73', '#CC79A7', '#E69F00', '#F0E442', '#56B4E9', '#00A087'],
+        'Mutation Layers': ['#543005', '#f5f5f5', '#003c30', '#8c510a', '#bf812d', '#dfc27d', '#80cdc1', '#35978f'],#px.colors.diverging.BrBG,
+        'Nebula Layers': px.colors.qualitative.Paired,
+        'Outbreak Build': px.colors.sequential.OrRd,
+        'Bio Harmony': px.colors.qualitative.Pastel1,
+        'Uniform Stack': ['#000000', '#1b365d', '#4b5e9d', '#7b7bcd', '#ad6aaa', '#dd5182', '#ff6b5b', '#ffa600']
     }
 }
 
@@ -803,12 +893,12 @@ class FastaConverter:
         """Convert headers to pipe format"""
         converted = []
         errors = []
-        
+
         for header, seq, metadata in self.sequences:
             try:
                 date_obj = metadata.get("collection_date")
                 date_str = date_obj.strftime("%Y-%m-%d") if date_obj else "Unknown"
-                
+
                 parts = [
                     metadata.get('isolate_name', 'Unknown'),
                     metadata.get('type', 'Unknown'),
@@ -819,14 +909,14 @@ class FastaConverter:
                     metadata.get('host', 'Unknown'),
                     metadata.get('location', 'Unknown')
                 ]
-                
+
                 header_parts = [str(p) for p in parts if p and p != "Unknown"]
                 new_header = ">" + "|".join(header_parts)
                 converted.append([new_header, seq, metadata])
             except Exception as e:
                 errors.append(f"Error converting header '{header}': {str(e)}")
                 converted.append([header, seq, metadata])
-        
+
         return converted, errors
 
 class SequenceAnalyzer:
@@ -862,7 +952,7 @@ class SequenceAnalyzer:
         progress_tracker.start_operation(operation_name)
         converter = FastaConverter(self.sequences, progress_tracker)
         converted_seqs, errors = converter.run()
-        
+
         st.session_state.active_sequences = converted_seqs
         st.session_state.last_report = (
             f"Operation: {operation_name}\n"
@@ -1070,7 +1160,7 @@ class SequenceAnalyzer:
             [row['header'], row['seq'], row['metadata']]
             for _, row in filtered_df.iterrows()
         ]
-        
+
         original_headers = {h for h, _, _ in self.sequences}
         final_headers = {h for h, _, _ in final_sequences}
         removed_headers = list(original_headers - final_headers)
@@ -1157,7 +1247,7 @@ class SequenceAnalyzer:
         progress_tracker.start_operation("Extracting Accession Numbers")
         accessions = []
         seen_accessions = set()
-        
+
         for header, seq, metadata in self.sequences:
             acc = metadata.get('isolate_id', '').strip()
             if acc and acc != DEFAULT_UNKNOWN and acc.startswith('EPI'):
@@ -1176,6 +1266,98 @@ class SequenceAnalyzer:
 
         progress_tracker.complete_operation(f"Found {len(accessions)} unique EPI_ISL accessions")
         return accessions
+
+    def export_clades(self, selected_clades, export_mode='individual', zip_filename='clade_exports'):
+        """Group and export sequences by selected clades (non-destructive)."""
+        if not self.sequences:
+            st.warning("No sequences available for clade export.")
+            return None
+
+        progress_tracker.start_operation("Grouping and exporting clades")
+
+        # Group sequences by clade
+        clade_groups = defaultdict(list)
+        for header, seq, metadata in self.sequences:
+            clade = metadata.get('clade', DEFAULT_UNKNOWN)
+            if clade != DEFAULT_UNKNOWN:
+                clade_groups[clade].append((header, seq, metadata))
+
+        if not clade_groups:
+            progress_tracker.log_error("No clade data found in sequences.")
+            return None
+
+        exported_files = {}  # Dict of clade: fasta_str
+        if export_mode == 'individual':
+            # Single clade: One FASTA
+            if len(selected_clades) != 1:
+                st.error("Individual mode requires exactly one clade selected.")
+                return None
+            clade = selected_clades[0]
+            if clade not in clade_groups:
+                st.warning(f"No sequences found for clade '{clade}'.")
+                return None
+
+            fasta_io = io.StringIO()
+            for header, seq, _ in clade_groups[clade]:
+                h = header if header.startswith('>') else '>' + header
+                fasta_io.write(f"{h}\n{seq}\n")
+            fasta_str = fasta_io.getvalue()
+            exported_files[clade] = fasta_str
+            filename = f"{clade.replace('/', '_').replace('|', '_')}_clade.fasta"  # Enhanced sanitize
+            st.download_button(
+                label=f"⬇️ Download {clade} FASTA ({len(clade_groups[clade])} seqs)",
+                data=fasta_str,
+                file_name=filename,
+                mime="text/plain",
+                key=f"download_clade_{clade}"
+            )
+        else:  # Multiple: ZIP + Individual Buttons
+            if len(selected_clades) < 2:
+                st.error("Multiple mode requires at least two clades.")
+                return None
+
+            # Pre-build FASTA strings for individuals and ZIP
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for clade in selected_clades:
+                    if clade in clade_groups:
+                        fasta_io = io.StringIO()
+                        for header, seq, _ in clade_groups[clade]:
+                            h = header if header.startswith('>') else '>' + header
+                            fasta_io.write(f"{h}\n{seq}\n")
+                        fasta_str = fasta_io.getvalue()
+                        exported_files[clade] = fasta_str
+                        filename = f"{clade.replace('/', '_').replace('|', '_')}.fasta"
+                        zipf.writestr(filename, fasta_str)
+                        # NEW: Individual download button for each
+                        st.download_button(
+                            label=f"⬇️ {clade} FASTA ({len(clade_groups[clade])} seqs)",
+                            data=fasta_str,
+                            file_name=filename,
+                            mime="text/plain",
+                            key=f"download_clade_multi_{clade}"
+                        )
+                    else:
+                        st.warning(f"No sequences for clade '{clade}'—skipped.")
+
+            # ZIP Download (kept as-is)
+            zip_buffer.seek(0)
+            total_seqs = sum(len(clade_groups[c]) for c in selected_clades if c in clade_groups)
+            st.download_button(
+                label=f"⬇️ ZIP: {len(exported_files)} Clades ({total_seqs} total seqs)",
+                data=zip_buffer.getvalue(),
+                file_name=f"{datetime.now().strftime('%Y%m%d_%H%M')}_clade_exports.zip",
+                mime="application/zip",
+                key="download_clade_zip"
+            )
+            # Preview: Show counts
+            st.write("**Clade Breakdown:**")
+            for clade, fasta_str in exported_files.items():
+                seq_count = len([line for line in fasta_str.split('\n') if line.startswith('>')])
+                st.write(f"- {clade}: {seq_count} sequences")
+
+        progress_tracker.complete_operation(f"Exported {len(exported_files)} clade(s)")
+        return exported_files
 
 # ==================== VISUALIZATION FUNCTIONS ====================
 def create_metric_indicator(value, title_key, lang="en"):
@@ -1196,6 +1378,7 @@ def create_metric_indicator(value, title_key, lang="en"):
     )
     return fig
 
+
 def create_gauge_indicator(value, max_value, title_key, lang="en"):
     """Create a gauge indicator"""
     title = get_translation(title_key, lang)
@@ -1213,17 +1396,23 @@ def create_gauge_indicator(value, max_value, title_key, lang="en"):
                    {'range': [0, max_value * 0.5], 'color': '#e5e7eb'},
                    {'range': [max_value * 0.5, max_value * 0.8], 'color': '#d1d5db'}],
                'threshold': {'line': {'color': "#ef4444", 'width': 4}, 'thickness': 0.8, 'value': max_value * 0.9}},
-        number={'font': {'size': 30}, 'suffix': f" {get_translation('bp', lang)}"}
+        # FIXED: Explicit centering for number
+        number={'x': 0.5, 'y': 0.5, 'xanchor': 'center', 'yanchor': 'middle',
+                'font': {'size': 30}, 'suffix': f" {get_translation('bp', lang)}",
+                'prefix': ''}  # Optional: Add prefix if needed (e.g., "~")
     ))
     fig.update_layout(
-        height=200,
-        margin=dict(l=20, r=20, t=50, b=10),
+        height=220,  # Slight increase for better number fit
+        margin=dict(l=20, r=20, t=50, b=20),  # Symmetric bottom for balance
         paper_bgcolor='rgba(0,0,0,0)',
-        font={'color': "#374151"}
+        font={'color': "#374151"},
+        # FIXED: Ensure gauge domain doesn't overlap number
+        gauge_domain={'x': [0, 1], 'y': [0, 0.7]}  # Compress gauge to top 70%, number in bottom 30%
     )
     return fig
 
-def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar'):
+
+def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar', color_scheme=None):
     """Create distribution pie or bar charts"""
     if not data_dict:
         fig = go.Figure()
@@ -1248,17 +1437,31 @@ def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar')
 
     if chart_type.lower() == 'pie':
         fig = px.pie(df, values='Count', names='Category', title=f"{title}",
-                     color_discrete_sequence=px.colors.qualitative.Pastel1)
+                     color_discrete_sequence=color_scheme)
         fig.update_traces(textposition='inside', textinfo='percent+label', pull=[0.05]*len(df))
         fig.update_layout(legend_title_text='Categories', showlegend=True)
     else:
-        fig = px.bar(df.sort_values('Count', ascending=True),
-                     y='Category', x='Count', title=f"{title}", text_auto=True,
-                     orientation='h',
-                     color='Count',
-                     color_continuous_scale=px.colors.sequential.Blues)
-        fig.update_layout(yaxis_title=None, xaxis_title="Count", coloraxis_showscale=False)
-        fig.update_yaxes(categoryorder='total ascending')
+        # POLISH: Conditional discrete vs. continuous for bar
+        if isinstance(color_scheme, list) and len(color_scheme) >= 2:  # Discrete list scheme
+            fig = px.bar(df.sort_values('Count', ascending=True),
+                         y='Category', x='Count', title=f"{title}", text_auto=True,
+                         orientation='h',
+                         color='Category',  # Color each bar by category
+                         color_discrete_sequence=color_scheme)  # Apply discrete colors
+            fig.update_layout(yaxis_title=None, xaxis_title="Count", showlegend=False,  # No legend needed (categories on y)
+                              coloraxis_showscale=False)
+            fig.update_yaxes(categoryorder='total ascending')
+        else:  # Continuous fallback (gradient by count)
+            fig = px.bar(df.sort_values('Count', ascending=True),
+                         y='Category', x='Count', title=f"{title}", text_auto=True,
+                         orientation='h',
+                         color='Count',
+                         color_continuous_scale=color_scheme)
+            fig.update_layout(yaxis_title=None, xaxis_title="Count", coloraxis_showscale=False)
+            fig.update_yaxes(categoryorder='total ascending')
+
+    if color_scheme:
+        fig = apply_color_scheme(fig, color_scheme, chart_type, len(df))
 
     fig.update_layout(
         margin=dict(t=50, b=20, l=20, r=20),
@@ -1269,7 +1472,7 @@ def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar')
     return fig
 
 # ==================== NEW PLOTLY VISUALIZATION FUNCTIONS ====================
-def create_temporal_chart(sequences, interval='month', lang='en'):
+def create_temporal_chart(sequences, interval='month', lang='en', color_scheme=None):
     """Generate a Plotly line chart for sequences over time."""
     progress_tracker.start_operation(f"Generating Temporal Chart (Interval: {interval})")
     df_data = [{'date': item[2].get('collection_date')} for item in sequences if item[2].get('collection_date')]
@@ -1307,56 +1510,89 @@ def create_temporal_chart(sequences, interval='month', lang='en'):
 
     fig = px.line(counts_df, x='Period', y='Count',
                   title=title_text,
-                  markers=True, text='Count')
-    fig.update_traces(textposition="top center")
+                  markers=True, text='Count', line_dash_sequence=color_scheme if isinstance(color_scheme, list) else None)
+    fig.update_traces(textposition="top center", line_dash_sequence=color_scheme if isinstance(color_scheme, list) else None)
     fig.update_layout(
         xaxis_title="Time Period", yaxis_title="Number of Sequences",
         margin=dict(t=50, b=20, l=20, r=20),
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
     progress_tracker.complete_operation("Temporal chart generated")
+    # NEW: For line-specific
+    if color_scheme and isinstance(color_scheme, str):  # Scale for multi-lines if extended
+        fig.update_traces(line=dict(color=color_scheme))
+
     return fig
 
-def create_geographic_heatmap(sequences, top_n=20, lang='en'):
-    """Generate a Plotly horizontal bar chart simulating a heatmap."""
-    progress_tracker.start_operation(f"Generating Geographic Heatmap (Top {top_n})")
-    # Exclude DEFAULT_UNKNOWN from counts if it exists
-    location_counts = Counter(item[2].get('location', DEFAULT_UNKNOWN) for item in sequences if item[2].get('location', DEFAULT_UNKNOWN) != DEFAULT_UNKNOWN)
+def create_geographic_heatmap(sequences, top_n=20, field='location', lang='en', color_scheme=None):
+    """Generate a Plotly horizontal bar chart (simulating a heatmap) for any metadata field distribution."""
+    progress_tracker.start_operation(f"Generating {field.capitalize()} Heatmap (Top {top_n})")
 
-    if not location_counts:
-        progress_tracker.log_error("No location information found for heatmap.")
+    # NEW: Dynamic exclusion of DEFAULT_UNKNOWN
+    valid_items = [item[2].get(field, DEFAULT_UNKNOWN) for item in sequences if item[2].get(field, DEFAULT_UNKNOWN) != DEFAULT_UNKNOWN]
+    if not valid_items:
+        progress_tracker.log_error(f"No {field} information found for heatmap.")
         fig = go.Figure()
-        fig.update_layout(title="Geographic Distribution (No Data)", xaxis={'visible': False}, yaxis={'visible': False},
-                          annotations=[{'text': 'No location data available', 'xref': 'paper', 'yref': 'paper', 'showarrow': False, 'font': {'size': 16}}])
+        fig.update_layout(title=f"{field.capitalize()} Distribution (No Data)", xaxis={'visible': False}, yaxis={'visible': False},
+                          annotations=[{'text': f'No {field} data available', 'xref': 'paper', 'yref': 'paper', 'showarrow': False, 'font': {'size': 16}}])
         return fig
 
-    top_locations = location_counts.most_common(top_n)
-    df = pd.DataFrame(top_locations, columns=['Location', 'Count'])
+    # NEW: Use analyzer for dynamic counts (reuse existing method)
+    analyzer = SequenceAnalyzer(sequences)  # Temp instance for distribution
+    counts = analyzer.get_metadata_distribution(field)
 
-    # Use translation for title
+    # Filter out Unknown/empty
+    filtered_counts = {k: v for k, v in counts.items() if k != DEFAULT_UNKNOWN and k}
+    if not filtered_counts:
+        # Fallback error
+        progress_tracker.log_error(f"No valid {field} data after filtering.")
+        fig = go.Figure()
+        fig.update_layout(title=f"{field.capitalize()} Distribution (No Valid Data)")
+        return fig
+
+    top_items = sorted(filtered_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    df = pd.DataFrame(top_items, columns=[field.capitalize(), 'Count'])
+
+    # Use translation for title if available, else dynamic
     T = lambda key: get_translation(key, lang)
-    title_text = f"Top {len(df)} Locations by Sequence Count"
+    field_display = T(f"vis_field_{field}") if f"vis_field_{field}" in TRANSLATIONS.get(lang, {}) else field.capitalize()
+    title_text = f"Top {len(df)} {field_display}s by Sequence Count"
 
-    fig = px.bar(df.sort_values('Count', ascending=True), # Sort for horizontal bar
-                 y='Location', x='Count',
+    # UPDATED: Bar with dynamic field on y-axis
+    fig = px.bar(df.sort_values('Count', ascending=True),  # Sort for horizontal
+                 y=field.capitalize(), x='Count',
                  title=title_text,
                  text_auto=True, orientation='h',
                  color='Count',
-                 color_continuous_scale=px.colors.sequential.OrRd) # Orange-Red scale
+                 color_continuous_scale=color_scheme)  # From prior updates
 
     fig.update_layout(
-        yaxis_title=None, xaxis_title="Number of Sequences",
-        coloraxis_showscale=False, # Hide color bar legend
+        yaxis_title=field_display,  # Dynamic y-label
+        xaxis_title="Number of Sequences",
+        coloraxis_showscale=False,  # Hide color bar legend
         margin=dict(t=50, b=20, l=20, r=20),
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
-    progress_tracker.complete_operation("Geographic heatmap generated")
+
+    # NEW: Apply scheme if provided (from prior updates)
+    if color_scheme:
+        fig = apply_color_scheme(fig, color_scheme, 'heatmap')
+
+    progress_tracker.complete_operation(f"{field.capitalize()} heatmap generated")
     return fig
 
-def create_stacked_bar_chart(sequences, category1='location', category2='type', top_n=15, lang='en'):
+
+def create_stacked_bar_chart(sequences, category1='location', category2='type', top_n=15, lang='en', color_scheme=None):
     """Generate a Plotly stacked bar chart."""
     progress_tracker.start_operation(f"Generating Stacked Bar ({category1} vs {category2}, Top {top_n})")
     T = lambda key: get_translation(key, lang)
+
+    # UPDATED: Param validation for dynamic fields
+    if category1 not in ['location', 'host', 'clade', 'type', 'segment', 'year', 'month'] or category2 not in ['location', 'host', 'clade', 'type', 'segment', 'year', 'month']:
+        progress_tracker.log_error(f"Invalid categories: {category1} or {category2}. Use valid parser fields.")
+        fig = go.Figure()
+        fig.update_layout(title=f"Stacked Bar: Invalid Categories (No Data)")
+        return fig
 
     # Helper to get field value, handling date fields
     def get_field(metadata, field):
@@ -1424,13 +1660,53 @@ def create_stacked_bar_chart(sequences, category1='location', category2='type', 
     )
     fig.update_xaxes(tickangle=45)
 
+    # UPDATED: Apply color scheme if provided (from prior updates)
+    if color_scheme:
+        fig = apply_color_scheme(fig, color_scheme, 'stacked', len(df_filtered))
+
     progress_tracker.complete_operation("Stacked bar chart generated")
+    return fig
+
+def nucleotide_palette(seq_sample):
+    """Creative: Generate palette inspired by nucleotide frequencies (A=green, T=red, etc.)."""
+    if not seq_sample:
+        return px.colors.sequential.Blues  # Default
+    sample = seq_sample.upper()[:100]  # First 100 bases
+    counts = Counter(sample)
+    total = len(sample)
+    gc_ratio = (counts.get('G', 0) + counts.get('C', 0)) / total if total > 0 else 0.5
+    at_ratio = 1 - gc_ratio
+    # Blend: High GC -> Greens, High AT -> Reds/Oranges
+    if gc_ratio > 0.6:
+        return px.colors.sequential.Greens
+    elif at_ratio > 0.6:
+        return px.colors.sequential.Reds
+    else:
+        return px.colors.sequential.Purples  # Balanced
+
+def apply_color_scheme(fig, color_scheme, chart_type, data_len=0):
+    """Helper: Apply color scheme to figure based on type."""
+    if isinstance(color_scheme, str):  # Scale name
+        if 'heatmap' in chart_type or 'line' in chart_type:
+            fig.update_layout(coloraxis_colorbar=dict(title="Intensity"))
+            fig.update_traces(colorscale=color_scheme)
+        else:
+            fig.update_layout(coloraxis_colorscale=color_scheme)
+    else:  # List of hex/colors
+        if 'pie' in chart_type or 'bar' in chart_type or 'stacked' in chart_type:
+            # Truncate/extend list to data_len
+            colors = color_scheme[:data_len] if data_len else color_scheme
+            fig.update_traces(marker_colors=colors)
+        elif 'line' in chart_type:
+            fig.update_traces(line_color=color_scheme[0] if color_scheme else 'blue')
+        elif 'heatmap' in chart_type:
+            fig.update_traces(colorscale=color_scheme[:10])  # Heatmaps use scales, truncate
     return fig
 
 # ==================== CUSTOM CSS ====================
 def load_custom_css():
     """Load custom CSS for better UI"""
-    st.markdown("""
+    css = r"""
     <style>
         .main .block-container {
             padding-top: 2rem;
@@ -1633,7 +1909,8 @@ def load_custom_css():
               padding-top: 15px;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(css, unsafe_allow_html=True)
 
 # ==================== SESSION STATE INITIALIZATION ====================
 def init_session_state():
@@ -1683,10 +1960,16 @@ def main():
             key='lang',
             label_visibility="collapsed"
         )
-        
+
         T = lambda key: get_translation(key, st.session_state.lang)
 
         st.markdown("---")
+
+        # Data Mode Toggle
+        data_mode = st.radio("Data Mode:", ["Current (Filtered)", "Original (Pre-Filter)"], 
+                            index=0, key="data_mode_toggle", horizontal=True,
+                            help="Current: Uses latest after filters. Original: Snapshots from activation.")
+        data_mode_val = 'current' if "Current" in data_mode else 'original'
 
         st.markdown(f"### {T('sidebar_quick_stats')}")
         if st.session_state.all_files:
@@ -1928,29 +2211,29 @@ def main():
                             if not matching_files:
                                 st.warning("No matching FASTA files found at the specified path/pattern.")
                                 st.stop()  # FIXED: Replace 'return' with st.stop() to halt execution cleanly
-                            
+
                             parser = FastaParser()  # FIXED: Instantiate parser here
                             newly_loaded_count = 0
                             total_sequences_added = 0
-                            
+
                             for file_path in matching_files:
                                 filename = os.path.basename(file_path)
                                 if filename.lower().endswith(('.fasta', '.fas', '.fa', '.fna', '.txt')):
                                     with open(file_path, 'r') as f:
                                         content_string = f.read()
-                                    
+
                                     sequences, errors = parser.parse(content_string)  # Now uses local parser
-                                    
+
                                     if errors:
                                         st.warning(f"⚠️ {filename}: {errors[0]}", icon="⚠️")
-                                    
+
                                     if sequences:
                                         st.session_state.all_files[filename] = sequences
                                         if filename not in st.session_state.original_sequences:
                                             st.session_state.original_sequences[filename] = sequences
                                         newly_loaded_count += 1
                                         total_sequences_added += len(sequences)
-                            
+
                             if newly_loaded_count > 0:
                                 msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
                                 st.success(msg)
@@ -1994,13 +2277,18 @@ def main():
                 count = len(sequences)
                 checkbox_key = f"cb_manage_{filename}"
                 default_checked = filename in st.session_state.active_filenames
-                with cols[idx % 2]:
-                    is_selected = st.checkbox(
-                        f"**{filename}** ({count} {T('seqs_abbrev')})",
-                        key=checkbox_key,
-                        value=default_checked
-                    )
-                    file_selection_states[filename] = is_selected
+
+                if checkbox_key not in st.session_state:
+                    st.session_state[checkbox_key] = default_checked
+                is_selected = st.checkbox(
+                    f"**{filename}** ({count} {T('seqs_abbrev')})",
+                    key=checkbox_key,
+                    value=default_checked
+                )
+
+                st.session_state[checkbox_key] = is_selected
+                file_selection_states[filename] = is_selected
+                with cols[idx % 2]:  # Indent properly under columns
 
             selected_files_now = [fname for fname, selected in file_selection_states.items() if selected]
 
@@ -2022,7 +2310,7 @@ def main():
 
             with action_cols[2]:
                 if st.button(T("activate_btn"), type="primary", use_container_width=True, key="manage_activate",
-                             help=T("activate_help")):
+                            help=T("activate_help")):
                     if not selected_files_now:
                         st.warning(T("no_files_selected_activate"))
                     else:
@@ -2033,6 +2321,10 @@ def main():
                             current_file_seqs = [list(s) for s in st.session_state.all_files.get(fname, [])]
                             st.session_state.active_sequences.extend(current_file_seqs)
                             st.session_state.original_sequences[fname] = current_file_seqs
+                        
+                        # NEW: Always update snapshot after any activation (captures newly selected)
+                        st.session_state.original_active_snapshot = [list(s) for s in st.session_state.active_sequences]  # Deep copy of current pre-filter
+            
                         count = len(st.session_state.active_sequences)
                         st.success(T("files_activated").format(count=len(selected_files_now), seqs=count))
                         st.rerun()
@@ -2083,6 +2375,7 @@ def main():
             else:
                 st.info(T("active_dataset_info"))
 
+   
     # ==================== TAB 3: ANALYZE & PROCESS ====================
     with tab_map["analyze_tab"]:
         st.header(T("analyze_tab"))
@@ -2118,76 +2411,154 @@ def main():
 
             # --- Data Visualizer (Enhanced) ---
             with st.expander(T("distribution_viewer_title"), expanded=True):
-                 st.markdown(f"*{T('visualizer_desc')}*")
-                 vis_col1, vis_col2 = st.columns([3, 2])
-                 with vis_col1:
-                     # Define options for visualization using translations
-                     vis_field_options = {
-                         T("vis_field_subtype"): 'type', T("vis_field_segment"): 'segment', T("vis_field_host"): 'host',
-                         T("vis_field_location"): 'location', T("vis_field_clade"): 'clade',
-                         T("vis_field_year"): 'year', T("vis_field_month"): 'month'
-                     }
-                     # ADDED New chart types
-                     vis_chart_options = {
-                         T("vis_type_bar"): 'bar', T("vis_type_pie"): 'pie',
-                         T("vis_type_line"): 'line', T("vis_type_heatmap"): 'heatmap',
-                         T("vis_type_stacked"): 'stacked'
-                     }
+                st.markdown(f"*{T('visualizer_desc')}*")
+                vis_col1, vis_col2 = st.columns([3, 2])
+                with vis_col1:
+                    # Define options for visualization using translations
+                    vis_field_options = {
+                        T("vis_field_subtype"): 'type', T("vis_field_segment"): 'segment', T("vis_field_host"): 'host',
+                        T("vis_field_location"): 'location', T("vis_field_clade"): 'clade',
+                        T("vis_field_year"): 'year', T("vis_field_month"): 'month'
+                    }
+                    # ADDED New chart types
+                    vis_chart_options = {
+                        T("vis_type_bar"): 'bar', T("vis_type_pie"): 'pie',
+                        T("vis_type_line"): 'line', T("vis_type_heatmap"): 'heatmap',
+                        T("vis_type_stacked"): 'stacked'
+                    }
 
-                     selected_chart_display = st.selectbox(T("chart_type_label"), list(vis_chart_options.keys()), key="vis_chart_type")
-                     selected_chart_key = vis_chart_options[selected_chart_display]
+                    selected_chart_display = st.selectbox(T("chart_type_label"), list(vis_chart_options.keys()), key="vis_chart_type")
+                    selected_chart_key = vis_chart_options[selected_chart_display]
 
-                     # ADDED Conditional controls
-                     field1, field2, interval, top_n_val = None, None, None, 20
-                     if selected_chart_key in ['bar', 'pie']:
-                         field1_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), key="vis_field1")
-                         field1 = vis_field_options[field1_display]
-                     elif selected_chart_key == 'line':
-                         interval_options = {T("vis_interval_month"): 'month', T("vis_interval_quarter"): 'quarter', T("vis_interval_year"): 'year'}
-                         interval_display = st.selectbox(T("time_interval_label"), list(interval_options.keys()), key="vis_interval")
-                         interval = interval_options[interval_display]
-                     elif selected_chart_key == 'heatmap':
-                         top_n_val = st.slider(T("top_n_label"), 5, 50, 20, 5, key="vis_top_n")
-                     elif selected_chart_key == 'stacked':
-                         # Use different selectbox keys to avoid conflict
-                         cat1_display = st.selectbox(T("category1_label"), list(vis_field_options.keys()), index=3, key="vis_cat1_stacked") # Default location
-                         field1 = vis_field_options[cat1_display]
-                         cat2_display = st.selectbox(T("category2_label"), list(vis_field_options.keys()), index=0, key="vis_cat2_stacked") # Default subtype
-                         field2 = vis_field_options[cat2_display]
-                         top_n_val = st.slider(T("top_n_label") + f" ({cat1_display})", 5, 30, 15, 5, key="vis_top_n_stacked")
-                     # END ADDED Conditional controls
+                    # ADDED Conditional controls
+                    field1, field2, interval, top_n_val = None, None, None, 20
+                    if selected_chart_key in ['bar', 'pie']:
+                        field1_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), key="vis_field1")
+                        field1 = vis_field_options[field1_display]
+                    elif selected_chart_key == 'line':
+                        interval_options = {T("vis_interval_month"): 'month', T("vis_interval_quarter"): 'quarter', T("vis_interval_year"): 'year'}
+                        interval_display = st.selectbox(T("time_interval_label"), list(interval_options.keys()), key="vis_interval")
+                        interval = interval_options[interval_display]
+                    elif selected_chart_key == 'heatmap':
+                        # UPDATED: Field selector for flexibility (from prior generalization)
+                        field_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), index=3, key="vis_heatmap_field")  # Default 'location'
+                        heatmap_field = vis_field_options[field_display]
+                        # ENHANCED: Slider with higher max, step=5, help text
+                        top_n_val = st.slider(
+                            T("top_n_label"),
+                            min_value=1,
+                            max_value=100,  # Increased from 50 to allow more than 20
+                            value=20,  # Your "fixed" default
+                            step=5,
+                            key="vis_top_n",
+                            help="Limit to top N items (e.g., locations/hosts); higher values show more detail but may clutter the view."
+                        )
 
-                 with vis_col2:
-                     # Add vertical space to align button
-                     for _ in range(5 if selected_chart_key not in ['stacked','heatmap'] else (7 if selected_chart_key=='stacked' else 6) ): st.write("")
-                     # UPDATED Button logic
-                     if st.button(T("generate_chart_btn"), key="vis_generate", use_container_width=True, type="primary"):
-                         if field1 == field2 and selected_chart_key == 'stacked':
-                              st.error("Primary and Secondary categories cannot be the same for Stacked Bar chart.")
-                         else:
-                              with st.spinner(T("generating_chart")):
-                                  fig = None
-                                  try:
-                                      # Call appropriate new or existing function
-                                      if selected_chart_key in ['bar', 'pie']:
-                                          counts = analyzer.get_metadata_distribution(field1)
-                                          fig = create_distribution_chart(counts, f"{field1_display} Distribution", chart_type=selected_chart_key)
-                                      elif selected_chart_key == 'line':
-                                          fig = create_temporal_chart(analyzer.sequences, interval=interval)
-                                      elif selected_chart_key == 'heatmap':
-                                          fig = create_geographic_heatmap(analyzer.sequences, top_n=top_n_val)
-                                      elif selected_chart_key == 'stacked':
-                                          fig = create_stacked_bar_chart(analyzer.sequences, category1=field1, category2=field2, top_n=top_n_val)
+                    elif selected_chart_key == 'stacked':
+                        # Use different selectbox keys to avoid conflict
+                        cat1_display = st.selectbox(T("category1_label"), list(vis_field_options.keys()), index=3, key="vis_cat1_stacked") # Default 'location'
+                        category1 = vis_field_options[cat1_display]
+                        cat2_display = st.selectbox(T("category2_label"), list(vis_field_options.keys()), index=0, key="vis_cat2_stacked") # Default 'subtype/type'
+                        category2 = vis_field_options[cat2_display]
+                        # NEW: Top N slider with default 15
+                        top_n_val = st.slider(T("top_n_label") + f" ({cat1_display})", 5, 50, 15, 5, key="vis_top_n_stacked",
+                                              help="Limit to top N groups for primary category (e.g., locations); aggregates rest as 'Other'.")
+                    # END ADDED Conditional controls
 
-                                      if fig:
-                                           st.session_state.generated_chart = fig # Store figure
-                                           st.caption(T("chart_ready"))
-                                      else:
-                                           st.warning(f"Could not generate chart. No data available.")
-                                  except Exception as e:
-                                       st.error(f"{T('chart_error')}: {e}")
-                                       progress_tracker.log_error(f"Chart generation failed: {e}")
-                     # END UPDATED Button logic
+                with vis_col2:
+                    # Add vertical space to align button
+                    for _ in range(5 if selected_chart_key not in ['stacked','heatmap'] else (7 if selected_chart_key=='stacked' else 6) ): st.write("")
+
+                    # NEW: Pre-built Color Schemes Selectbox
+                    if selected_chart_key in schemes_by_chart:
+                        scheme_names = list(schemes_by_chart[selected_chart_key].keys())
+                        selected_scheme_name = st.selectbox("🎨 Color Scheme:", scheme_names, index=0, key=f"vis_scheme_{selected_chart_key}")
+                        selected_scheme = schemes_by_chart[selected_chart_key][selected_scheme_name]
+                    else:
+                        selected_scheme = None
+
+                    # UPDATED Button logic with color param
+                    if st.button(T("generate_chart_btn"), key="vis_generate", use_container_width=True, type="primary"):
+                        if category1 == category2 and selected_chart_key == 'stacked':  # Fixed: Use category1/category2
+                            st.error("Primary and Secondary categories cannot be the same for Stacked Bar chart.")
+                        else:
+                            with st.spinner(T("generating_chart")):
+                                fig = None
+                                try:
+                                    # NEW: Check for custom palette override
+                                    use_custom = 'custom_palette' in st.session_state and st.session_state.custom_palette
+                                    color_to_use = st.session_state.custom_palette if use_custom else selected_scheme
+
+                                    # Call appropriate new or existing function with color
+                                    if selected_chart_key in ['bar', 'pie']:
+                                        counts = analyzer.get_metadata_distribution(field1)
+                                        fig = create_distribution_chart(counts, f"{field1_display} Distribution", chart_type=selected_chart_key, color_scheme=color_to_use)
+                                    elif selected_chart_key == 'line':
+                                        fig = create_temporal_chart(analyzer.sequences, interval=interval, color_scheme=color_to_use)
+                                    elif selected_chart_key == 'heatmap':
+                                        fig = create_geographic_heatmap(analyzer.sequences, top_n=top_n_val, field=heatmap_field, color_scheme=color_to_use)  # Fixed: Pass field
+                                    elif selected_chart_key == 'stacked':
+                                        fig = create_stacked_bar_chart(analyzer.sequences, category1=category1, category2=category2, top_n=top_n_val, lang=st.session_state.lang, color_scheme=color_to_use)  # Fixed: Use category1/category2, add lang
+
+                                    if fig:
+                                        # NEW: Apply scheme if not already (for custom scales)
+                                        if color_to_use and selected_chart_key != 'line':  # Line handled internally
+                                            # Fixed: Use a local df len or skip; assuming analyzer.sequences len as fallback
+                                            data_len = len(analyzer.sequences) if analyzer.sequences else 0
+                                            fig = apply_color_scheme(fig, color_to_use, selected_chart_key, data_len)
+
+                                        st.session_state.generated_chart = fig  # Store figure
+                                        st.caption(T("chart_ready"))
+                                    else:
+                                        st.warning(T("chart_no_data"))
+                                except Exception as e:
+                                    st.error(f"{T('chart_error')}: {e}")
+                                    progress_tracker.log_error(f"Chart generation failed: {e}")
+
+                    # NEW: Interactive Color Generator Expander
+                    with st.expander("🎨 Custom Palette Studio", expanded=False):
+                        num_colors = st.slider("Number of Colors", 3, 12, 8, key="vis_num_colors")
+                        custom_colors = []
+                        for i in range(num_colors):
+                            col = st.color_picker(f"Color {i+1}", "#FF6B6B" if i == 0 else "#4ECDC4" if i == 1 else "#45B7D1" if i == 2 else "#96CEB4" if i == 3 else "#FFEAA7" if i == 4 else "#DDA0DD", key=f"vis_color_{i}")
+                            custom_colors.append(col)
+
+                        col_custom1, col_custom2 = st.columns(2)
+                        with col_custom1:
+                            if st.button("Apply Custom Palette", key="vis_custom_apply"):
+                                st.session_state.custom_palette = custom_colors
+                                st.success("Custom palette applied! Regenerate chart to see changes.")
+
+                        with col_custom2:
+                            # NEW: Nucleotide-Inspired Button
+                            sample_seq = analyzer.sequences[0][1] if analyzer.sequences else ""
+                            if st.button("🧬 Generate Nucleotide Palette", key="vis_nuc_palette"):
+                                nuc_scheme = nucleotide_palette(sample_seq)
+                                # Convert scale to list if needed (sample 8 colors)
+                                if callable(nuc_scheme):  # If it's a scale func, sample
+                                    nuc_colors = [nuc_scheme[i] for i in range(0, 100, 100//8)]  # Even spacing
+                                else:
+                                    nuc_colors = nuc_scheme[:8]
+                                st.session_state.custom_palette = nuc_colors
+                                st.success("Nucleotide palette generated from sample sequence!")
+
+                        # NEW: Export Palette
+                        if 'custom_palette' in st.session_state and st.session_state.custom_palette:
+                            palette_json = json.dumps({'colors': st.session_state.custom_palette, 'name': 'Custom Viral Palette', 'date': datetime.now().isoformat()})
+                            st.download_button(
+                                label="💾 Export Palette (JSON)",
+                                data=palette_json,
+                                file_name=f"viral_palette_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
+                                mime="application/json",
+                                key="export_palette"
+                            )
+                            # Preview Swatches
+                            cols = st.columns(min(8, len(st.session_state.custom_palette)))
+                            for i, col in enumerate(st.session_state.custom_palette[:8]):
+                                with cols[i]:
+                                    st.markdown(f"<div style='background-color:{col}; width:100%; height:40px; border-radius:5px;'></div>", unsafe_allow_html=True)
+                                    st.caption(col)
+                    # END UPDATED Button logic
 
             # ADDED Display chart from session state
             # Display the generated chart (if exists in session state) outside the button's scope
@@ -2305,6 +2676,71 @@ def main():
                             st.rerun()
                     else:
                         st.warning(T("warning_select_clade"))
+
+            st.markdown("---")
+
+            # UPGRADED: Preview & Download Clades Section
+            st.subheader("🧬 Preview & Download Clades")
+            st.caption("Group and export sequences by clade without applying filters.")
+
+            if not st.session_state.active_sequences:
+                st.warning(T("no_data_msg"))
+            else:
+                analyzer = SequenceAnalyzer(st.session_state.active_sequences)
+                available_clades = sorted([c for c in list(set(m.get('clade', DEFAULT_UNKNOWN) for _, _, m in analyzer.sequences)) if c != DEFAULT_UNKNOWN])
+
+                if not available_clades:
+                    st.caption(T("no_clade_info"))
+                else:
+                    # Mode: Individual or Multiple
+                    export_mode = st.radio("Export Mode:", ["Individual Clade (Single FASTA)", "Multiple Clades (ZIP + Individuals)"], key="clade_export_mode", horizontal=True)
+                    export_mode_val = 'individual' if "Individual" in export_mode else 'multiple'
+
+                    if export_mode_val == 'individual':
+                        selected_clade = st.selectbox("Select Clade:", available_clades, key="clade_single_select")
+                        selected_clades = [selected_clade] if selected_clade else []
+                    else:
+                        selected_clades = st.multiselect("Select Clades:", available_clades, default=available_clades[:3], key="clade_multi_select")
+                        # UPGRADE: Clear button for multi
+                        if st.button("Clear Selection", key="clear_clade_multi", use_container_width=True):
+                            st.session_state.clade_multi_select = []
+                            st.rerun()
+
+                    # UPGRADE: Quick preview of seq counts per clade (non-destructive)
+                    if available_clades:
+                        st.write("**Quick Counts:**")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.caption(T("clade_counts_header"))
+                        for clade in available_clades[:10]:  # Limit preview to top 10
+                            count = len([s for s in analyzer.sequences if s[2].get('clade') == clade])
+                            with col2:
+                                st.caption(f"{clade} | {count}")
+                        if len(available_clades) > 10:
+                            st.caption(f"... and {len(available_clades) - 10} more")
+
+                    if st.button("🧬 Preview & Download Selected Clades", key="preview_clades", disabled=not selected_clades):
+                        if selected_clades:
+                            with st.spinner("Grouping sequences by clade..."):
+                                # Data Mode Integration: Choose seqs based on toggle
+                                data_mode_val = 'current' if "Current" in st.session_state.get('data_mode_toggle', 'Current') else 'original'
+                                seqs_to_use = st.session_state.original_active_snapshot if data_mode_val == 'original' else st.session_state.active_sequences
+                                temp_analyzer = SequenceAnalyzer(seqs_to_use)
+                                
+                                exported = temp_analyzer.export_clades(selected_clades, export_mode=export_mode_val)
+                                if exported:
+                                    st.success(f"Preview/export ready for {len(exported)} clade(s)! Check download buttons below.")
+                                else:
+                                    st.error("Export failed—check logs for details.")
+                        else:
+                            st.warning("Please select at least one clade.")
+
+                    # UPGRADE: Tips Expander
+                    with st.expander("ℹ️ Tips for Clade Exports"):
+                        st.markdown(f"- {T('clade_export_tips_single')}")
+                        st.markdown(f"- {T('clade_export_tips_multiple')}")
+                        st.markdown(f"- {T('clade_export_tips_no_filter')}")
+                    
 
             st.markdown("---")
 
@@ -2436,44 +2872,19 @@ def main():
                 help=T("download_log_help")
             )
             with st.expander(T("show_log_expander")):
-                st.text_area(T("log_preview"), value=log_data if log_data else "No logs yet.", height=350, disabled=True, key="export_log_preview")
+                display_log = log_data if log_data else T("no_logs_yet")
+                st.text_area(T("log_preview"), value=display_log, height=350, disabled=True, key="export_log_preview")
 
     # ==================== TAB 6: DOCUMENTATION ====================
     with tab_map["docs_tab"]:
         st.header(T("docs_header"))
-        
+
         # Documentation content (keeping English for now, can be translated later)
-        st.markdown("""
-        ## 🧬 Vir-Seq-Sift - User Guide
+        #st.markdown("""
+        ## 🧬 Vir-Seq-Sift - User Guide...""")
 
-        ### Overview
-        This tool provides comprehensive analysis capabilities for influenza and respiratory virus FASTA sequences. Use the tabs to navigate through the workflow: Upload -> Manage -> Analyze -> Refine -> Export.
-
-        ### Features & Guide
-
-        | Feature Tab         | Action                      | Use Case                                                                 | Guide                                                                                                                               |
-        | :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
-        | **📁 Upload & Setup**| File Upload / URL Download | Import sequence data from various sources.                               | Use the upload widget or paste a URL. Supports `.fasta`, `.fa`, `.txt`, `.gz`.                                                     |
-        |                     | Google Drive (Colab)        | Load from mounted Google Drive in Colab.                                 | Select "Google Drive", mount if needed, enter path/pattern, load.                                                                  |
-        | **🗂️ Manage Datasets**| Activate / Remove / Merge   | Work with multiple files, choose subsets for analysis.                 | Check files, click 'Activate Selected'. Use 'Remove' or 'Merge & Download'. Active data is used in Analyze/Refine tabs.              |
-        | **🔬 Analyze & Process**| Convert Headers             | Standardize headers to `>name|type|...` format.                          | Click 'Convert Headers'. Useful if initial parsing seems incorrect.                                                               |
-        |                     | Quality Filter              | Remove low-quality sequences (short or many N's).                        | Adjust sliders for 'Min Length' and 'Max N-Run', then click 'Apply Quality Filter'.                                                |
-        |                     | Deduplication (Basic)       | Remove exact sequence duplicates.                                        | Click 'Deduplicate (Sequence Only)'. Keeps the first found instance.                                                              |
-        |                     | Deduplication (Advanced)    | Remove duplicates, keeping one per subtype for each unique sequence.   | Click 'Deduplicate (Seq + Subtype)'. Maintains subtype diversity.                                                                   |
-        |                     | Subtype Filter              | Isolate sequences of specific subtypes (e.g., H5N1).                     | Select from dropdown or enter custom subtypes (comma-sep), then click 'Apply Subtype Filter'.                                     |
-        |                     | Check Subtypes              | Understand subtype proportions in the active dataset.                    | Click 'Check Subtype Distribution'. Displays Pie/Bar charts below.                                                                |
-        |                     | Data Visualizer             | Explore distributions (hosts, locations, time, etc.).                    | Select field and chart type (Bar/Pie/Line/Heatmap/Stacked) in the expander, click 'Generate Chart'.                                |
-        | **🎯 Refine & Visualize**| Clade Monthly Filter      | Subsample data to get representatives per clade per month.               | Select mode (Single/Multiple), choose clade(s), 'Keep' strategy (First/Last/Both), then click 'Apply'.                            |
-        |                     | Enhanced Temporal Filter    | Subsample based on flexible time/metadata grouping.                      | Configure 'Group By', 'Sort By', 'Keep' options, then click 'Apply'. Useful for representative sampling over time/location etc. |
-        |                     | Extract Accessions          | Get a list of GISAID EPI_ISL IDs.                                        | Click 'Extract EPI_ISL Accessions'. A download button appears in the **Export** tab.                                               |
-        | **📊 Export & Reports** | Export FASTA / Report / Log | Download results, reports, and session logs.                           | Click download buttons for the current active FASTA, the last generated report, or the full session log.                              |
-
-        ### Tips
-        - **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.
-        - **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.
-        - **Caching**: Parsing is cached; re-uploading the same file content should be faster.
-        - **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results.
-        """)
+    st.markdown(T("docs_header"))
+    st.markdown(T("docs_tips"))
 
     st.markdown("---")
     st.caption(T("footer_text"))
