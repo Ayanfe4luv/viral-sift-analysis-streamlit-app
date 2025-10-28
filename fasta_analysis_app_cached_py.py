@@ -2280,15 +2280,16 @@ def main():
 
                 if checkbox_key not in st.session_state:
                     st.session_state[checkbox_key] = default_checked
-                is_selected = st.checkbox(
-                    f"**{filename}** ({count} {T('seqs_abbrev')})",
-                    key=checkbox_key,
-                    value=default_checked
-                )
-
+                
+                with cols[idx % 2]:
+                    is_selected = st.checkbox(
+                        f"**{filename}** ({count} {T('seqs_abbrev')})",
+                        key=checkbox_key,
+                        value=default_checked
+                    )
+                
                 st.session_state[checkbox_key] = is_selected
                 file_selection_states[filename] = is_selected
-                with cols[idx % 2]:  # Indent properly under columns
 
             selected_files_now = [fname for fname, selected in file_selection_states.items() if selected]
 
