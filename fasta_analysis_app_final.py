@@ -69,8 +69,6 @@ TRANSLATIONS = {
         "theme_dark": "🌙 Dark",
         "theme_auto": "🔄 Auto",
 
-
-
         # NEW: Reset Process Messages
         "reset_spinner_text": "Resetting session...",
         "reset_toast_success": "Session reset successfully!",
@@ -363,6 +361,12 @@ TRANSLATIONS = {
         "data_mode_current": "Current (Filtered)",
         "data_mode_original": "Original (Pre-Filter)",
         "data_mode_help": "Current: Uses latest after filters. Original: Snapshots from activation.",
+
+        # (pro tip + preview table)
+        "pro_tip_merged": "Activating multiple files merges sequences into one dataset for unified analysis (dedup/filtering works across all files)—use for combined cohorts, or activate singly for isolation.",
+        "preview_table_title": "Preview: Selected Files",
+        "preview_merge_caption": "Activate to merge these into a single dataset for analysis.",
+        
         # In "en":
         "docs_header": "## 🧬 Vir-Seq-Sift - User Guide\n\n### Overview\nThis tool provides comprehensive analysis capabilities for influenza and respiratory virus FASTA sequences. Use the tabs to navigate through the workflow: Upload -> Manage -> Analyze -> Refine -> Export.\n\n### Features & Guide\n\n| Feature Tab         | Action                      | Use Case                                                                 | Guide                                                                                                                               |\n| :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |\n| **📁 Upload & Setup**| File Upload / URL Download | Import sequence data from various sources.                               | Use the upload widget or paste a URL. Supports `.fasta`, `.fa`, `.txt`, `.gz`.                                                     |\n|                     | Google Drive (Colab)        | Load from mounted Google Drive in Colab.                                 | Select \"Google Drive\", mount if needed, enter path/pattern, load.                                                                  |\n| **🗂️ Manage Datasets**| Activate / Remove / Merge   | Work with multiple files, choose subsets for analysis.                 | Check files, click 'Activate Selected'. Use 'Remove' or 'Merge & Download'. Active data is used in Analyze/Refine tabs.              |\n| **🔬 Analyze & Process**| Convert Headers             | Standardize headers to `>name|type|...` format.                          | Click 'Convert Headers'. Useful if initial parsing seems incorrect.                                                               |\n|                     | Quality Filter              | Remove low-quality sequences (short or many N's).                        | Adjust sliders for 'Min Length' and 'Max N-Run', then click 'Apply Quality Filter'.                                                |\n|                     | Deduplication (Basic)       | Remove exact sequence duplicates.                                        | Click 'Deduplicate (Sequence Only)'. Keeps the first found instance.                                                              |\n|                     | Deduplication (Advanced)    | Remove duplicates, keeping one per subtype for each unique sequence.   | Click 'Deduplicate (Seq + Subtype)'. Maintains subtype diversity.                                                                   |\n|                     | Subtype Filter              | Isolate sequences of specific subtypes (e.g., H5N1).                     | Select from dropdown or enter custom subtypes (comma-sep), then click 'Apply Subtype Filter'.                                     |\n|                     | Check Subtypes              | Understand subtype proportions in the active dataset.                    | Click 'Check Subtype Distribution'. Displays Pie/Bar charts below.                                                                |\n|                     | Data Visualizer             | Explore distributions (hosts, locations, time, etc.).                    | Select field and chart type (Bar/Pie/Line/Heatmap/Stacked) in the expander, click 'Generate Chart'.                                |\n| **🎯 Refine & Visualize**| Clade Monthly Filter      | Subsample data to get representatives per clade per month.               | Select mode (Single/Multiple), choose clade(s), 'Keep' strategy (First/Last/Both), then click 'Apply'.                            |\n|                     | Enhanced Temporal Filter    | Subsample based on flexible time/metadata grouping.                      | Configure 'Group By', 'Sort By', 'Keep' options, then click 'Apply'. Useful for representative sampling over time/location etc. |\n|                     | Extract Accessions          | Get a list of GISAID EPI_ISL IDs.                                        | Click 'Extract EPI_ISL Accessions'. A download button appears in the **Export** tab.                                               |\n| **📊 Export & Reports** | Export FASTA / Report / Log | Download results, reports, and session logs.                           | Click download buttons for the current active FASTA, the last generated report, or the full session log.                              |\n\n### Tips\n- **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.\n- **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.\n- **Caching**: Parsing is cached; re-uploading the same file content should be faster.\n- **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results.",
         "docs_tips": "### Tips\n- **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.\n- **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.\n- **Caching**: Parsing is cached; re-uploading the same file content should be faster.\n- **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results."
@@ -685,6 +689,12 @@ TRANSLATIONS = {
         "clade_counts_header": "Клада | Последовательностей",
         "no_logs_yet": "Логов пока нет.",
         "chart_no_data": "Не удалось создать диаграмму. Данные недоступны.",
+
+        # (pro tip + preview table) - translated
+        "pro_tip_merged": "Активация нескольких файлов объединяет последовательности в один набор данных для единого анализа (дедупликация/фильтрация работает по всем файлам)—используйте для комбинированных когорт или активируйте по одному для изоляции.",
+        "preview_table_title": "Предпросмотр: Выбранные Файлы",
+        "preview_merge_caption": "Активируйте, чтобы объединить эти в один набор данных для анализа.",
+        
         # Add to "ru" (before closing } ):
       "data_mode_label": "Режим Данных:",
       "data_mode_current": "Текущий (Отфильтрованный)",
@@ -2598,6 +2608,31 @@ def main():
         )
         data_mode_val = 'current' if "Current" in data_mode else 'original'
 
+        # Existing: data_mode radio + data_mode_val assignment
+        # Add this right after it (global, as it affects active_sequences)
+        if st.session_state.get('active_filenames') and len(st.session_state.active_filenames) > 1:
+            available_originals = list(st.session_state.original_sequences.keys())
+            selected_file = st.selectbox(
+                "Use Original from File:",
+                options=['Merged (All Active)'] + available_originals,
+                index=0,
+                key="data_mode_file_select",
+                help="For multi-file: Pick a specific file's pre-filter snapshot, or merged."
+            )
+            
+            if selected_file != 'Merged (All Active)' and selected_file in st.session_state.original_sequences:
+                # Swap to per-file original
+                st.session_state.active_sequences = [list(s) for s in st.session_state.original_sequences[selected_file]]
+                st.session_state.data_mode_file = selected_file  # Track for reruns
+            else:
+                # Fallback to merged or current
+                if data_mode_val == 'original':
+                    st.session_state.active_sequences = [list(s) for s in st.session_state.get('original_active_snapshot', [])]
+                # Else: Keep current (filtered)
+        else:
+            # Single-file or none: Hide dropdown
+            st.session_state.data_mode_file = None
+
         st.markdown(f"### {T('sidebar_quick_stats')}")
         if st.session_state.all_files:
             st.metric(T("sidebar_files_loaded"), len(st.session_state.all_files))
@@ -2613,6 +2648,13 @@ def main():
                 st.metric(T("sidebar_avg_length"), "N/A")
         else:
             st.caption(T("sidebar_no_dataset"))
+
+        if st.session_state.active_sequences and st.session_state.active_filenames:
+            merged_files_count = len(st.session_state.active_filenames)
+            st.metric("Merged from", f"{merged_files_count} {T('files')}", delta=None)
+        else:
+            # Optional: Empty state
+            st.caption("No merged files active.")
 
         st.markdown("---")
 
@@ -2892,7 +2934,7 @@ def main():
     # ==================== TAB 2: MANAGE DATASETS ====================
     with tab_map["manage_tab"]:
         st.header(T("manage_tab"))
-
+    
         if not st.session_state.all_files:
             st.markdown(f"""
                 <div style='background: #e0f2fe; padding: 25px; border-radius: 12px; border-left: 6px solid #0ea5e9;'>
@@ -2907,51 +2949,85 @@ def main():
                     <p><b>💡 {T('tip_title')}</b> {T('tip_multi_file')}</p>
                 </div>
             """, unsafe_allow_html=True)
+            
+            # Expanded pro tip (outside markdown for correctness)
+            pro_tip_text = f"{T('tip_multi_file')} {T('pro_tip_merged')}"
+            st.markdown(f"""
+                <div style='background: #e0f2fe; padding: 15px; border-radius: 8px; border-left: 4px solid #0ea5e9;'>
+                    <p><b>💡 {T('tip_title')}</b> {pro_tip_text}</p>
+                </div>
+            """, unsafe_allow_html=True)
         else:
             st.subheader(T("loaded_datasets_header"))
             st.caption(T("loaded_datasets_desc"))
-
-            file_selection_states = {}
-            cols = st.columns(2)
+    
             sorted_filenames = sorted(st.session_state.all_files.keys())
-
-            for idx, filename in enumerate(sorted_filenames):
-                sequences = st.session_state.all_files[filename]
-                count = len(sequences)
-                checkbox_key = f"cb_manage_{filename}"
-                default_checked = filename in st.session_state.active_filenames
-
-                if checkbox_key not in st.session_state:
-                    st.session_state[checkbox_key] = default_checked
+            
+            # NEW: Single multiselect for all files (replaces checkbox loop)
+            file_counts = {fname: len(st.session_state.all_files[fname]) for fname in sorted_filenames}
+            display_options = [f"**{fname}** ({file_counts[fname]} {T('seqs_abbrev')})" for fname in sorted_filenames]
+            
+            # Default: Pre-select if already active
+            default_selected = [i for i, fname in enumerate(sorted_filenames) if fname in st.session_state.active_filenames]
+            
+            selected_indices = st.multiselect(
+                "Select files to activate:",
+                options=display_options,
+                default=default_selected,
+                key="manage_file_multiselect",
+                format_func=lambda x: x,  # Keeps bold/count display
+                help="Check to include in active dataset. Hold Ctrl/Cmd for multi-select."
+            )
+            
+            # Map back to filenames
+            selected_files_now = [sorted_filenames[i] for i, opt in enumerate(display_options) if opt in selected_indices]
+            
+            # Preview selection count (NEW: UX boost)
+            if selected_files_now:
+                total_seqs = sum(file_counts[fname] for fname in selected_files_now)
+                st.info(f"Selected: {len(selected_files_now)} files ({total_seqs:,} total {T('seqs_abbrev')})")
                 
-                with cols[idx % 2]:
-                    is_selected = st.checkbox(
-                        f"**{filename}** ({count} {T('seqs_abbrev')})",
-                        key=checkbox_key,
-                        value=default_checked
-                    )
+                # Build preview data: Seq count + top subtypes per file
+                preview_data = []
+                for fname in selected_files_now:
+                    seqs = st.session_state.all_files[fname]
+                    total_seqs_file = len(seqs)
+                    
+                    # Quick subtype counts (reuse analyzer logic)
+                    subtype_counts = Counter(m.get('type', DEFAULT_UNKNOWN) for _, _, m in seqs)
+                    top_subtypes = dict(sorted(subtype_counts.items(), key=lambda x: x[1], reverse=True)[:3])
+                    subtype_str = ', '.join([f"{k}: {v}" for k, v in top_subtypes.items()]) or "No subtypes"
+                    
+                    preview_data.append({
+                        'File': fname,
+                        'Total Sequences': total_seqs_file,
+                        'Top Subtypes': subtype_str
+                    })
                 
-                #st.session_state[checkbox_key] = is_selected
-                #file_selection_states[filename] = is_selected
-
-            selected_files_now = [fname for fname, selected in file_selection_states.items() if selected]
-
+                if preview_data:
+                    preview_df = pd.DataFrame(preview_data)
+                    st.subheader("Preview: Selected Files")
+                    st.dataframe(preview_df, use_container_width=True, hide_index=True)
+                    st.caption("Activate to merge these into a single dataset for analysis.")
+            else:
+                st.info("No files selected yet.")
+    
             st.markdown("---")
             st.subheader(T("actions_header"))
             action_cols = st.columns(4)
-
+    
             with action_cols[0]:
                 if st.button(T("select_all_btn"), use_container_width=True, key="manage_select_all"):
                     st.session_state.active_filenames = list(st.session_state.all_files.keys())
+                    st.session_state['manage_file_multiselect'] = list(range(len(sorted_filenames)))  # Select all in multiselect
                     st.rerun()
-
+    
             with action_cols[1]:
                 if st.button(T("deselect_all_btn"), use_container_width=True, key="manage_deselect_all"):
                     st.session_state.active_filenames = []
-                    for filename in st.session_state.all_files:
-                        st.session_state[f"cb_manage_{filename}"] = False
+                    st.session_state['manage_file_multiselect'] = []  # Clear multiselect state
                     st.rerun()
-
+    
             with action_cols[2]:
                 if st.button(T("activate_btn"), type="primary", use_container_width=True, key="manage_activate",
                             help=T("activate_help")):
@@ -2963,23 +3039,28 @@ def main():
                         st.session_state.active_sequences = []
                         for fname in selected_files_now:
                             current_file_seqs = [list(s) for s in st.session_state.all_files.get(fname, [])]
+                            
+                            # Add source_file to metadata for each sequence in this file
+                            for seq in current_file_seqs:
+                                seq[2]['source_file'] = fname  # seq[2] is metadata dict; add source_file
+                            
                             st.session_state.active_sequences.extend(current_file_seqs)
                             st.session_state.original_sequences[fname] = current_file_seqs
                         
                         # NEW: Always update snapshot after any activation (captures newly selected)
                         st.session_state.original_active_snapshot = [list(s) for s in st.session_state.active_sequences]  # Deep copy of current pre-filter
-            
+                    
                         count = len(st.session_state.active_sequences)
                         st.success(T("files_activated").format(count=len(selected_files_now), seqs=count))
                         st.rerun()
-
+    
             with action_cols[3]:
                 if st.button(T("remove_btn"), type="secondary", use_container_width=True, key="manage_remove"):
                     if not selected_files_now:
                         st.warning(T("no_files_selected_remove"))
                     else:
                         st.session_state.confirming_removal = True
-
+    
             if st.session_state.get("confirming_removal", False):
                 st.warning(T("confirm_remove_msg").format(count=len(selected_files_now)))
                 confirm_cols = st.columns(2)
@@ -2994,15 +3075,20 @@ def main():
                                 del st.session_state.original_sequences[filename]
                             if filename in st.session_state.active_filenames:
                                 st.session_state.active_filenames.remove(filename)
-
+    
                         if removed_count > 0:
                             st.session_state.active_sequences = []
                             st.session_state.original_sequences = {}
                             for fname in st.session_state.active_filenames:
                                 current_file_seqs = [list(s) for s in st.session_state.all_files.get(fname, [])]
+                                
+                                # Add source_file to metadata for each sequence in this file (for rebuild)
+                                for seq in current_file_seqs:
+                                    seq[2]['source_file'] = fname
+                                
                                 st.session_state.active_sequences.extend(current_file_seqs)
                                 st.session_state.original_sequences[fname] = current_file_seqs
-
+    
                             st.warning(T("removed_files_msg").format(count=removed_count))
                         st.session_state.confirming_removal = False
                         st.rerun()
@@ -3010,7 +3096,7 @@ def main():
                     if st.button(T("confirm_cancel"), use_container_width=True):
                         st.session_state.confirming_removal = False
                         st.rerun()
-
+    
             st.markdown("---")
             st.subheader(T("active_dataset"))
             if st.session_state.active_sequences:
@@ -3018,7 +3104,6 @@ def main():
                 st.write(f"**{T('total_seqs')}:** `{len(st.session_state.active_sequences):,}`")
             else:
                 st.info(T("active_dataset_info"))
-
    
     # ==================== TAB 3: ANALYZE & PROCESS ====================
     with tab_map["analyze_tab"]:
@@ -3616,6 +3701,32 @@ def main():
                     )
                 except Exception as e:
                     st.error(T("error_export_active").format(error=str(e)))
+
+            # Existing: st.download_button for active FASTA
+            # Add this right after it
+            if st.session_state.original_sequences:  # Check if per-file originals exist
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    total_seqs = 0
+                    for fname, seqs in st.session_state.original_sequences.items():
+                        fasta_io = io.StringIO()
+                        for header, seq, _ in seqs:
+                            h = header if h.startswith('>') else '>' + header
+                            fasta_io.write(f"{h}\n{seq}\n")
+                        fasta_str = fasta_io.getvalue()
+                        zipf.writestr(f"{fname}", fasta_str)
+                        total_seqs += len(seqs)
+                
+                zip_buffer.seek(0)
+                st.download_button(
+                    label=f"⬇️ Download Per-File ZIP (Originals, {len(st.session_state.original_sequences)} files, {total_seqs} seqs)",
+                    data=zip_buffer.getvalue(),
+                    file_name=f"per_file_originals_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
+                    mime="application/zip",
+                    key="export_per_file_zip",
+                    use_container_width=True
+                )
+                st.caption("Exports pre-filter originals as separate FASTAs in a ZIP—no merging.")
 
             if st.session_state.get('accession_list'):
                 acc_data = "\n".join(st.session_state.accession_list)
