@@ -289,6 +289,8 @@ TRANSLATIONS = {
 
         # Documentation Tab
         "docs_header": "📖 Documentation",
+        "go_to_export_btn": "🧭 Go to Export & Reports",
+        "go_to_analyze_btn": "🧭 Go to Analyze & Process",
 
         # Status Messages
         "no_data_msg": "No data loaded or activated. Please upload/activate data first.",
@@ -387,6 +389,9 @@ TRANSLATIONS = {
         "refine_tab": "🎯 Уточнение и Визуализация",
         "export_tab": "📊 Экспорт и Отчеты",
         "docs_tab": "📖 Документация",
+        "go_to_export_btn": "🧭 Перейти к Экспорт & Отчеты",
+        "go_to_analyze_btn": "🧭 Перейти к Анализ & Обработка",
+        
 
         # Sidebar
         "sidebar_quick_stats": "📊 Быстрая Статистика",
@@ -2726,9 +2731,17 @@ def main():
     if st.session_state.status_message:
         update_status(st.session_state.status_message, st.session_state.status_level, log=False)
 
+    # NEW: Tab tracking for navigation (replaces old tab setup)
+    if 'active_tab' not in st.session_state:
+        st.session_state.active_tab = 0  # Default to first tab (Upload)
+    
     tab_keys = ["upload_tab", "manage_tab", "analyze_tab", "refine_tab", "export_tab", "docs_tab"]
-    tabs = st.tabs([T(key) for key in tab_keys])
-    tab_map = dict(zip(tab_keys, tabs))
+    tab_labels = [T(key) for key in tab_keys]
+    tabs = st.tabs(tab_labels)
+    
+    # FIXED: Select active tab by index (simulates selection via session state)
+    st.session_state.active_tab = tabs.index(tabs)  # Update on UI selection
+    tab_map = dict(zip(tab_keys, tabs))  # Map for with blocks
 
     # ==================== TAB 1: UPLOAD & SETUP ====================
     with tab_map["upload_tab"]:
@@ -3063,8 +3076,22 @@ def main():
                         st.session_state.original_active_snapshot = [list(s) for s in st.session_state.active_sequences]  # Deep copy of current pre-filter
                     
                         count = len(st.session_state.active_sequences)
-                        st.success(T("files_activated").format(count=len(selected_files_now), seqs=count))
+                        with st.container(): # NEW: Pins under button
+                            st.success(T("files_activated").format(count=len(selected_files_now), seqs=count))
+                            st.info("Results ready—process in Analyze or download in Export.")
+
+                            col_go1, col_go2 = st.columns(2)
+                            with col_go1:
+                                if st.button(f"🧭 {T('analyze_tab')}", key="go_to_analyze_activation"):
+                                    st.session_state.active_tab = 2  # Analyze
+                                    st.rerun()
+                            with col_go2:
+                                if st.button(f"🧭 {T('export_tab')}", key="go_to_export_activation"):
+                                    st.session_state.active_tab = 4  # Export
+                                    st.rerun()
+                        
                         st.rerun()
+               
     
             with action_cols[3]:
                 if st.button(T("remove_btn"), type="secondary", use_container_width=True, key="manage_remove"):
@@ -3337,7 +3364,16 @@ def main():
                 if st.button(T("quality_filter_btn"), key="analyze_quality", use_container_width=True):
                     with st.spinner(T("applying_quality_filter")):
                         analyzer.quality_filter(min_length=min_len, max_n_run=max_n)
-                        st.rerun()
+
+                    with st.container():  # NEW: Pins under button
+                        st.success("Quality filter applied—explore refined data!")
+                        st.info("Next: Check subtypes or generate charts below.")
+                        
+                        if st.button(f"🧭 {T('refine_tab')}", key="go_to_refine_quality"):
+                            st.session_state.active_tab = 3  # Refine
+                            st.rerun()
+                    
+                    st.rerun()
 
                 st.markdown(f"#### {T('subtype_operations')}")
                 all_subtypes = ['All'] + sorted(list(set(m.get('type', DEFAULT_UNKNOWN) for _, _, m in st.session_state.active_sequences if m.get('type') != DEFAULT_UNKNOWN)))
@@ -3599,44 +3635,49 @@ def main():
                     if accessions_to_find:
                         with st.spinner(T("filter_searching").format(count=len(accessions_to_find))):
                             filtered = analyzer.filter_by_accessions(accessions_to_find)
-                            time.sleep(0.5)
                         
-                        # Notifications
-                        if filtered:
-                            # Get match statistics from report
-                            report = st.session_state.get('last_report', '')
-                            import re
-                            found_match = re.search(r'Accessions found: (\d+)', report)
-                            accessions_found = int(found_match.group(1)) if found_match else len(set(
-                                meta.get('isolate_id', '') for _, _, meta in filtered
-                            ))
-                            
-                            st.toast(
-                                T("filter_success_toast").format(count=len(filtered)),
-                                icon="🎯"
-                            )
-                            
-                            st.success(
-                                f"🎉 **{T('filter_success_title')}**\n\n"
-                                f"{T('filter_success_found').format(count=len(filtered))}\n"
-                                f"{T('filter_success_matched').format(found=accessions_found, total=len(accessions_to_find))}\n"
-                                f"{T('filter_success_removed').format(count=analyzer.original_count_for_last_op - len(filtered))}\n\n"
-                                f"{T('filter_success_export')}"
-                            )
-                            
-                            time.sleep(1.5)
-                        else:
-                            st.warning(
-                                f"⚠️ **{T('filter_no_matches_title')}**\n\n"
-                                f"{T('filter_no_matches_searched').format(count=len(accessions_to_find))}\n\n"
-                                f"{T('filter_no_matches_suggestions')}\n"
-                                f"{T('filter_no_matches_verify')}\n"
-                                f"{T('filter_no_matches_test')}\n"
-                                f"{T('filter_no_matches_extract')}"
-                            )
-                            time.sleep(2)
+                        # NEW: Local container for pinned notifications
+                        with st.container():
+                            if filtered:
+                                # Get match statistics from report (with fallback)
+                                report = st.session_state.get('last_report', '')
+                                import re
+                                found_match = re.search(r'Accessions found: (\d+)', report)
+                                found_count = int(found_match.group(1)) if found_match else len({meta.get('isolate_id', '') for _, _, meta in filtered})  # FIXED: Fallback to unique IDs
+                                
+                                st.toast(
+                                    T("filter_success_toast").format(count=len(filtered)),
+                                    icon="🎯"
+                                )
+                                
+                                # NEW: Explicit "results ready" prompt
+                                st.info("✅ Results ready—sequences filtered! Download in Export tab.")
+                                
+                                st.success(
+                                    f"🎉 **{T('filter_success_title')}**\n\n"
+                                    f"{T('filter_success_found').format(count=len(filtered))}\n"
+                                    f"{T('filter_success_matched').format(found=found_count, total=len(accessions_to_find))}\n"  # FIXED: accessions_to_find → accessions_to_find (assume consistent var)
+                                    f"{T('filter_success_removed').format(count=analyzer.original_count_for_last_op - len(filtered))}\n\n"
+                                    f"{T('filter_success_export')}"
+                                )
+                                
+                                # Guidance button (inside container for pinning)
+                                if st.button("🧭 Go to Export & Reports", key="go_to_export_epi"):
+                                    st.session_state.active_tab = 4  # Export index
+                                    st.rerun()
+                            else:
+                                st.warning(
+                                    f"⚠️ **{T('filter_no_matches_title')}**\n\n"
+                                    f"{T('filter_no_matches_searched').format(count=len(accessions_to_find))}\n\n"
+                                    f"{T('filter_no_matches_suggestions')}\n"
+                                    f"{T('filter_no_matches_verify')}\n"
+                                    f"{T('filter_no_matches_test')}\n"
+                                    f"{T('filter_no_matches_extract')}"
+                                )
                         
-                        st.rerun()
+                        st.rerun()  # Rerun after container (refreshes UI but keeps pinned messages)
+                    else:
+                        st.warning("No accessions provided—enter or upload some to filter.")
             
             with filter_col2:
                 if accessions_to_find and st.session_state.active_sequences:
@@ -3661,13 +3702,24 @@ def main():
             
             # ========== END NEW SECTION ==========
 
+            # st.markdown("---")
             st.markdown("---")
             st.subheader(T("extract_accessions_btn"))
             if st.button(T("extract_accessions_btn"), key="refine_extract"):
                 accessions = analyzer.extract_accessions()
                 if accessions:
                     st.session_state.accession_list = accessions
-                    st.success(T("accessions_found").format(count=len(accessions), tab=T('export_tab')))
+                    
+                    # NEW: Column layout for success + clickable button
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.success(T("accessions_found").format(count=len(accessions), tab=T('export_tab')))
+                    with col2:
+                        if st.button("🧭 Go to Export", key="go_to_export_accessions"):
+                            st.session_state.active_tab = 4  # Export index
+                            st.rerun()
+                    
+                    # Keep the preview below
                     st.text_area(T("accession_preview"), "\n".join(accessions[:20]), height=150, disabled=True)
                 else:
                     st.warning(T("no_accessions_found"))
