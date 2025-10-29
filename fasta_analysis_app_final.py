@@ -3482,8 +3482,8 @@ def main():
 
             with col_proc2:
                 st.markdown(f"#### {T('quality_filter')}")
-                min_len = st.slider(T("min_length_label"), 0, 3000, value=st.session_state.get('analyze_min_len', 200, 50), key="analyze_min_len", help=T("help_min_length"))
-                max_n = st.slider(T("max_n_run_label"), 0, 500, value=st.session_state.get('analyze_max_n', 100, 10), key="analyze_max_n", help=T("help_max_n"))
+                min_len = st.slider(T("min_length_label"), 0, 3000, value=st.session_state.get('analyze_min_len', 200), step=50, key="analyze_min_len", help=T("help_min_length"))
+                max_n = st.slider(T("max_n_run_label"), 0, 500, value=st.session_state.get('analyze_max_n', 100), step=10, key="analyze_max_n", help=T("help_max_n"))
                 if st.button(T("quality_filter_btn"), key="analyze_quality", use_container_width=True):
                     with st.spinner(T("applying_quality_filter")):
                         analyzer.quality_filter(min_length=min_len, max_n_run=max_n)
