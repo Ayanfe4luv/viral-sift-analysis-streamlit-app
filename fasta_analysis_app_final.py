@@ -3368,96 +3368,144 @@ def main():
                 with vis_col2:
                     # Add vertical space to align button
                     for _ in range(5 if selected_chart_key not in ['stacked','heatmap'] else (7 if selected_chart_key=='stacked' else 6) ): st.write("")
-
-                    # NEW: Pre-built Color Schemes Selectbox
+                
+                    # Pre-built Color Schemes Selectbox
                     if selected_chart_key in schemes_by_chart:
                         scheme_names = list(schemes_by_chart[selected_chart_key].keys())
                         selected_scheme_name = st.selectbox("🎨 Color Scheme:", scheme_names, index=0, key=f"vis_scheme_{selected_chart_key}")
                         selected_scheme = schemes_by_chart[selected_chart_key][selected_scheme_name]
                     else:
                         selected_scheme = None
-
-                    # UPDATED Button logic with color param
+                
+                    # Generate Chart Button
                     if st.button(T("generate_chart_btn"), key="vis_generate", use_container_width=True, type="primary"):
-                        if selected_chart_key == 'stacked' and category1 == category2:  # ✅ Right order  # Fixed: Use category1/category2
+                        if selected_chart_key == 'stacked' and category1 == category2:
                             st.error("Primary and Secondary categories cannot be the same for Stacked Bar chart.")
                         else:
                             with st.spinner(T("generating_chart")):
                                 fig = None
                                 try:
-                                    # NEW: Check for custom palette override
                                     use_custom = 'custom_palette' in st.session_state and st.session_state.custom_palette
                                     color_to_use = st.session_state.custom_palette if use_custom else selected_scheme
-
-                                    # Call appropriate new or existing function with color
+                
                                     if selected_chart_key in ['bar', 'pie']:
                                         counts = analyzer.get_metadata_distribution(field1)
                                         fig = create_distribution_chart(counts, f"{field1_display} Distribution", chart_type=selected_chart_key, color_scheme=color_to_use)
                                     elif selected_chart_key == 'line':
                                         fig = create_temporal_chart(analyzer.sequences, interval=interval, color_scheme=color_to_use)
                                     elif selected_chart_key == 'heatmap':
-                                        fig = create_geographic_heatmap(analyzer.sequences, top_n=top_n_val, field=heatmap_field, color_scheme=color_to_use)  # Fixed: Pass field
+                                        fig = create_geographic_heatmap(analyzer.sequences, top_n=top_n_val, field=heatmap_field, color_scheme=color_to_use)
                                     elif selected_chart_key == 'stacked':
-                                        fig = create_stacked_bar_chart(analyzer.sequences, category1=category1, category2=category2, top_n=top_n_val, lang=st.session_state.lang, color_scheme=color_to_use)  # Fixed: Use category1/category2, add lang
-
+                                        fig = create_stacked_bar_chart(analyzer.sequences, category1=category1, category2=category2, top_n=top_n_val, lang=st.session_state.lang, color_scheme=color_to_use)
+                
                                     if fig:
-                                        # NEW: Apply scheme if not already (for custom scales)
-                                        if color_to_use and selected_chart_key != 'line':  # Line handled internally
-                                            # Fixed: Use a local df len or skip; assuming analyzer.sequences len as fallback
+                                        if color_to_use and selected_chart_key != 'line':
                                             data_len = len(analyzer.sequences) if analyzer.sequences else 0
                                             fig = apply_color_scheme(fig, color_to_use, selected_chart_key, data_len)
-
-                                        st.session_state.generated_chart = fig  # Store figure
+                                        st.session_state.generated_chart = fig
                                         st.caption(T("chart_ready"))
                                     else:
                                         st.warning(T("chart_no_data"))
                                 except Exception as e:
                                     st.error(f"{T('chart_error')}: {e}")
                                     progress_tracker.log_error(f"Chart generation failed: {e}")
-
-                    # NEW: Interactive Color Generator Expander
+                
+                    # ✅ NEW IMPROVED: Interactive Color Generator Expander
                     with st.expander("🎨 Custom Palette Studio", expanded=False):
                         num_colors = st.slider("Number of Colors", 3, 12, 8, key="vis_num_colors")
+                        
+                        st.write("**Select Colors:**")
+                        
+                        # Create color pickers in rows of 4
                         custom_colors = []
-                        for i in range(num_colors):
-                            col = st.color_picker(f"Color {i+1}", "#FF6B6B" if i == 0 else "#4ECDC4" if i == 1 else "#45B7D1" if i == 2 else "#96CEB4" if i == 3 else "#FFEAA7" if i == 4 else "#DDA0DD", key=f"vis_color_{i}")
-                            custom_colors.append(col)
-
-                        col_custom1, col_custom2 = st.columns(2)
-                        with col_custom1:
-                            if st.button("Apply Custom Palette", key="vis_custom_apply"):
+                        cols_per_row = 4
+                        for row in range((num_colors + cols_per_row - 1) // cols_per_row):
+                            cols = st.columns(cols_per_row)
+                            for col_idx, col in enumerate(cols):
+                                color_idx = row * cols_per_row + col_idx
+                                if color_idx < num_colors:
+                                    with col:
+                                        default_colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", 
+                                                         "#FFEAA7", "#DDA0DD", "#F39B7F", "#8491B4",
+                                                         "#91D1C2", "#B09C85", "#E64B35", "#4DBBD5"]
+                                        color = st.color_picker(
+                                            f"Color {color_idx + 1}", 
+                                            default_colors[color_idx % len(default_colors)],
+                                            key=f"vis_color_{color_idx}",
+                                            label_visibility="collapsed"
+                                        )
+                                        custom_colors.append(color)
+                        
+                        st.markdown("---")
+                        st.write("**Actions:**")
+                        
+                        col_btn1, col_btn2, col_btn3 = st.columns(3)
+                        
+                        with col_btn1:
+                            if st.button("✅ Apply Custom", key="vis_custom_apply", use_container_width=True):
                                 st.session_state.custom_palette = custom_colors
-                                st.success("Custom palette applied! Regenerate chart to see changes.")
-
-                        with col_custom2:
-                            # NEW: Nucleotide-Inspired Button
+                                st.success("✓ Custom palette applied!")
+                        
+                        with col_btn2:
                             sample_seq = analyzer.sequences[0][1] if analyzer.sequences else ""
-                            if st.button("🧬 Generate Nucleotide Palette", key="vis_nuc_palette"):
+                            if st.button("🧬 From DNA", key="vis_nuc_palette", use_container_width=True):
                                 nuc_scheme = nucleotide_palette(sample_seq)
-                                # Convert scale to list if needed (sample 8 colors)
-                                if callable(nuc_scheme):  # If it's a scale func, sample
-                                    nuc_colors = [nuc_scheme[i] for i in range(0, 100, 100//8)]  # Even spacing
+                                if callable(nuc_scheme):
+                                    nuc_colors = [nuc_scheme[i] for i in range(0, 100, 100//num_colors)]
                                 else:
-                                    nuc_colors = nuc_scheme[:8]
+                                    nuc_colors = nuc_scheme[:num_colors]
                                 st.session_state.custom_palette = nuc_colors
-                                st.success("Nucleotide palette generated from sample sequence!")
-
-                        # NEW: Export Palette
+                                st.success("✓ DNA palette generated!")
+                        
+                        with col_btn3:
+                            if st.button("🎲 Random", key="vis_random_palette", use_container_width=True):
+                                import random
+                                import colorsys
+                                
+                                random_colors = []
+                                for _ in range(num_colors):
+                                    hue = random.randint(0, 360)
+                                    saturation = random.randint(60, 100)
+                                    lightness = random.randint(45, 75)
+                                    
+                                    r, g, b = colorsys.hls_to_rgb(hue/360, lightness/100, saturation/100)
+                                    hex_color = f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
+                                    random_colors.append(hex_color)
+                                
+                                st.session_state.custom_palette = random_colors
+                                st.success("✓ Random palette generated!")
+                                st.rerun()
+                        
                         if 'custom_palette' in st.session_state and st.session_state.custom_palette:
-                            palette_json = json.dumps({'colors': st.session_state.custom_palette, 'name': 'Custom Viral Palette', 'date': datetime.now().isoformat()})
+                            st.markdown("---")
+                            st.write("**Current Palette Preview:**")
+                            
+                            swatch_cols = st.columns(min(8, len(st.session_state.custom_palette)))
+                            for i, color in enumerate(st.session_state.custom_palette[:8]):
+                                with swatch_cols[i]:
+                                    st.markdown(
+                                        f"<div style='background-color:{color}; width:100%; height:60px; "
+                                        f"border-radius:8px; border:2px solid #ddd;'></div>",
+                                        unsafe_allow_html=True
+                                    )
+                                    st.caption(color, help=f"Color {i+1}")
+                            
+                            if len(st.session_state.custom_palette) > 8:
+                                st.caption(f"... +{len(st.session_state.custom_palette) - 8} more colors")
+                            
+                            palette_json = json.dumps({
+                                'colors': st.session_state.custom_palette,
+                                'name': 'Custom Viral Palette',
+                                'date': datetime.now().isoformat()
+                            })
                             st.download_button(
                                 label="💾 Export Palette (JSON)",
                                 data=palette_json,
                                 file_name=f"viral_palette_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
                                 mime="application/json",
-                                key="export_palette"
+                                key="export_palette",
+                                use_container_width=True
                             )
-                            # Preview Swatches
-                            cols = st.columns(min(8, len(st.session_state.custom_palette)))
-                            for i, col in enumerate(st.session_state.custom_palette[:8]):
-                                with cols[i]:
-                                    st.markdown(f"<div style='background-color:{col}; width:100%; height:40px; border-radius:5px;'></div>", unsafe_allow_html=True)
-                                    st.caption(col)
                     # END UPDATED Button logic
 
             # ADDED Display chart from session state
