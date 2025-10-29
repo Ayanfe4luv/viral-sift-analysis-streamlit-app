@@ -366,6 +366,12 @@ TRANSLATIONS = {
         "pro_tip_merged": "Activating multiple files merges sequences into one dataset for unified analysis (dedup/filtering works across all files)—use for combined cohorts, or activate singly for isolation.",
         "preview_table_title": "Preview: Selected Files",
         "preview_merge_caption": "Activate to merge these into a single dataset for analysis.",
+
+        # In "en" section (add before closing })
+        "data_mode_label": "Data Mode:",
+        "data_mode_current": "Current (Filtered)",
+        "data_mode_original": "Original (Pre-Filter)",
+        "no_merged_files_active": "No merged files active.",
         
         # In "en":
         "docs_header": "## 🧬 Vir-Seq-Sift - User Guide\n\n### Overview\nThis tool provides comprehensive analysis capabilities for influenza and respiratory virus FASTA sequences. Use the tabs to navigate through the workflow: Upload -> Manage -> Analyze -> Refine -> Export.\n\n### Features & Guide\n\n| Feature Tab         | Action                      | Use Case                                                                 | Guide                                                                                                                               |\n| :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |\n| **📁 Upload & Setup**| File Upload / URL Download | Import sequence data from various sources.                               | Use the upload widget or paste a URL. Supports `.fasta`, `.fa`, `.txt`, `.gz`.                                                     |\n|                     | Google Drive (Colab)        | Load from mounted Google Drive in Colab.                                 | Select \"Google Drive\", mount if needed, enter path/pattern, load.                                                                  |\n| **🗂️ Manage Datasets**| Activate / Remove / Merge   | Work with multiple files, choose subsets for analysis.                 | Check files, click 'Activate Selected'. Use 'Remove' or 'Merge & Download'. Active data is used in Analyze/Refine tabs.              |\n| **🔬 Analyze & Process**| Convert Headers             | Standardize headers to `>name|type|...` format.                          | Click 'Convert Headers'. Useful if initial parsing seems incorrect.                                                               |\n|                     | Quality Filter              | Remove low-quality sequences (short or many N's).                        | Adjust sliders for 'Min Length' and 'Max N-Run', then click 'Apply Quality Filter'.                                                |\n|                     | Deduplication (Basic)       | Remove exact sequence duplicates.                                        | Click 'Deduplicate (Sequence Only)'. Keeps the first found instance.                                                              |\n|                     | Deduplication (Advanced)    | Remove duplicates, keeping one per subtype for each unique sequence.   | Click 'Deduplicate (Seq + Subtype)'. Maintains subtype diversity.                                                                   |\n|                     | Subtype Filter              | Isolate sequences of specific subtypes (e.g., H5N1).                     | Select from dropdown or enter custom subtypes (comma-sep), then click 'Apply Subtype Filter'.                                     |\n|                     | Check Subtypes              | Understand subtype proportions in the active dataset.                    | Click 'Check Subtype Distribution'. Displays Pie/Bar charts below.                                                                |\n|                     | Data Visualizer             | Explore distributions (hosts, locations, time, etc.).                    | Select field and chart type (Bar/Pie/Line/Heatmap/Stacked) in the expander, click 'Generate Chart'.                                |\n| **🎯 Refine & Visualize**| Clade Monthly Filter      | Subsample data to get representatives per clade per month.               | Select mode (Single/Multiple), choose clade(s), 'Keep' strategy (First/Last/Both), then click 'Apply'.                            |\n|                     | Enhanced Temporal Filter    | Subsample based on flexible time/metadata grouping.                      | Configure 'Group By', 'Sort By', 'Keep' options, then click 'Apply'. Useful for representative sampling over time/location etc. |\n|                     | Extract Accessions          | Get a list of GISAID EPI_ISL IDs.                                        | Click 'Extract EPI_ISL Accessions'. A download button appears in the **Export** tab.                                               |\n| **📊 Export & Reports** | Export FASTA / Report / Log | Download results, reports, and session logs.                           | Click download buttons for the current active FASTA, the last generated report, or the full session log.                              |\n\n### Tips\n- **Activation is Key**: Only sequences from *activated* datasets (in the Manage tab) are used for analysis and refinement.\n- **Large Files**: Processing large files can take time. Use the spinners/progress bars as indicators.\n- **Caching**: Parsing is cached; re-uploading the same file content should be faster.\n- **Session Data**: All work is stored in your browser session and will be lost if you close the tab or refresh without uploading again. Use the Export tab to save results.",
@@ -694,12 +700,19 @@ TRANSLATIONS = {
         "pro_tip_merged": "Активация нескольких файлов объединяет последовательности в один набор данных для единого анализа (дедупликация/фильтрация работает по всем файлам)—используйте для комбинированных когорт или активируйте по одному для изоляции.",
         "preview_table_title": "Предпросмотр: Выбранные Файлы",
         "preview_merge_caption": "Активируйте, чтобы объединить эти в один набор данных для анализа.",
+
+        # In "ru" section (add before closing })
+        "data_mode_label": "Режим Данных:",
+        "data_mode_current": "Текущий (Отфильтрованный)",
+        "data_mode_original": "Оригинальный (До Фильтра)",
+        "no_merged_files_active": "Нет активных объединённых файлов.",
         
         # Add to "ru" (before closing } ):
       "data_mode_label": "Режим Данных:",
       "data_mode_current": "Текущий (Отфильтрованный)",
       "data_mode_original": "Оригинальный (До Фильтра)",
       "data_mode_help": "Текущий: Использует последние после фильтров. Оригинальный: Снимки с активации.",
+        
         # In "ru" (translated equivalent—use Google Translate or manual for accuracy):
         "docs_header": "## 🧬 Vir-Seq-Sift - Руководство пользователя\n\n### Обзор\nЭтот инструмент предоставляет комплексные возможности анализа для FASTA-последовательностей гриппа и респираторных вирусов. Используйте вкладки для навигации по рабочему процессу: Загрузка -> Управление -> Анализ -> Уточнение -> Экспорт.\n\n### Функции и руководство\n\n| Вкладка функции     | Действие                    | Случай использования                                                      | Руководство                                                                                                                         |\n| :------------------ | :-------------------------- | :----------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |\n| **📁 Загрузка и Настройка**| Загрузка файлов / Скачивание по URL | Импорт данных последовательностей из различных источников.               | Используйте виджет загрузки или вставьте URL. Поддерживает `.fasta`, `.fa`, `.txt`, `.gz`.                                         |\n|                     | Google Drive (Colab)        | Загрузка из подключенного Google Drive в Colab.                          | Выберите \"Google Drive\", подключите при необходимости, введите путь/шаблон, загрузите.                                            |\n| **🗂️ Управление Наборами**| Активация / Удаление / Объединение | Работа с несколькими файлами, выбор подмножеств для анализа.             | Отметьте файлы, нажмите 'Активировать Выбранные'. Используйте 'Удалить' или 'Объединить и Скачать'. Активные данные используются во вкладках Анализ/Уточнение. |\n| **🔬 Анализ и Обработка**| Конвертация Заголовков      | Стандартизация заголовков в формат `>name|type|...`.                     | Нажмите 'Конвертировать Заголовки'. Полезно, если начальный парсинг кажется неверным.                                              |\n|                     | Фильтр Качества             | Удаление низкокачественных последовательностей (коротких или с многими N). | Настройте слайдеры для 'Мин. Длина' и 'Макс. N-Серия', затем нажмите 'Применить Фильтр Качества'.                                   |\n|                     | Дедупликация (Базовая)      | Удаление точных дубликатов последовательностей.                          | Нажмите 'Дедупликация (Только Последовательность)'. Сохраняет первое найденное.                                                   |\n|                     | Дедупликация (Продвинутая)  | Удаление дубликатов, сохраняя по одной на подтип для уникальной последовательности. | Нажмите 'Дедупликация (Последовательность + Подтип)'. Сохраняет разнообразие подтипов.                                             |\n|                     | Фильтр Подтипа              | Изоляция последовательностей конкретных подтипов (например, H5N1).       | Выберите из выпадающего списка или введите пользовательские подтипы (через запятую), затем нажмите 'Применить Фильтр Подтипа'.       |\n|                     | Проверка Подтипов           | Понимание пропорций подтипов в активном наборе.                          | Нажмите 'Проверить Распределение Подтипов'. Отображает Круговые/Столбчатые диаграммы ниже.                                        |\n|                     | Визуализатор Данных         | Исследование распределений (хозяева, местоположения, время и т.д.).      | Выберите поле и тип диаграммы (Столбчатая/Круговая/Линейная/Тепловая/Составная) в расширителе, нажмите 'Создать Диаграмму'.           |\n| **🎯 Уточнение и Визуализация**| Месячный Фильтр по Кладам | Подвыборка данных для получения представителей на кладу в месяц.         | Выберите режим (Одиночный/Множественный), кладу(ы), стратегию 'Сохранить' (Первая/Последняя/Обе), затем нажмите 'Применить'.         |\n|                     | Улучшенный Временной Фильтр | Подвыборка на основе гибкой группировки по времени/метаданным.           | Настройте 'Группировать по', 'Сортировать по', опции 'Сохранить', затем нажмите 'Применить'. Полезно для репрезентативной выборки по времени/местоположению и т.д. |\n|                     | Извлечение Акцессий         | Получение списка ID EPI_ISL GISAID.                                      | Нажмите 'Извлечь EPI_ISL Акцессии'. Кнопка скачивания появляется во вкладке **Экспорт**.                                           |\n| **📊 Экспорт и Отчеты** | Экспорт FASTA / Отчет / Лог | Скачивание результатов, отчетов и логов сессии.                         | Нажмите кнопки скачивания для текущего активного FASTA, последнего отчета или полного лога сессии.                                 |\n\n### Советы\n- **Активация Ключ**: Только последовательности из *активированных* наборов (во вкладке Управление) используются для анализа и уточнения.\n- **Большие Файлы**: Обработка больших файлов может занять время. Используйте индикаторы спиннеров/прогресса.\n- **Кэширование**: Парсинг кэшируется; повторная загрузка того же содержимого файла должна быть быстрее.\n- **Данные Сессии**: Вся работа хранится в сессии браузера и потеряется при закрытии вкладки или обновлении без повторной загрузки. Используйте вкладку Экспорт для сохранения результатов.",
         "docs_tips": "### Советы\n- **Активация Ключ**: Только последовательности из *активированных* наборов (во вкладке Управление) используются для анализа и уточнения.\n- **Большие Файлы**: Обработка больших файлов может занять время. Используйте индикаторы спиннеров/прогресса.\n- **Кэширование**: Парсинг кэшируется; повторная загрузка того же содержимого файла должна быть быстрее.\n- **Данные Сессии**: Вся работа хранится в сессии браузера и потеряется при закрытии вкладки или обновлении без повторной загрузки. Используйте вкладку Экспорт для сохранения результатов."
@@ -2514,11 +2527,10 @@ def main():
     load_custom_css()
     init_session_state()
 
-    
     # Sidebar with full translation
     with st.sidebar:
         st.markdown("<h1 style='text-align: center; color: white;'>🧬 Vir-Seq-Sift</h1>", unsafe_allow_html=True)
-
+    
         # Check for language in query params first
         default_lang = st.query_params.get("lang", "en")
         if 'lang' not in st.session_state:
@@ -2538,24 +2550,24 @@ def main():
         if selected_lang_code != st.session_state.lang:
             st.session_state.lang = selected_lang_code
             st.rerun()
-
+    
         # ========== ADD THEME TOGGLE HERE (RIGHT AFTER LANGUAGE) ==========
         # Theme Toggle
         default_theme = st.query_params.get("theme", "light")
         if 'theme' not in st.session_state:
             st.session_state.theme = default_theme
-
+    
         # Theme options with Auto mode
         theme_options = {
             'auto': "🔄 Auto",
             'light': "☀️ Light",
             'dark': "🌙 Dark"
         }
-
+    
         # Initialize theme mode (auto/manual preference)
         if 'theme_mode' not in st.session_state:
             st.session_state.theme_mode = st.query_params.get("theme_mode", "auto")
-
+    
         # Radio button selector
         selected_theme_mode = st.radio(
             "Theme",
@@ -2566,14 +2578,13 @@ def main():
             horizontal=True,
             label_visibility="collapsed"
         )
-
+    
         # Handle theme change
         if selected_theme_mode != st.session_state.theme_mode:
             st.session_state.theme_mode = selected_theme_mode
             
             if selected_theme_mode == 'auto':
                 # Auto mode: Use time-based logic (dark at night, light during day)
-                #from datetime import datetime
                 hour = datetime.now().hour
                 st.session_state.theme = 'dark' if (20 <= hour or hour < 6) else 'light'
             else:
@@ -2586,30 +2597,29 @@ def main():
                 "theme_mode": selected_theme_mode
             })
             st.rerun()
-
+    
         # Show current mode indicator (optional)
         if st.session_state.theme_mode == 'auto':
             st.caption(f"🔄 Auto mode: {st.session_state.theme.capitalize()} ({datetime.now().strftime('%H:%M')})")
         
         # ========== END COMBINED ==========
-
+    
         T = lambda key: get_translation(key, st.session_state.lang)
-
+    
         st.markdown("---")
-
-        # Data Mode Toggle
+    
+        # Data Mode Toggle (radio) + per-file selectbox
         data_mode = st.radio(
-            "Data Mode:", 
-            ["Current (Filtered)", "Original (Pre-Filter)"], 
+            T("data_mode_label"),  # "Data Mode:"
+            [T("data_mode_current"), T("data_mode_original")],  # ["Current (Filtered)", "Original (Pre-Filter)"]
             index=0, 
             key="data_mode_toggle", 
             horizontal=True,
-            help="Current: Uses latest after filters. Original: Snapshots from activation."
+            help=T("data_mode_help")  # Existing help key
         )
-        data_mode_val = 'current' if "Current" in data_mode else 'original'
-
-        # Existing: data_mode radio + data_mode_val assignment
-        # Add this right after it (global, as it affects active_sequences)
+        data_mode_val = 'current' if data_mode == T("data_mode_current") else 'original'  # FIXED: Direct string match
+    
+        # Per-file selectbox for multi-file Data Mode (right after radio)
         if st.session_state.get('active_filenames') and len(st.session_state.active_filenames) > 1:
             available_originals = list(st.session_state.original_sequences.keys())
             selected_file = st.selectbox(
@@ -2632,13 +2642,13 @@ def main():
         else:
             # Single-file or none: Hide dropdown
             st.session_state.data_mode_file = None
-
+    
         st.markdown(f"### {T('sidebar_quick_stats')}")
         if st.session_state.all_files:
             st.metric(T("sidebar_files_loaded"), len(st.session_state.all_files))
         else:
             st.caption(T("sidebar_no_files"))
-
+    
         if st.session_state.active_sequences:
             st.metric(T("sidebar_active_seqs"), f"{len(st.session_state.active_sequences):,}")
             try:
@@ -2646,17 +2656,19 @@ def main():
                 st.metric(T("sidebar_avg_length"), f"{int(avg_len):,} {T('bp')}")
             except ZeroDivisionError:
                 st.metric(T("sidebar_avg_length"), "N/A")
+            
+            # PLACEMENT: Merged Files Metric—right here after active seqs/avg length (inside if active_sequences)
+            if st.session_state.active_filenames:
+                merged_files_count = len(st.session_state.active_filenames)
+                st.metric("Merged from", f"{merged_files_count} {T('files')}", delta=None)
+            else:
+                st.caption(T("no_merged_files_active"))  # "No merged files active." (translated)
         else:
             st.caption(T("sidebar_no_dataset"))
-
-        if st.session_state.active_sequences and st.session_state.active_filenames:
-            merged_files_count = len(st.session_state.active_filenames)
-            st.metric("Merged from", f"{merged_files_count} {T('files')}", delta=None)
-        else:
-            # Optional: Empty state
-            st.caption("No merged files active.")
-
+    
         st.markdown("---")
+    
+        # ... (rest of your sidebar: quick actions, reset, export, footer—unchanged)
 
         st.markdown(f"### {T('sidebar_quick_actions')}")
         
@@ -3704,20 +3716,24 @@ def main():
 
             # Existing: st.download_button for active FASTA
             # Add this right after it
+            # if st.session_state.original_sequences:  # Check if per-file originals exist
             if st.session_state.original_sequences:  # Check if per-file originals exist
                 zip_buffer = io.BytesIO()
                 with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    total_seqs = 0
+                    total_seqs = 0  # FIXED: Consistent var for caption
                     for fname, seqs in st.session_state.original_sequences.items():
                         fasta_io = io.StringIO()
                         for header, seq, _ in seqs:
-                            h = header if h.startswith('>') else '>' + header
+                            h = header  # FIXED: Assign first
+                            if not h.startswith('>'):  # Then check/prepend
+                                h = '>' + h
                             fasta_io.write(f"{h}\n{seq}\n")
                         fasta_str = fasta_io.getvalue()
                         zipf.writestr(f"{fname}", fasta_str)
                         total_seqs += len(seqs)
                 
                 zip_buffer.seek(0)
+                st.caption(f"Exports pre-filter originals as separate FASTAs in a ZIP ({total_seqs} total seqs)—no merging.")
                 st.download_button(
                     label=f"⬇️ Download Per-File ZIP (Originals, {len(st.session_state.original_sequences)} files, {total_seqs} seqs)",
                     data=zip_buffer.getvalue(),
@@ -3726,6 +3742,7 @@ def main():
                     key="export_per_file_zip",
                     use_container_width=True
                 )
+                
                 st.caption("Exports pre-filter originals as separate FASTAs in a ZIP—no merging.")
 
             if st.session_state.get('accession_list'):
