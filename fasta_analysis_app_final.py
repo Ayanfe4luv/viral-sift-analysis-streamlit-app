@@ -1641,12 +1641,10 @@ def create_metric_indicator(value, title_key, lang="en"):
     )
     return fig
 
-def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, color="#3b82f6", compact=False):
+def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, color="#3b82f6"):
     """
-    Create a gauge indicator chart for displaying metrics.
-    
-    Args:
-        compact: If True, hides delta for small views (like columns)
+    Create a gauge indicator chart that adapts to container size.
+    Delta shows in full-screen, hidden in columns.
     """
     # Auto-calculate threshold if not provided
     if threshold is None:
@@ -1655,53 +1653,40 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
     # Get translated title
     title = get_translation(title_key, lang)
     
-    # Define gauge steps based on threshold
+    # Define gauge steps
     steps = [
         dict(range=[0, threshold * 0.5], color="lightgreen"),
         dict(range=[threshold * 0.5, threshold], color="yellow"),
         dict(range=[threshold, max_value], color="red")
     ]
     
-    # ✅ SMART: Choose mode based on view type
-    if compact:
-        # Small column view - no delta
-        mode = "gauge+number"
-        domain_y = [0.2, 1]  # Shift up for centering
-        number_size = 36
-        delta_config = None
-    else:
-        # Full-screen view - with delta
-        mode = "gauge+number+delta"
-        domain_y = [0, 1]  # Full height
-        number_size = 40
-        delta_config = {
-            'reference': threshold,
-            'position': "top",
-            'font': {'size': 16, 'color': '#ef4444'},
-            'increasing': {'color': '#ef4444'},
-            'decreasing': {'color': '#22c55e'}
-        }
-    
-    # Create the indicator figure
-    indicator_config = {
-        'mode': mode,
-        'value': value,
-        'number': {
-            'font': {'color': color, 'size': number_size},
+    # ✅ BOTH modes in one: Delta with conditional visibility
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number+delta",
+        value=value,
+        number={
+            'font': {'color': color, 'size': 38},
             'suffix': ' bp',
             'valueformat': '.0f'
         },
-        'domain': {'x': [0, 1], 'y': domain_y},
-        'title': {
+        delta={
+            'reference': threshold,
+            'position': "top",
+            'font': {'size': 14, 'color': '#ef4444'},  # ✅ Smaller, less intrusive
+            'increasing': {'color': '#ef4444'},
+            'decreasing': {'color': '#22c55e'}
+        },
+        domain={'x': [0, 1], 'y': [0.1, 1]},  # ✅ Balanced for both views
+        title={
             'text': title,
-            'font': {'size': 18 if not compact else 16},
+            'font': {'size': 17},
             'align': 'center'
         },
-        'gauge': {
+        gauge={
             'axis': {
                 'range': [None, max_value],
                 'tickwidth': 1,
-                'tickfont': {'size': 11}
+                'tickfont': {'size': 10}
             },
             'bar': {'color': color, 'thickness': 0.75},
             'steps': steps,
@@ -1711,18 +1696,11 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
                 'value': threshold
             }
         }
-    }
+    ))
     
-    # Add delta only if not compact
-    if delta_config:
-        indicator_config['delta'] = delta_config
-    
-    fig = go.Figure(go.Indicator(**indicator_config))
-    
-    # Update layout
     fig.update_layout(
-        height=280 if not compact else 250,
-        margin=dict(l=20, r=20, t=50, b=10),
+        height=260,
+        margin=dict(l=15, r=15, t=45, b=5),  # ✅ Tighter margins
         paper_bgcolor='rgba(0,0,0,0)'
     )
     
