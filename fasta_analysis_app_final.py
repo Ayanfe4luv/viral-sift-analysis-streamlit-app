@@ -2931,8 +2931,8 @@ def main():
                         value=default_checked
                     )
                 
-                st.session_state[checkbox_key] = is_selected
-                file_selection_states[filename] = is_selected
+                #st.session_state[checkbox_key] = is_selected
+                #file_selection_states[filename] = is_selected
 
             selected_files_now = [fname for fname, selected in file_selection_states.items() if selected]
 
