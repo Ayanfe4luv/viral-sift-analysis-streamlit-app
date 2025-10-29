@@ -3292,7 +3292,7 @@ def main():
                     max_value=max(3000, int(avg_len * 1.5)) if avg_len > 0 else 2000,
                     title_key="gauge_title",
                     lang=current_lang,
-                    compact=True
+                    #compact=True
                 ), use_container_width=True)
 
             st.markdown("---")
