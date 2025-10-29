@@ -3306,8 +3306,20 @@ def main():
                         T("vis_type_stacked"): 'stacked'
                     }
 
-                    selected_chart_display = st.selectbox(T("chart_type_label"), list(vis_chart_options.keys()), index=st.session_state.get('vis_chart_type_index', 0), key="vis_chart_type")
-                    selected_chart_key = vis_chart_options[selected_chart_display]
+                    # FIXED: Use index-based selection to avoid key mismatch
+                    chart_type_list = list(vis_chart_options.keys())
+                    chart_value_list = list(vis_chart_options.values())
+
+                    selected_chart_index = st.selectbox(
+                        T("chart_type_label"), 
+                        options=range(len(chart_type_list)),  # Use indices instead of keys
+                        index=st.session_state.get('vis_chart_type_index', 0),
+                        format_func=lambda i: chart_type_list[i],  # Display translated text
+                        key="vis_chart_type"
+                    )
+
+                    selected_chart_key = chart_value_list[selected_chart_index]
+                    st.session_state.vis_chart_type_index = selected_chart_index
 
                     # ADDED Conditional controls
                     field1, field2, interval, top_n_val = None, None, None, 20
