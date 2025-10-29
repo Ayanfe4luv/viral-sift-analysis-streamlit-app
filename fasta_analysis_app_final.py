@@ -2740,8 +2740,19 @@ def main():
     tabs = st.tabs(tab_labels)
     
     # FIXED: Select active tab by index (simulates selection via session state)
-    st.session_state.active_tab = tabs.index(tabs)  # Update on UI selection
+    # st.session_state.active_tab = tabs.index(tabs)  # Update on UI selection
     tab_map = dict(zip(tab_keys, tabs))  # Map for with blocks
+
+    # Get active tab from query params
+    query_tab = st.query_params.get("tab", "upload")
+    if query_tab in tab_keys:
+        # Simulate by hiding other tabs' content (hacky but works)
+        for i, key in enumerate(tab_keys):
+            if key == query_tab:
+                st.session_state.active_tab = i
+            else:
+                with tab_map[key]:
+                    st.empty()  # Hide content
 
     # ==================== TAB 1: UPLOAD & SETUP ====================
     with tab_map["upload_tab"]:
