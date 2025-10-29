@@ -3674,5 +3674,5 @@ def main():
 
     gc.collect()
 
-if __name__ == "__main_ _":
+if __name__ == "__main__":  # ✅ CORRECT
     main()
