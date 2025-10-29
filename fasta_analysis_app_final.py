@@ -2946,7 +2946,6 @@ def main():
                         <li><b>{T('step3_title')}</b> {T('step3_desc')}</li>
                         <li><b>{T('step4_title')}</b> {T('step4_desc')}</li>
                     </ol>
-                    <p><b>💡 {T('tip_title')}</b> {T('tip_multi_file')}</p>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -2963,12 +2962,13 @@ def main():
     
             sorted_filenames = sorted(st.session_state.all_files.keys())
             
-            # NEW: Single multiselect for all files (replaces checkbox loop)
+            # FIXED: Multiselect with dict for lookup
             file_counts = {fname: len(st.session_state.all_files[fname]) for fname in sorted_filenames}
             display_options = [f"**{fname}** ({file_counts[fname]} {T('seqs_abbrev')})" for fname in sorted_filenames]
+            options_dict = {display_str: fname for fname, display_str in zip(sorted_filenames, display_options)}  # NEW: For easy lookup
             
-            # Default: Pre-select if already active
-            default_selected = [i for i, fname in enumerate(sorted_filenames) if fname in st.session_state.active_filenames]
+            # FIXED: Default: Pre-select matching strings (not indices)
+            default_selected = [display_options[i] for i, fname in enumerate(sorted_filenames) if fname in st.session_state.active_filenames]
             
             selected_indices = st.multiselect(
                 "Select files to activate:",
@@ -2979,10 +2979,10 @@ def main():
                 help="Check to include in active dataset. Hold Ctrl/Cmd for multi-select."
             )
             
-            # Map back to filenames
-            selected_files_now = [sorted_filenames[i] for i, opt in enumerate(display_options) if opt in selected_indices]
+            # FIXED: Map back to filenames using dict
+            selected_files_now = [options_dict[opt] for opt in selected_indices]
             
-            # Preview selection count (NEW: UX boost)
+            # Preview selection count (UX boost)
             if selected_files_now:
                 total_seqs = sum(file_counts[fname] for fname in selected_files_now)
                 st.info(f"Selected: {len(selected_files_now)} files ({total_seqs:,} total {T('seqs_abbrev')})")
@@ -2993,7 +2993,7 @@ def main():
                     seqs = st.session_state.all_files[fname]
                     total_seqs_file = len(seqs)
                     
-                    # Quick subtype counts (reuse analyzer logic)
+                    # Quick subtype counts (reuse Counter)
                     subtype_counts = Counter(m.get('type', DEFAULT_UNKNOWN) for _, _, m in seqs)
                     top_subtypes = dict(sorted(subtype_counts.items(), key=lambda x: x[1], reverse=True)[:3])
                     subtype_str = ', '.join([f"{k}: {v}" for k, v in top_subtypes.items()]) or "No subtypes"
@@ -3006,9 +3006,9 @@ def main():
                 
                 if preview_data:
                     preview_df = pd.DataFrame(preview_data)
-                    st.subheader("Preview: Selected Files")
+                    st.subheader(T("preview_table_title"))
                     st.dataframe(preview_df, use_container_width=True, hide_index=True)
-                    st.caption("Activate to merge these into a single dataset for analysis.")
+                    st.caption(T("preview_merge_caption"))
             else:
                 st.info("No files selected yet.")
     
@@ -3019,7 +3019,7 @@ def main():
             with action_cols[0]:
                 if st.button(T("select_all_btn"), use_container_width=True, key="manage_select_all"):
                     st.session_state.active_filenames = list(st.session_state.all_files.keys())
-                    st.session_state['manage_file_multiselect'] = list(range(len(sorted_filenames)))  # Select all in multiselect
+                    st.session_state['manage_file_multiselect'] = display_options  # FIXED: Select all strings
                     st.rerun()
     
             with action_cols[1]:
@@ -3047,7 +3047,7 @@ def main():
                             st.session_state.active_sequences.extend(current_file_seqs)
                             st.session_state.original_sequences[fname] = current_file_seqs
                         
-                        # NEW: Always update snapshot after any activation (captures newly selected)
+                        # Always update snapshot after any activation (captures newly selected)
                         st.session_state.original_active_snapshot = [list(s) for s in st.session_state.active_sequences]  # Deep copy of current pre-filter
                     
                         count = len(st.session_state.active_sequences)
