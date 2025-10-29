@@ -1649,28 +1649,49 @@ def create_gauge_indicator(value, max_value, title_key, lang="en"):
         mode="gauge+number",
         value=display_value,
         title={'text': title, 'font': {'size': 18}},
-        gauge={'axis': {'range': [0, max_value], 'tickwidth': 1, 'tickcolor': "darkblue"},
-               'bar': {'color': "#3b82f6", 'thickness': 0.75},
-               'bgcolor': "white",
-               'borderwidth': 2,
-               'bordercolor': "#e5e7eb",
-               'steps': [
-                   {'range': [0, max_value * 0.5], 'color': '#e5e7eb'},
-                   {'range': [max_value * 0.5, max_value * 0.8], 'color': '#d1d5db'}],
-               'threshold': {'line': {'color': "#ef4444", 'width': 4}, 'thickness': 0.8, 'value': max_value * 0.9}},
-        # FIXED: Explicit centering for number
-        number={'x': 0.5, 'y': 0.5, 'xanchor': 'center', 'yanchor': 'middle',
-                'font': {'size': 30}, 'suffix': f" {get_translation('bp', lang)}",
-                'prefix': ''}  # Optional: Add prefix if needed (e.g., "~")
+        gauge={
+            'axis': {'range': [0, max_value], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'bar': {'color': "#3b82f6", 'thickness': 0.75},
+            'bgcolor': "white",
+            'borderwidth': 2,
+            'bordercolor': "#e5e7eb",
+            'steps': [
+                {'range': [0, max_value * 0.5], 'color': '#e5e7eb'},
+                {'range': [max_value * 0.5, max_value * 0.8], 'color': '#d1d5db'}
+            ],
+            'threshold': {'line': {'color': "#ef4444", 'width': 4}, 'thickness': 0.8, 'value': max_value * 0.9}
+        },
+        # FIXED: Remove invalid x/y/xanchor/yanchor from 'number'—these aren't supported.
+        # Use layout annotations for positioning if needed (added below).
+        number={
+            'font': {'size': 30}, 
+            'suffix': f" {get_translation('bp', lang)}",
+            'prefix': ''
+        }
     ))
     fig.update_layout(
-        height=220,  # Slight increase for better number fit
-        margin=dict(l=20, r=20, t=50, b=20),  # Symmetric bottom for balance
+        height=220,
+        margin=dict(l=20, r=20, t=50, b=20),
         paper_bgcolor='rgba(0,0,0,0)',
         font={'color': "#374151"},
-        # FIXED: Ensure gauge domain doesn't overlap number
-        gauge_domain={'x': [0, 1], 'y': [0, 0.7]}  # Compress gauge to top 70%, number in bottom 30%
+        # FIXED: Compress gauge to top 70%; number auto-centers below.
+        gauge_domain={'x': [0, 1], 'y': [0, 0.7]}
     )
+    
+    # OPTIONAL ENHANCEMENT: Explicitly center the number via annotation (if auto-positioning looks off).
+    # Comment out if not needed—test in light/dark themes.
+    fig.add_annotation(
+        x=0.5, y=0.5,  # Center in the bottom 30% space.
+        text=f"{int(display_value):,}",  # Formatted value (matches gauge).
+        showarrow=False,
+        font=dict(size=30, color="#374151"),
+        xref="paper", yref="paper",
+        xanchor="center", yanchor="middle"
+    )
+    
+    # Hide the default number if using annotation (uncomment if above is active):
+    # fig.update_traces(selector=dict(type='indicator'), number=dict(font=dict(size=0)))
+    
     return fig
 
 
