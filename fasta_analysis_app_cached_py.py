@@ -651,7 +651,7 @@ schemes_by_chart = {
         'Host Stacks': ['#8c510a', '#d8b365', '#f6e8c3', '#c7eae5', '#5ab4ac', '#01665e', '#f03b20', '#fee0d2'],
         'Pub Stack': ['#D55E00', '#0072B2', '#009E73', '#CC79A7', '#E69F00', '#F0E442', '#56B4E9', '#00A087'],
         'Mutation Layers': ['#543005', '#f5f5f5', '#003c30', '#8c510a', '#bf812d', '#dfc27d', '#80cdc1', '#35978f'],#px.colors.diverging.BrBG,
-        'Nebula Layers': px.colors.qualitative.Paired,
+        'Nebula Layers': ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a', '#ffff99', '#b15928'],  # Paired
         'Outbreak Build': px.colors.sequential.OrRd,
         'Bio Harmony': px.colors.qualitative.Pastel1,
         'Uniform Stack': ['#000000', '#1b365d', '#4b5e9d', '#7b7bcd', '#ad6aaa', '#dd5182', '#ff6b5b', '#ffa600']
