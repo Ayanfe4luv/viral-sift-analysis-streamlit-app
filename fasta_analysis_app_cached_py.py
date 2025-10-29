@@ -2534,109 +2534,53 @@ def main():
         default_theme = st.query_params.get("theme", "light")
         if 'theme' not in st.session_state:
             st.session_state.theme = default_theme
-        
-        theme_options = {'light': "☀️ Light Mode", 'dark': "🌙 Dark Mode"}
-        selected_theme = st.radio(
+
+        # Theme options with Auto mode
+        theme_options = {
+            'auto': "🔄 Auto",
+            'light': "☀️ Light",
+            'dark': "🌙 Dark"
+        }
+
+        # Initialize theme mode (auto/manual preference)
+        if 'theme_mode' not in st.session_state:
+            st.session_state.theme_mode = st.query_params.get("theme_mode", "auto")
+
+        # Radio button selector
+        selected_theme_mode = st.radio(
             "Theme",
             options=list(theme_options.keys()),
-            index=list(theme_options.keys()).index(st.session_state.theme),
+            index=list(theme_options.keys()).index(st.session_state.theme_mode),
             format_func=lambda x: theme_options[x],
-            key='theme_selector',  # Use different key to avoid conflict
+            key='theme_selector',
             horizontal=True,
             label_visibility="collapsed"
         )
-        
-        # Update session state from widget
-        if selected_theme != st.session_state.theme:
-            st.session_state.theme = selected_theme
-            st.rerun()
-        # ========== END THEME TOGGLE =========
 
-        # ========== ADD AUTO-DETECT SYSTEM THEME HERE ==========
-        # Auto-detect system theme on first load
-        def detect_system_theme():
-            """Detect system dark mode preference using JavaScript"""
-            st.markdown("""
-                <script>
-                    // Detect system theme preference
-                    const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    const theme = darkMode ? 'dark' : 'light';
-                    
-                    // Send to Streamlit via query params
-                    const url = new URL(window.location);
-                    if (!url.searchParams.has('theme_detected')) {
-                        url.searchParams.set('system_theme', theme);
-                        url.searchParams.set('theme_detected', 'true');
-                        window.location.href = url.toString();
-                    }
-                </script>
-            """, unsafe_allow_html=True)
-        
-        # Initialize theme from system preference on first visit
-        if 'theme_initialized' not in st.session_state:
-            system_theme = st.query_params.get("system_theme", None)
-            if system_theme and system_theme in ['light', 'dark']:
-                st.session_state.theme = system_theme
-                st.session_state.theme_mode = 'auto'  # Track if using auto
-                st.query_params.update({"theme": system_theme})
+        # Handle theme change
+        if selected_theme_mode != st.session_state.theme_mode:
+            st.session_state.theme_mode = selected_theme_mode
+            
+            if selected_theme_mode == 'auto':
+                # Auto mode: Use time-based logic (dark at night, light during day)
+                from datetime import datetime
+                hour = datetime.now().hour
+                st.session_state.theme = 'dark' if (20 <= hour or hour < 6) else 'light'
             else:
-                # Trigger auto-detection
-                default_theme = st.query_params.get("theme", "light")
-                st.session_state.theme = default_theme
-                st.session_state.theme_mode = st.query_params.get("theme_mode", "manual")
-                detect_system_theme()
-            st.session_state.theme_initialized = True
-        # ========== END AUTO-DETECT ==========
+                # Manual mode: Use selected theme directly
+                st.session_state.theme = selected_theme_mode
+            
+            # Persist to query params
+            st.query_params.update({
+                "theme": st.session_state.theme,
+                "theme_mode": selected_theme_mode
+            })
+            st.rerun()
 
-        # Manual Theme Toggle Buttons (Override Auto-Detect)
-        st.caption("Theme:")
-        theme_col1, theme_col2, theme_col3 = st.columns(3)
-
-        with theme_col1:
-            if st.button(
-                "🔄 Auto", 
-                use_container_width=True,
-                type="primary" if st.session_state.get('theme_mode') == 'auto' else "secondary",
-                key="theme_auto_btn",
-                help="Match system theme"
-            ):
-                # Re-detect system theme
-                system_theme = st.query_params.get("system_theme", "light")
-                st.session_state.theme = system_theme
-                st.session_state.theme_mode = 'auto'
-                st.query_params.update({"theme": system_theme, "theme_mode": "auto"})
-                st.rerun()
-
-        with theme_col2:
-            if st.button(
-                "☀️ Light", 
-                use_container_width=True, 
-                type="primary" if st.session_state.theme == 'light' and st.session_state.get('theme_mode') == 'manual' else "secondary",
-                key="theme_light_btn"
-            ):
-                st.session_state.theme = 'light'
-                st.session_state.theme_mode = 'manual'
-                st.query_params.update({"theme": "light", "theme_mode": "manual"})
-                st.rerun()
-
-        with theme_col3:
-            if st.button(
-                "🌙 Dark", 
-                use_container_width=True,
-                type="primary" if st.session_state.theme == 'dark' and st.session_state.get('theme_mode') == 'manual' else "secondary",
-                key="theme_dark_btn"
-            ):
-                st.session_state.theme = 'dark'
-                st.session_state.theme_mode = 'manual'
-                st.query_params.update({"theme": "dark", "theme_mode": "manual"})
-                st.rerun()
-
-        # Show current mode indicator
-        if st.session_state.get('theme_mode') == 'auto':
-            st.caption(f"↻ Following system theme: {st.session_state.theme.capitalize()}")
-
-        # ========== END ENHANCED ==========
-
+        # Show current mode indicator (optional)
+        if st.session_state.theme_mode == 'auto':
+            st.caption(f"🔄 Auto mode: {st.session_state.theme.capitalize()} ({datetime.now().strftime('%H:%M')})")
+        
         # ========== END COMBINED ==========
 
         T = lambda key: get_translation(key, st.session_state.lang)
@@ -3730,5 +3674,5 @@ def main():
 
     gc.collect()
 
-if __name__ == "__main__":
+if __name__ == "__main_ _":
     main()
