@@ -2563,7 +2563,7 @@ def main():
             
             if selected_theme_mode == 'auto':
                 # Auto mode: Use time-based logic (dark at night, light during day)
-                from datetime import datetime
+                #from datetime import datetime
                 hour = datetime.now().hour
                 st.session_state.theme = 'dark' if (20 <= hour or hour < 6) else 'light'
             else:
