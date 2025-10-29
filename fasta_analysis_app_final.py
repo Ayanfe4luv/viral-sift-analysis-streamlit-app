@@ -10,6 +10,7 @@ No errors; tested for Streamlit compatibility.
 
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
@@ -1641,59 +1642,56 @@ def create_metric_indicator(value, title_key, lang="en"):
     return fig
 
 
-def create_gauge_indicator(value, max_value, title_key, lang="en"):
-    """Create a gauge indicator"""
-    title = get_translation(title_key, lang)
-    display_value = min(value, max_value) if value is not None else 0
+def create_gauge_indicator(value, max_val, threshold, title, color, lang):
+    """
+    Create a gauge indicator chart for displaying metrics.
+    """
+    # Define gauge steps based on threshold (assuming 3 zones: low, medium, high)
+    steps = [
+        dict(range=[0, threshold * 0.5], color="lightgreen"),
+        dict(range=[threshold * 0.5, threshold], color="yellow"),
+        dict(range=[threshold, max_val], color="red")
+    ]
+    
+    # Create the indicator figure
     fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=display_value,
-        title={'text': title, 'font': {'size': 18}},
+        mode="gauge+number+delta",  # Includes number and delta automatically
+        value=value,
+        number={'font': {'color': color, 'size': 18}},
+        delta={'reference': threshold, 'position': "top", 'font': {'size': 16}},
+        domain={'x': [0, 1], 'y': [0, 0.7]},  # <-- MOVED HERE: This is the fix!
+        title={'text': title, 'font': {'size': 24}},
         gauge={
-            'axis': {'range': [0, max_value], 'tickwidth': 1, 'tickcolor': "darkblue"},
-            'bar': {'color': "#3b82f6", 'thickness': 0.75},
-            'bgcolor': "white",
-            'borderwidth': 2,
-            'bordercolor': "#e5e7eb",
-            'steps': [
-                {'range': [0, max_value * 0.5], 'color': '#e5e7eb'},
-                {'range': [max_value * 0.5, max_value * 0.8], 'color': '#d1d5db'}
-            ],
-            'threshold': {'line': {'color': "#ef4444", 'width': 4}, 'thickness': 0.8, 'value': max_value * 0.9}
-        },
-        # FIXED: Remove invalid x/y/xanchor/yanchor from 'number'—these aren't supported.
-        # Use layout annotations for positioning if needed (added below).
-        number={
-            'font': {'size': 30}, 
-            'suffix': f" {get_translation('bp', lang)}",
-            'prefix': ''
+            'axis': {'range': [None, max_val], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'bar': {'color': color},
+            'steps': steps,
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.75,
+                'value': threshold
+            }
         }
     ))
+    
+    # Update layout (removed invalid gauge_domain)
     fig.update_layout(
         height=220,
-        margin=dict(l=20, r=20, t=50, b=20),
+        width=300,
         paper_bgcolor='rgba(0,0,0,0)',
-        font={'color': "#374151"},
-        # FIXED: Compress gauge to top 70%; number auto-centers below.
-        gauge_domain={'x': [0, 1], 'y': [0, 0.7]}
+        font={'color': "darkblue", 'family': "Arial Black"},
+        # Optional: Manual annotation for value (may duplicate auto-number; remove if not needed)
+        annotations=[
+            dict(
+                text=f"{value:.0f}",
+                x=0.5,
+                y=0.85,  # Positioned above the gauge (thanks to domain y=0.7)
+                font=dict(size=30, color=color),
+                showarrow=False
+            )
+        ]
     )
-    
-    # OPTIONAL ENHANCEMENT: Explicitly center the number via annotation (if auto-positioning looks off).
-    # Comment out if not needed—test in light/dark themes.
-    fig.add_annotation(
-        x=0.5, y=0.5,  # Center in the bottom 30% space.
-        text=f"{int(display_value):,}",  # Formatted value (matches gauge).
-        showarrow=False,
-        font=dict(size=30, color="#374151"),
-        xref="paper", yref="paper",
-        xanchor="center", yanchor="middle"
-    )
-    
-    # Hide the default number if using annotation (uncomment if above is active):
-    # fig.update_traces(selector=dict(type='indicator'), number=dict(font=dict(size=0)))
     
     return fig
-
 
 def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar', color_scheme=None):
     """Create distribution pie or bar charts"""
