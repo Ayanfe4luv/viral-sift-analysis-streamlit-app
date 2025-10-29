@@ -2687,7 +2687,7 @@ def main():
         
         # ========== END COMBINED ==========
     
-        T = lambda key: get_translation(key, st.session_state.lang)
+        T = lambda key: get_translation(key, st.session_state.get('lang', 'en'))
     
         st.markdown("---")
     
@@ -3266,11 +3266,15 @@ def main():
                 ), use_container_width=True)
             with col2:
                 avg_len = sum(len(s[1]) for s in analyzer.sequences) / len(analyzer.sequences) if analyzer.sequences else 0
+        
+                # Safe access to lang with fallback
+                current_lang = st.session_state.get('lang', 'en')
+                
                 st.plotly_chart(create_gauge_indicator(
                     avg_len,
-                    max_value=max(2000, int(avg_len * 1.5)),
+                    max_value=max(3000, int(avg_len * 1.5)) if avg_len > 0 else 2000,
                     title_key="gauge_title",
-                    lang=st.session_state.lang
+                    lang=current_lang
                 ), use_container_width=True)
 
             st.markdown("---")
