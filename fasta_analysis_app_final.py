@@ -1652,7 +1652,7 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
     # Get translated title
     title = get_translation(title_key, lang)
     
-    # Define gauge steps based on threshold (assuming 3 zones: low, medium, high)
+    # Define gauge steps based on threshold
     steps = [
         dict(range=[0, threshold * 0.5], color="lightgreen"),
         dict(range=[threshold * 0.5, threshold], color="yellow"),
@@ -1661,34 +1661,43 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
     
     # Create the indicator figure
     fig = go.Figure(go.Indicator(
-        mode="gauge+number+delta",
+        mode="gauge+number",
         value=value,
-        number={'font': {'color': color, 'size': 24}},  # Increased size since no overlap
-        delta={'reference': threshold, 'position': "top", 'font': {'size': 14}},
-        domain={'x': [0, 1], 'y': [0, 0.7]},
-        title={'text': title, 'font': {'size': 18, 'color': '#374151'}},
+        number={
+            'font': {'color': color, 'size': 32},
+            'suffix': ' bp',
+            'valueformat': '.0f'
+        },
+        domain={'x': [0, 1], 'y': [0.15, 1]},  # Adjusted to prevent cutoff
+        title={
+            'text': title,
+            'font': {'size': 18},
+            'align': 'center'
+        },
         gauge={
-            'axis': {'range': [None, max_value], 'tickwidth': 1, 'tickcolor': "darkblue"},
-            'bar': {'color': color},
+            'axis': {
+                'range': [None, max_value],
+                'tickwidth': 1,
+                'tickfont': {'size': 12}
+            },
+            'bar': {'color': color, 'thickness': 0.75},
             'steps': steps,
             'threshold': {
-                'line': {'color': "red", 'width': 4},
+                'line': {'color': "red", 'width': 3},
                 'thickness': 0.75,
                 'value': threshold
             }
         }
     ))
     
-    # Update layout - removed redundant annotation
+    # Update layout for compact display
     fig.update_layout(
-        height=220,
-        margin=dict(l=10, r=10, t=40, b=10),
-        paper_bgcolor='rgba(0,0,0,0)',
-        font={'color': "darkblue"}
+        height=280,
+        margin=dict(l=30, r=30, t=80, b=30),  # Increased top margin for title
+        paper_bgcolor='rgba(0,0,0,0)'
     )
     
-    return fig
-    
+    return fig    
 def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar', color_scheme=None):
     """Create distribution pie or bar charts"""
     if not data_dict:
@@ -3257,7 +3266,7 @@ def main():
             analyzer = SequenceAnalyzer(st.session_state.active_sequences)
 
             st.subheader(T("current_dataset_overview"))
-            col1, col2 = st.columns(2)
+            col1, col2 = st.columns([1, 2])
             with col1:
                 st.plotly_chart(create_metric_indicator(
                     len(analyzer.sequences),
