@@ -63,6 +63,20 @@ TRANSLATIONS = {
         "sidebar_quick_export": "💾 Quick Export Active FASTA",
         "sidebar_footer": "Vir-Seq-Sift v1.0",
 
+        # ... existing translations ...
+        "theme_selector": "Theme",
+        "theme_light": "☀️ Light",
+        "theme_dark": "🌙 Dark",
+        "theme_auto": "🔄 Auto",
+
+        # NEW: Reset Process Messages
+        "reset_spinner_text": "Resetting session...",
+        "reset_toast_success": "Session reset successfully!",
+        "reset_clearing_data": "Clearing data...",
+        "reset_reinitializing": "Reinitializing defaults...",
+        "reset_finalizing": "Finalizing...",
+        "reset_toast_success": "Session reset successfully!",
+
         # Upload Tab
         "file_uploader_label": "Upload FASTA files",
         "upload_help_text": "Supports single or multiple files, including .gz compressed",
@@ -342,6 +356,20 @@ TRANSLATIONS = {
         "sidebar_reset_success": "🔄 Сессия Сброшена!",
         "sidebar_quick_export": "💾 Быстрый Экспорт FASTA",
         "sidebar_footer": "Vir-Seq-Sift v1.0",
+
+        # ... existing translations ...
+        "theme_selector": "Тема",
+        "theme_light": "☀️ Светлая",
+        "theme_dark": "🌙 Темная",
+        "theme_auto": "🔄 Авто",
+
+        # NEW: Reset Process Messages
+        "reset_spinner_text": "Сброс сессии...",
+        "reset_toast_success": "Сессия успешно сброшена!",
+        "reset_clearing_data": "Очистка данных...",
+        "reset_reinitializing": "Повторная инициализация...",
+        "reset_finalizing": "Завершение...",
+        "reset_toast_success": "Сессия успешно сброшена!",
 
         # Upload Tab
         "file_uploader_label": "Загрузить файлы FASTA",
@@ -1359,22 +1387,46 @@ class SequenceAnalyzer:
         progress_tracker.complete_operation(f"Exported {len(exported_files)} clade(s)")
         return exported_files
 
+
+def get_chart_colors(theme='light'):
+    """Get color scheme based on theme"""
+    if theme == 'dark':
+        return {
+            'bg': '#1e293b',
+            'paper': '#0f172a',
+            'text': '#f1f5f9',
+            'grid': '#475569',
+            'primary': '#3b82f6',
+        }
+    else:
+        return {
+            'bg': 'white',
+            'paper': 'rgba(0,0,0,0)',
+            'text': '#374151',
+            'grid': '#e5e7eb',
+            'primary': '#2563eb',
+        }
+
 # ==================== VISUALIZATION FUNCTIONS ====================
 def create_metric_indicator(value, title_key, lang="en"):
-    """Create a metric indicator"""
+    """Create a metric indicator with theme support"""
+    theme = st.session_state.get('theme', 'light')
+    colors = get_chart_colors(theme)
+    
     title = get_translation(title_key, lang)
     fig = go.Figure(go.Indicator(
         mode="number",
         value=value,
-        title={'text': title, 'font': {'size': 18}},
-        number={'font': {'size': 40, 'color': '#2563eb'}},
+        title={'text': title, 'font': {'size': 18, 'color': colors['text']}},
+        number={'font': {'size': 40, 'color': colors['primary']}},
         domain={'x': [0, 1], 'y': [0, 1]}
     ))
     fig.update_layout(
         height=150,
         margin=dict(l=10, r=10, t=40, b=10),
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)'
+        paper_bgcolor=colors['paper'],
+        plot_bgcolor=colors['bg'],
+        font={'color': colors['text']}
     )
     return fig
 
@@ -1705,211 +1757,532 @@ def apply_color_scheme(fig, color_scheme, chart_type, data_len=0):
 
 # ==================== CUSTOM CSS ====================
 def load_custom_css():
-    """Load custom CSS for better UI"""
-    css = r"""
-    <style>
-        .main .block-container {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-        .main {
-            background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
-        }
-        div[data-testid="stExpander"] div[data-testid="stVerticalBlock"],
-        div.stTabs [data-baseweb="tab-panel"] > div[data-testid="stVerticalBlock"] > div:not([data-testid="stExpander"]):not(:has(div[data-testid="stExpander"])){
-             background: white;
-             padding: 25px;
-             border-radius: 12px;
-             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-             margin-bottom: 25px;
-             border: 1px solid #e5e7eb;
-        }
-        h1 {
-            color: #1e3a8a;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-        h2 {
-            color: #1d4ed8;
-            border-bottom: 2px solid #60a5fa;
-            padding-bottom: 8px;
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        h3 {
-            color: #1e40af;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        h4 {
-            color: #1e40af;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        .stButton > button {
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-        .stButton > button[kind="primary"] {
-             background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-             color: white;
-        }
-        .stButton > button[kind="primary"]:hover {
-             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-             filter: brightness(1.1);
-        }
-        .stButton > button[kind="secondary"] {
-             background-color: #f3f4f6;
-             color: #dc2626;
-             border: 1px solid #ef4444;
-        }
-        .stButton > button[kind="secondary"]:hover {
-             background-color: #fee2e2;
-             border-color: #dc2626;
-        }
-        .stButton > button:not([kind="primary"]):not([kind="secondary"]) {
-            background-color: #ffffff;
-            color: #3b82f6;
-            border: 1px solid #d1d5db;
-        }
-        .stButton > button:not([kind="primary"]):not([kind="secondary"]):hover {
-            background-color: #f9fafb;
-            border-color: #9ca3af;
-        }
-        .stAlert {
-            border-radius: 8px;
-            border-left-width: 5px;
-            padding: 1rem;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        }
-        .stFileUploader {
-            border: 2px dashed #93c5fd;
-            border-radius: 10px;
-            padding: 25px;
-            background: #eff6ff;
-        }
-        .stFileUploader label {
-            font-weight: 600;
-            color: #1d4ed8;
-        }
-        div[data-testid="stMetric"] {
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        div[data-testid="stMetricLabel"] {
-            font-weight: 600;
-            color: #4b5563;
-            font-size: 0.95rem;
-        }
-        div[data-testid="stMetricValue"] {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #1e3a8a;
-        }
-        div[data-testid="stMetricDelta"] {
-             font-size: 0.9rem;
-        }
-        [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #0c4a6e 0%, #0369a1 100%);
-            padding: 1rem;
-        }
-        [data-testid="stSidebar"] h3 {
-             color: #e0f2fe;
-             border-bottom: 1px solid #7dd3fc;
-        }
-        [data-testid="stSidebar"] .stMetric {
-             background-color: rgba(255, 255, 255, 0.1);
-             border: none;
-             box-shadow: none;
-        }
-        [data-testid="stSidebar"] .stMetricLabel {
-              color: #e0f2fe;
-              font-size: 0.9rem;
-        }
-        [data-testid="stSidebar"] .stMetricValue {
-              color: #ffffff;
-              font-size: 1.8rem;
-        }
-        [data-testid="stSidebar"] .stButton > button {
-             background-color: rgba(255, 255, 255, 0.2);
-             color: white;
-             border: 1px solid rgba(255, 255, 255, 0.4);
-        }
-        [data-testid="stSidebar"] .stButton > button:hover {
-              background-color: rgba(255, 255, 255, 0.3);
-              border-color: rgba(255, 255, 255, 0.6);
-        }
-        [data-testid="stSidebar"] .stSelectbox label {
-              color: #e0f2fe;
-              font-weight: 600;
-        }
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 12px;
-            background-color: transparent;
-            border-radius: 0;
-            padding: 0;
-            box-shadow: none;
-            border-bottom: 2px solid #d1d5db;
-            margin-bottom: 1.5rem;
-        }
-        .stTabs [data-baseweb="tab"] {
-            background-color: transparent;
-            border-radius: 8px 8px 0 0;
-            padding: 12px 24px;
-            font-weight: 600;
-            color: #4b5563;
-            border: none;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s ease;
-        }
-        .stTabs [data-baseweb="tab"]:hover {
-             background-color: #f3f4f6;
-             color: #1d4ed8;
-        }
-        .stTabs [aria-selected="true"] {
-             color: #1d4ed8;
-             background-color: transparent;
-             border-bottom: 2px solid #1d4ed8;
-             box-shadow: none;
-        }
-        .stProgress > div > div {
-            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-            border-radius: 8px;
-        }
-        .stDataFrame {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid #e5e7eb;
-        }
-        .stExpander > summary {
-             background-color: #f9fafb;
-             border-radius: 8px;
-             padding: 10px 15px;
-             font-weight: 600;
-             color: #1e3a8a;
-             border: 1px solid #e5e7eb;
-        }
-        .stExpander > summary:hover {
-              background-color: #f3f4f6;
-        }
-        .stExpander > div {
-              border-top: none;
-              padding-top: 15px;
-        }
-    </style>
-    """
+    """Load custom CSS with theme support"""
+    theme = st.session_state.get('theme', 'light')
+    
+    if theme == 'dark':
+        css = r"""
+        <style>
+            /* Dark Mode Colors */
+            :root {
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-tertiary: #334155;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --accent-blue: #3b82f6;
+                --accent-blue-light: #60a5fa;
+                --border-color: #475569;
+                --shadow: rgba(0, 0, 0, 0.5);
+            }
+            
+            .main {
+                background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+                color: var(--text-primary);
+            }
+            
+            .main .block-container {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+            
+            /* Cards/Containers */
+            div[data-testid="stExpander"] div[data-testid="stVerticalBlock"],
+            div.stTabs [data-baseweb="tab-panel"] > div[data-testid="stVerticalBlock"] > div:not([data-testid="stExpander"]):not(:has(div[data-testid="stExpander"])){
+                background: var(--bg-secondary);
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px var(--shadow);
+                margin-bottom: 25px;
+                border: 1px solid var(--border-color);
+            }
+            
+            /* Typography */
+            h1, h2, h3, h4, h5, h6 {
+                color: var(--text-primary) !important;
+            }
+            
+            h1 {
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            
+            h2 {
+                border-bottom: 2px solid var(--accent-blue);
+                padding-bottom: 8px;
+                margin-top: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            h3, h4 {
+                margin-top: 1.5rem;
+                margin-bottom: 1rem;
+                font-weight: 600;
+            }
+            
+            /* Text Elements */
+            p, label, .stMarkdown {
+                color: var(--text-secondary) !important;
+            }
+            
+            /* Buttons */
+            .stButton > button {
+                border: none;
+                border-radius: 8px;
+                padding: 10px 20px;
+                font-weight: 600;
+                transition: all 0.2s ease-in-out;
+                box-shadow: 0 2px 4px var(--shadow);
+            }
+            
+            .stButton > button[kind="primary"] {
+                background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-blue-light) 100%);
+                color: white;
+            }
+            
+            .stButton > button[kind="primary"]:hover {
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+                filter: brightness(1.2);
+            }
+            
+            .stButton > button[kind="secondary"] {
+                background-color: var(--bg-tertiary);
+                color: #ef4444;
+                border: 1px solid #ef4444;
+            }
+            
+            .stButton > button[kind="secondary"]:hover {
+                background-color: var(--bg-secondary);
+                border-color: #dc2626;
+            }
+            
+            .stButton > button:not([kind="primary"]):not([kind="secondary"]) {
+                background-color: var(--bg-tertiary);
+                color: var(--accent-blue-light);
+                border: 1px solid var(--border-color);
+            }
+            
+            .stButton > button:not([kind="primary"]):not([kind="secondary"]):hover {
+                background-color: var(--bg-secondary);
+                border-color: var(--border-color);
+            }
+            
+            /* Alerts */
+            .stAlert {
+                border-radius: 8px;
+                border-left-width: 5px;
+                padding: 1rem;
+                background-color: var(--bg-tertiary) !important;
+                color: var(--text-primary) !important;
+                box-shadow: 0 2px 6px var(--shadow);
+            }
+            
+            /* File Uploader */
+            .stFileUploader {
+                border: 2px dashed var(--accent-blue);
+                border-radius: 10px;
+                padding: 25px;
+                background: var(--bg-tertiary);
+            }
+            
+            .stFileUploader label {
+                font-weight: 600;
+                color: var(--accent-blue-light);
+            }
+            
+            /* Metrics */
+            div[data-testid="stMetric"] {
+                background-color: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                padding: 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px var(--shadow);
+            }
+            
+            div[data-testid="stMetricLabel"] {
+                font-weight: 600;
+                color: var(--text-secondary) !important;
+                font-size: 0.95rem;
+            }
+            
+            div[data-testid="stMetricValue"] {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: var(--accent-blue-light) !important;
+            }
+            
+            div[data-testid="stMetricDelta"] {
+                font-size: 0.9rem;
+            }
+            
+            /* Sidebar (keep dark in dark mode) */
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #020617 0%, #0c4a6e 100%);
+                padding: 1rem;
+            }
+            
+            [data-testid="stSidebar"] h3 {
+                color: #e0f2fe;
+                border-bottom: 1px solid #7dd3fc;
+            }
+            
+            [data-testid="stSidebar"] .stMetric {
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                box-shadow: none;
+            }
+            
+            [data-testid="stSidebar"] .stMetricLabel {
+                color: #e0f2fe;
+                font-size: 0.9rem;
+            }
+            
+            [data-testid="stSidebar"] .stMetricValue {
+                color: #ffffff;
+                font-size: 1.8rem;
+            }
+            
+            [data-testid="stSidebar"] .stButton > button {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.4);
+            }
+            
+            [data-testid="stSidebar"] .stButton > button:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.6);
+            }
+            
+            [data-testid="stSidebar"] .stSelectbox label,
+            [data-testid="stSidebar"] .stRadio label {
+                color: #e0f2fe;
+                font-weight: 600;
+            }
+            
+            /* ← ADDED: Caption/text styling for sidebar */
+            [data-testid="stSidebar"] .stCaption,
+            [data-testid="stSidebar"] p {
+                color: #cbd5e1 !important;
+                font-size: 0.85rem;
+            }
+            
+            /* Tabs */
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 12px;
+                background-color: transparent;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+                border-bottom: 2px solid var(--border-color);
+                margin-bottom: 1.5rem;
+            }
+            
+            .stTabs [data-baseweb="tab"] {
+                background-color: transparent;
+                border-radius: 8px 8px 0 0;
+                padding: 12px 24px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                border: none;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+                transition: all 0.2s ease;
+            }
+            
+            .stTabs [data-baseweb="tab"]:hover {
+                background-color: var(--bg-tertiary);
+                color: var(--accent-blue-light);
+            }
+            
+            .stTabs [aria-selected="true"] {
+                color: var(--accent-blue-light);
+                background-color: transparent;
+                border-bottom: 2px solid var(--accent-blue);
+                box-shadow: none;
+            }
+            
+            /* Progress Bar */
+            .stProgress > div > div {
+                background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-blue-light) 100%);
+                border-radius: 8px;
+            }
+            
+            /* DataFrames */
+            .stDataFrame {
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px var(--shadow);
+                border: 1px solid var(--border-color);
+            }
+            
+            /* Expander */
+            .stExpander > summary {
+                background-color: var(--bg-tertiary);
+                border-radius: 8px;
+                padding: 10px 15px;
+                font-weight: 600;
+                color: var(--text-primary) !important;
+                border: 1px solid var(--border-color);
+            }
+            
+            .stExpander > summary:hover {
+                background-color: var(--bg-secondary);
+            }
+            
+            .stExpander > div {
+                border-top: none;
+                padding-top: 15px;
+            }
+            
+            /* Input Fields */
+            .stTextInput input, 
+            .stTextArea textarea, 
+            .stSelectbox select,
+            .stNumberInput input {
+                background-color: var(--bg-tertiary) !important;
+                color: var(--text-primary) !important;
+                border-color: var(--border-color) !important;
+            }
+            
+            /* Checkbox & Radio */
+            .stCheckbox label,
+            .stRadio label {
+                color: var(--text-primary) !important;
+            }
+            
+            /* Sliders */
+            .stSlider {
+                color: var(--text-primary) !important;
+            }
+            
+            /* Code blocks */
+            code {
+                background-color: var(--bg-tertiary) !important;
+                color: var(--accent-blue-light) !important;
+            }
+            
+            pre {
+                background-color: var(--bg-tertiary) !important;
+                border: 1px solid var(--border-color) !important;
+            }
+        </style>
+        """
+    else:  # Light mode (complete original CSS)
+        css = r"""
+        <style>
+            .main .block-container {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+            .main {
+                background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
+            }
+            div[data-testid="stExpander"] div[data-testid="stVerticalBlock"],
+            div.stTabs [data-baseweb="tab-panel"] > div[data-testid="stVerticalBlock"] > div:not([data-testid="stExpander"]):not(:has(div[data-testid="stExpander"])){
+                 background: white;
+                 padding: 25px;
+                 border-radius: 12px;
+                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                 margin-bottom: 25px;
+                 border: 1px solid #e5e7eb;
+            }
+            h1 {
+                color: #1e3a8a;
+                font-weight: 700;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+            h2 {
+                color: #1d4ed8;
+                border-bottom: 2px solid #60a5fa;
+                padding-bottom: 8px;
+                margin-top: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            h3 {
+                color: #1e40af;
+                margin-top: 1.5rem;
+                margin-bottom: 1rem;
+                font-weight: 600;
+            }
+            h4 {
+                color: #1e40af;
+                margin-top: 1.5rem;
+                margin-bottom: 1rem;
+                font-weight: 600;
+            }
+            .stButton > button {
+                border: none;
+                border-radius: 8px;
+                padding: 10px 20px;
+                font-weight: 600;
+                transition: all 0.2s ease-in-out;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            }
+            .stButton > button[kind="primary"] {
+                 background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+                 color: white;
+            }
+            .stButton > button[kind="primary"]:hover {
+                 box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                 filter: brightness(1.1);
+            }
+            .stButton > button[kind="secondary"] {
+                 background-color: #f3f4f6;
+                 color: #dc2626;
+                 border: 1px solid #ef4444;
+            }
+            .stButton > button[kind="secondary"]:hover {
+                 background-color: #fee2e2;
+                 border-color: #dc2626;
+            }
+            .stButton > button:not([kind="primary"]):not([kind="secondary"]) {
+                background-color: #ffffff;
+                color: #3b82f6;
+                border: 1px solid #d1d5db;
+            }
+            .stButton > button:not([kind="primary"]):not([kind="secondary"]):hover {
+                background-color: #f9fafb;
+                border-color: #9ca3af;
+            }
+            .stAlert {
+                border-radius: 8px;
+                border-left-width: 5px;
+                padding: 1rem;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            }
+            .stFileUploader {
+                border: 2px dashed #93c5fd;
+                border-radius: 10px;
+                padding: 25px;
+                background: #eff6ff;
+            }
+            .stFileUploader label {
+                font-weight: 600;
+                color: #1d4ed8;
+            }
+            div[data-testid="stMetric"] {
+                background-color: #ffffff;
+                border: 1px solid #e5e7eb;
+                padding: 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            div[data-testid="stMetricLabel"] {
+                font-weight: 600;
+                color: #4b5563;
+                font-size: 0.95rem;
+            }
+            div[data-testid="stMetricValue"] {
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #1e3a8a;
+            }
+            div[data-testid="stMetricDelta"] {
+                 font-size: 0.9rem;
+            }
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #0c4a6e 0%, #0369a1 100%);
+                padding: 1rem;
+            }
+            [data-testid="stSidebar"] h3 {
+                 color: #e0f2fe;
+                 border-bottom: 1px solid #7dd3fc;
+            }
+            [data-testid="stSidebar"] .stMetric {
+                 background-color: rgba(255, 255, 255, 0.1);
+                 border: none;
+                 box-shadow: none;
+            }
+            [data-testid="stSidebar"] .stMetricLabel {
+                  color: #e0f2fe;
+                  font-size: 0.9rem;
+            }
+            [data-testid="stSidebar"] .stMetricValue {
+                  color: #ffffff;
+                  font-size: 1.8rem;
+            }
+            [data-testid="stSidebar"] .stButton > button {
+                 background-color: rgba(255, 255, 255, 0.2);
+                 color: white;
+                 border: 1px solid rgba(255, 255, 255, 0.4);
+            }
+            [data-testid="stSidebar"] .stButton > button:hover {
+                  background-color: rgba(255, 255, 255, 0.3);
+                  border-color: rgba(255, 255, 255, 0.6);
+            }
+            [data-testid="stSidebar"] .stSelectbox label,
+            [data-testid="stSidebar"] .stRadio label {  /* ← ADDED: Radio support */
+                  color: #e0f2fe;
+                  font-weight: 600;
+            }
+            
+            /* ← ADDED: Caption/text styling for sidebar */
+            [data-testid="stSidebar"] .stCaption,
+            [data-testid="stSidebar"] p {
+                color: #bae6fd !important;
+                font-size: 0.85rem;
+            }
+            
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 12px;
+                background-color: transparent;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+                border-bottom: 2px solid #d1d5db;
+                margin-bottom: 1.5rem;
+            }
+            .stTabs [data-baseweb="tab"] {
+                background-color: transparent;
+                border-radius: 8px 8px 0 0;
+                padding: 12px 24px;
+                font-weight: 600;
+                color: #4b5563;
+                border: none;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -2px;
+                transition: all 0.2s ease;
+            }
+            .stTabs [data-baseweb="tab"]:hover {
+                 background-color: #f3f4f6;
+                 color: #1d4ed8;
+            }
+            .stTabs [aria-selected="true"] {
+                 color: #1d4ed8;
+                 background-color: transparent;
+                 border-bottom: 2px solid #1d4ed8;
+                 box-shadow: none;
+            }
+            .stProgress > div > div {
+                background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+                border-radius: 8px;
+            }
+            .stDataFrame {
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                border: 1px solid #e5e7eb;
+            }
+            .stExpander > summary {
+                 background-color: #f9fafb;
+                 border-radius: 8px;
+                 padding: 10px 15px;
+                 font-weight: 600;
+                 color: #1e3a8a;
+                 border: 1px solid #e5e7eb;
+            }
+            .stExpander > summary:hover {
+                  background-color: #f3f4f6;
+            }
+            .stExpander > div {
+                  border-top: none;
+                  padding-top: 15px;
+            }
+        </style>
+        """
+    
     st.markdown(css, unsafe_allow_html=True)
 
 # ==================== SESSION STATE INITIALIZATION ====================
@@ -1917,6 +2290,7 @@ def init_session_state():
     """Initialize session state variables if they don't exist."""
     defaults = {
         'lang': 'en',
+        'theme': 'light',
         'all_files': {},
         'active_sequences': [],
         'original_sequences': {},
@@ -1948,27 +2322,154 @@ def main():
     load_custom_css()
     init_session_state()
 
+    
     # Sidebar with full translation
     with st.sidebar:
         st.markdown("<h1 style='text-align: center; color: white;'>🧬 Vir-Seq-Sift</h1>", unsafe_allow_html=True)
 
+        # Check for language in query params first
+        default_lang = st.query_params.get("lang", "en")
+        if 'lang' not in st.session_state:
+            st.session_state.lang = default_lang
+        
         lang_options = {'en': "🇬🇧 English", 'ru': "🇷🇺 Русский"}
         selected_lang_code = st.selectbox(
             "🌐 Language / Язык",
             options=list(lang_options.keys()),
+            index=list(lang_options.keys()).index(st.session_state.lang),
             format_func=lambda code: lang_options[code],
-            key='lang',
+            key='lang_selector',  # Changed from 'lang' to avoid conflict
             label_visibility="collapsed"
         )
+        
+        # Update session state from widget
+        if selected_lang_code != st.session_state.lang:
+            st.session_state.lang = selected_lang_code
+            st.rerun()
+
+        # ========== ADD THEME TOGGLE HERE (RIGHT AFTER LANGUAGE) ==========
+        # Theme Toggle
+        default_theme = st.query_params.get("theme", "light")
+        if 'theme' not in st.session_state:
+            st.session_state.theme = default_theme
+        
+        theme_options = {'light': "☀️ Light Mode", 'dark': "🌙 Dark Mode"}
+        selected_theme = st.radio(
+            "Theme",
+            options=list(theme_options.keys()),
+            index=list(theme_options.keys()).index(st.session_state.theme),
+            format_func=lambda x: theme_options[x],
+            key='theme_selector',  # Use different key to avoid conflict
+            horizontal=True,
+            label_visibility="collapsed"
+        )
+        
+        # Update session state from widget
+        if selected_theme != st.session_state.theme:
+            st.session_state.theme = selected_theme
+            st.rerun()
+        # ========== END THEME TOGGLE =========
+
+        # ========== ADD AUTO-DETECT SYSTEM THEME HERE ==========
+        # Auto-detect system theme on first load
+        def detect_system_theme():
+            """Detect system dark mode preference using JavaScript"""
+            st.markdown("""
+                <script>
+                    // Detect system theme preference
+                    const darkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    const theme = darkMode ? 'dark' : 'light';
+                    
+                    // Send to Streamlit via query params
+                    const url = new URL(window.location);
+                    if (!url.searchParams.has('theme_detected')) {
+                        url.searchParams.set('system_theme', theme);
+                        url.searchParams.set('theme_detected', 'true');
+                        window.location.href = url.toString();
+                    }
+                </script>
+            """, unsafe_allow_html=True)
+        
+        # Initialize theme from system preference on first visit
+        if 'theme_initialized' not in st.session_state:
+            system_theme = st.query_params.get("system_theme", None)
+            if system_theme and system_theme in ['light', 'dark']:
+                st.session_state.theme = system_theme
+                st.session_state.theme_mode = 'auto'  # Track if using auto
+                st.query_params.update({"theme": system_theme})
+            else:
+                # Trigger auto-detection
+                default_theme = st.query_params.get("theme", "light")
+                st.session_state.theme = default_theme
+                st.session_state.theme_mode = st.query_params.get("theme_mode", "manual")
+                detect_system_theme()
+            st.session_state.theme_initialized = True
+        # ========== END AUTO-DETECT ==========
+
+        # Manual Theme Toggle Buttons (Override Auto-Detect)
+        st.caption("Theme:")
+        theme_col1, theme_col2, theme_col3 = st.columns(3)
+
+        with theme_col1:
+            if st.button(
+                "🔄 Auto", 
+                use_container_width=True,
+                type="primary" if st.session_state.get('theme_mode') == 'auto' else "secondary",
+                key="theme_auto_btn",
+                help="Match system theme"
+            ):
+                # Re-detect system theme
+                system_theme = st.query_params.get("system_theme", "light")
+                st.session_state.theme = system_theme
+                st.session_state.theme_mode = 'auto'
+                st.query_params.update({"theme": system_theme, "theme_mode": "auto"})
+                st.rerun()
+
+        with theme_col2:
+            if st.button(
+                "☀️ Light", 
+                use_container_width=True, 
+                type="primary" if st.session_state.theme == 'light' and st.session_state.get('theme_mode') == 'manual' else "secondary",
+                key="theme_light_btn"
+            ):
+                st.session_state.theme = 'light'
+                st.session_state.theme_mode = 'manual'
+                st.query_params.update({"theme": "light", "theme_mode": "manual"})
+                st.rerun()
+
+        with theme_col3:
+            if st.button(
+                "🌙 Dark", 
+                use_container_width=True,
+                type="primary" if st.session_state.theme == 'dark' and st.session_state.get('theme_mode') == 'manual' else "secondary",
+                key="theme_dark_btn"
+            ):
+                st.session_state.theme = 'dark'
+                st.session_state.theme_mode = 'manual'
+                st.query_params.update({"theme": "dark", "theme_mode": "manual"})
+                st.rerun()
+
+        # Show current mode indicator
+        if st.session_state.get('theme_mode') == 'auto':
+            st.caption(f"↻ Following system theme: {st.session_state.theme.capitalize()}")
+
+        # ========== END ENHANCED ==========
+
+        # ========== END COMBINED ==========
 
         T = lambda key: get_translation(key, st.session_state.lang)
 
         st.markdown("---")
 
         # Data Mode Toggle
-        data_mode = st.radio("Data Mode:", ["Current (Filtered)", "Original (Pre-Filter)"], 
-                            index=0, key="data_mode_toggle", horizontal=True,
-                            help="Current: Uses latest after filters. Original: Snapshots from activation.")
+        data_mode = st.radio(
+            "Data Mode:", 
+            ["Current (Filtered)", "Original (Pre-Filter)"], 
+            index=0, 
+            key="data_mode_toggle", 
+            horizontal=True,
+            help="Current: Uses latest after filters. Original: Snapshots from activation."
+        )
         data_mode_val = 'current' if "Current" in data_mode else 'original'
 
         st.markdown(f"### {T('sidebar_quick_stats')}")
@@ -1990,16 +2491,32 @@ def main():
         st.markdown("---")
 
         st.markdown(f"### {T('sidebar_quick_actions')}")
+        
         if st.button(T("sidebar_reset_all"), use_container_width=True, key="reset_all_sidebar"):
-            preserved_lang = st.session_state.lang
-            keys_to_reset = list(st.session_state.keys())
-            for key in keys_to_reset:
-                if key not in ['lang', 'status_placeholder']:
+            # Step 1: Preserve user preferences
+            preserved_lang = st.session_state.get('lang', 'en')
+            preserved_theme = st.session_state.get('theme', 'light')
+            
+            # Spinner with new translation
+            with st.spinner(T("reset_spinner_text")):
+                keys_to_delete = [k for k in st.session_state.keys() if k not in ['status_placeholder']]
+                for key in keys_to_delete:
                     del st.session_state[key]
-            init_session_state()
-            st.session_state.lang = preserved_lang
-            st.success(T("sidebar_reset_success"))
-            time.sleep(1)
+                
+                init_session_state()
+                
+                st.query_params.update({
+                    "lang": preserved_lang,
+                    "theme": preserved_theme,
+                    "reset": "true"
+                })
+                
+                time.sleep(0.3)
+            
+            # Toast with existing translation (reuse)
+            st.toast(f"✅ {T('sidebar_reset_success')}", icon="🔄") # Shows: Toast popup "✅ 🔄 Session Reset!" st.rerun()   
+            
+            time.sleep(0.5)
             st.rerun()
 
         if st.session_state.active_sequences:
@@ -2878,15 +3395,30 @@ def main():
 
     # ==================== TAB 6: DOCUMENTATION ====================
     with tab_map["docs_tab"]:
-        st.header(T("docs_header"))
 
-        # Documentation content (keeping English for now, can be translated later)
-        #st.markdown("""
-        ## 🧬 Vir-Seq-Sift - User Guide...""")
+    # ==================== TAB 6: DOCUMENTATION ====================
+    with tab_map["docs_tab"]:
+        # Display documentation title
+        st.markdown(f"## {T('docs_tab')}")
+        
+        # Display full documentation content
+        st.markdown(T("docs_header"))  # This is the big markdown table
+        
+        # Display tips section
+        st.markdown("---")
+        st.markdown(T("docs_tips"))
+        
+        # Optional: Add a download button for the docs
+        docs_content = T("docs_header") + "\n\n" + T("docs_tips")
+        st.download_button(
+            label="📥 Download Documentation (Markdown)",
+            data=docs_content,
+            file_name="vir_seq_sift_guide.md",
+            mime="text/markdown",
+            key="download_docs"
+        )
 
-    st.markdown(T("docs_header"))
-    st.markdown(T("docs_tips"))
-
+    # Global footer (appears on all tabs)
     st.markdown("---")
     st.caption(T("footer_text"))
 
