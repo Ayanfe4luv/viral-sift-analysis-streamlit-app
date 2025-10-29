@@ -2535,26 +2535,89 @@ def main():
     # Sidebar with full translation
     with st.sidebar:
         st.markdown("<h1 style='text-align: center; color: white;'>🧬 Vir-Seq-Sift</h1>", unsafe_allow_html=True)
+        
+        # ========== ENHANCED LANGUAGE SELECTOR ==========
+        # NEW: Global state snapshot helper (call before rerun)
+        def snapshot_widget_states():
+            """Quickly snapshot key widget states to session state for restoration."""
+            # Example: Add keys for your main widgets (expand as needed)
+            snapshot = {
+                'analyze_min_len': st.session_state.get('analyze_min_len', 200),
+                'analyze_max_n': st.session_state.get('analyze_max_n', 100),
+                'analyze_subtype_select': st.session_state.get('analyze_subtype_select', 'All'),  # Or use '_index' for index
+                'analyze_subtype_select_index': st.session_state.get('analyze_subtype_select_index', 0),
+                'vis_chart_type': st.session_state.get('vis_chart_type', 'bar'),
+                'vis_chart_type_index': st.session_state.get('vis_chart_type_index', 0),
+                'vis_field1': st.session_state.get('vis_field1', 'type'),
+                'vis_field1_index': st.session_state.get('vis_field1_index', 0),
+                'vis_interval': st.session_state.get('vis_interval', 'month'),
+                'vis_top_n': st.session_state.get('vis_top_n', 20),
+                'vis_cat1_stacked': st.session_state.get('vis_cat1_stacked', 'location'),
+                'vis_cat2_stacked': st.session_state.get('vis_cat2_stacked', 'type'),
+                
+                # Manage Tab
+                'manage_file_multiselect': st.session_state.get('manage_file_multiselect', []),
+                'upload_method_radio': st.session_state.get('upload_method_radio', 0),  # Index for radio
+                
+                # Refine Tab
+                'refine_clade_mode': st.session_state.get('refine_clade_mode', 'single'),
+                'refine_clade_mode_index': st.session_state.get('refine_clade_mode_index', 0),
+                'refine_clade_keep': st.session_state.get('refine_clade_keep', 'Both (First & Last)'),
+                'refine_clade_keep_index': st.session_state.get('refine_clade_keep_index', 2),
+                'refine_clade_separate': st.session_state.get('refine_clade_separate', True),
+                'refine_temp_group': st.session_state.get('refine_temp_group', 'location_host'),
+                'refine_temp_group_index': st.session_state.get('refine_temp_group_index', 4),
+                'refine_temp_sort': st.session_state.get('refine_temp_sort', 'date'),
+                'refine_temp_keep': st.session_state.get('refine_temp_keep', 'both'),
+                'refine_temp_keep_index': st.session_state.get('refine_temp_keep_index', 2),
+                'refine_temp_custom': st.session_state.get('refine_temp_custom', ''),
+                
+                # Global/Sidebar
+                'data_mode_toggle': st.session_state.get('data_mode_toggle', 'Current (Filtered)'),
+                'theme_mode': st.session_state.get('theme_mode', 'auto'),
+                
+                # Upload (if needed)
+                'url_downloader_input': st.session_state.get('url_downloader_input', ''),
+                'gdrive_path_input': st.session_state.get('gdrive_path_input', '')
+                
+                # This prevents resets on language change
+            }
+            for key, val in snapshot.items():
+                if key not in st.session_state:
+                    st.session_state[key] = val
     
         # Check for language in query params first
         default_lang = st.query_params.get("lang", "en")
         if 'lang' not in st.session_state:
             st.session_state.lang = default_lang
-        
+    
         lang_options = {'en': "🇬🇧 English", 'ru': "🇷🇺 Русский"}
+        
+        # Callback function (triggered on change)
+        def update_language():
+            current_selection = st.session_state['lang_selector']  # Access via session_state in callback
+            if current_selection != st.session_state.lang:
+                # Snapshot states BEFORE change
+                snapshot_widget_states()
+                st.session_state.lang = current_selection
+                # Persist to query params
+                st.query_params.update({"lang": current_selection})
+                # Optional: Toast confirmation
+                st.toast(f"✅ Switched to {lang_options[current_selection]} – Data preserved!", icon="🌐")
+                # Rerun for full UI refresh (safe now with snapshot)
+                st.rerun()
+    
         selected_lang_code = st.selectbox(
             "🌐 Language / Язык",
             options=list(lang_options.keys()),
             index=list(lang_options.keys()).index(st.session_state.lang),
             format_func=lambda code: lang_options[code],
-            key='lang_selector',  # Changed from 'lang' to avoid conflict
-            label_visibility="collapsed"
+            key='lang_selector',  # Consistent key
+            label_visibility="collapsed",
+            on_change=update_language  # FIXED: Use on_change for callback (Streamlit standard)
         )
         
-        # Update session state from widget
-        if selected_lang_code != st.session_state.lang:
-            st.session_state.lang = selected_lang_code
-            st.rerun()
+        # ========== END ENHANCED ==========
     
         # ========== ADD THEME TOGGLE HERE (RIGHT AFTER LANGUAGE) ==========
         # Theme Toggle
@@ -2724,6 +2787,14 @@ def main():
         st.markdown("---")
         st.caption(f"{T('sidebar_footer')} | {datetime.now().year}")
 
+        # ========== TEMP DEBUG EXPANDER (REMOVE AFTER TESTING) ==========
+        with st.expander("Debug: Session Snapshot", expanded=False):
+            # Filter to seq/file-related keys for brevity; expand filter as needed
+            debug_data = {k: v for k, v in st.session_state.items() if 'seq' in k.lower() or 'file' in k.lower()}
+            st.json(debug_data)
+        # ========== END TEMP ==========
+        
+
     # Main Area
     st.markdown(f"## {T('app_title')}")
 
@@ -2775,7 +2846,7 @@ def main():
         if COLAB_AVAILABLE or os.path.exists('/content/drive'):  # Basic check
             upload_options.insert(1, T("upload_gdrive"))
 
-        selected_upload_method = st.radio("Select Upload Method:", upload_options, horizontal=True, label_visibility="collapsed")
+        selected_upload_method = st.radio("Select Upload Method:", upload_options, index=st.session_state.get('upload_method_index', 0), horizontal=True, label_visibility="collapsed", key='upload_method_radio')
 
         # --- Widget Upload (only show if selected) ---
         if selected_upload_method == T("upload_widget"):
@@ -2847,6 +2918,7 @@ def main():
             st.subheader(T("download_url_header"))
             url_input = st.text_input(
                 T("url_input_label"),
+                value=st.session_state.get('url_downloader_input', ''),
                 placeholder=T("url_placeholder"),
                 key="url_downloader_input"
             )
@@ -2919,7 +2991,7 @@ def main():
                     st.warning(T("gdrive_fail"))
 
             # Allow path input regardless
-            gdrive_path = st.text_input(T("gdrive_path_label"), placeholder="/content/drive/MyDrive/YourFolder/*.fasta")
+            gdrive_path = st.text_input(T("gdrive_path_label"), value=st.session_state.get('gdrive_path_input', ''), placeholder="/content/drive/MyDrive/YourFolder/*.fasta", key='gdrive_path_input')
             if st.button(T("load_gdrive_btn"), disabled=not gdrive_path):
                 # Check again if accessible before trying glob
                 if not os.path.exists('/content/drive') and not st.session_state.get('gdrive_mounted'):
@@ -3009,7 +3081,7 @@ def main():
             selected_indices = st.multiselect(
                 "Select files to activate:",
                 options=display_options,
-                default=default_selected,
+                default=st.session_state.get('manage_file_multiselect', []),
                 key="manage_file_multiselect",
                 format_func=lambda x: x,  # Keeps bold/count display
                 help="Check to include in active dataset. Hold Ctrl/Cmd for multi-select."
@@ -3206,13 +3278,13 @@ def main():
                         T("vis_type_stacked"): 'stacked'
                     }
 
-                    selected_chart_display = st.selectbox(T("chart_type_label"), list(vis_chart_options.keys()), key="vis_chart_type")
+                    selected_chart_display = st.selectbox(T("chart_type_label"), list(vis_chart_options.keys()), index=st.session_state.get('vis_chart_type_index', 0), key="vis_chart_type")
                     selected_chart_key = vis_chart_options[selected_chart_display]
 
                     # ADDED Conditional controls
                     field1, field2, interval, top_n_val = None, None, None, 20
                     if selected_chart_key in ['bar', 'pie']:
-                        field1_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), key="vis_field1")
+                        field1_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), index=st.session_state.get('vis_field1_index', 0), key="vis_field1")
                         field1 = vis_field_options[field1_display]
                     elif selected_chart_key == 'line':
                         interval_options = {T("vis_interval_month"): 'month', T("vis_interval_quarter"): 'quarter', T("vis_interval_year"): 'year'}
@@ -3227,7 +3299,7 @@ def main():
                             T("top_n_label"),
                             min_value=1,
                             max_value=100,  # Increased from 50 to allow more than 20
-                            value=20,  # Your "fixed" default
+                            value=st.session_state.get('vis_top_n', 20),  # Your "fixed" default
                             step=5,
                             key="vis_top_n",
                             help="Limit to top N items (e.g., locations/hosts); higher values show more detail but may clutter the view."
@@ -3370,8 +3442,8 @@ def main():
 
             with col_proc2:
                 st.markdown(f"#### {T('quality_filter')}")
-                min_len = st.slider(T("min_length_label"), 0, 3000, 200, 50, key="analyze_min_len", help=T("help_min_length"))
-                max_n = st.slider(T("max_n_run_label"), 0, 500, 100, 10, key="analyze_max_n", help=T("help_max_n"))
+                min_len = st.slider(T("min_length_label"), 0, 3000, value=st.session_state.get('analyze_min_len', 200, 50), key="analyze_min_len", help=T("help_min_length"))
+                max_n = st.slider(T("max_n_run_label"), 0, 500, value=st.session_state.get('analyze_max_n', 100, 10), key="analyze_max_n", help=T("help_max_n"))
                 if st.button(T("quality_filter_btn"), key="analyze_quality", use_container_width=True):
                     with st.spinner(T("applying_quality_filter")):
                         analyzer.quality_filter(min_length=min_len, max_n_run=max_n)
@@ -3388,7 +3460,7 @@ def main():
 
                 st.markdown(f"#### {T('subtype_operations')}")
                 all_subtypes = ['All'] + sorted(list(set(m.get('type', DEFAULT_UNKNOWN) for _, _, m in st.session_state.active_sequences if m.get('type') != DEFAULT_UNKNOWN)))
-                selected_subtype = st.selectbox(T("subtype_label"), all_subtypes, key="analyze_subtype_select")
+                selected_subtype = st.selectbox(T("subtype_label"), all_subtypes, index=st.session_state.get('analyze_subtype_index', 0), key="analyze_subtype_select")
                 custom_subtypes_input = st.text_input(T("custom_subtype_label"), placeholder=T("custom_subtype_placeholder"), key="analyze_subtype_custom")
 
                 sub_op_cols = st.columns(2)
@@ -3431,7 +3503,7 @@ def main():
             if not available_clades:
                 st.caption(T("no_clade_info"))
             else:
-                clade_mode_display = st.radio(T("mode_label"), [T("clade_mode_single"), T("clade_mode_multiple")], key="refine_clade_mode", horizontal=True)
+                clade_mode_display = st.radio(T("mode_label"), [T("clade_mode_single"), T("clade_mode_multiple")], index=st.session_state.get('refine_clade_mode_index', 0), key="refine_clade_mode", horizontal=True)
                 clade_mode = 'single' if clade_mode_display == T("clade_mode_single") else 'multiple'
 
                 targets = []
@@ -3449,7 +3521,7 @@ def main():
                     T("temporal_order_last"): "Last Only",
                     T("temporal_order_both"): "Both (First & Last)"
                 }
-                keep_monthly_display = st.selectbox(T("keep_monthly_label"), list(keep_monthly_options.keys()), index=2, key="refine_clade_keep")
+                keep_monthly_display = st.selectbox(T("keep_monthly_label"), list(keep_monthly_options.keys()), index=st.session_state.get('refine_clade_keep_index', 2), key="refine_clade_keep")
                 keep_strategy = keep_monthly_options[keep_monthly_display]
 
                 if st.button(T("apply_clade_filter_button"), key="refine_clade_apply", disabled=not targets):
@@ -3558,7 +3630,7 @@ def main():
 
             gsk_cols = st.columns(3)
             with gsk_cols[0]:
-                group_by_display = st.selectbox(T("group_by_label"), list(group_options.keys()), key="refine_temp_group", index=4)
+                group_by_display = st.selectbox(T("group_by_label"), list(group_options.keys()), index=st.session_state.get('refine_temp_group_index', 4), key="refine_temp_group")
                 group_by_val = group_options[group_by_display]
             with gsk_cols[1]:
                 sort_by_display = st.selectbox(T("sort_by_label"), list(sort_options.keys()), key="refine_temp_sort")
@@ -3569,7 +3641,7 @@ def main():
 
             custom_grouping_input = ""
             if group_by_val == "custom":
-                custom_grouping_input = st.text_input(T("custom_grouping_label"), key="refine_temp_custom", placeholder=T("custom_grouping_placeholder"))
+                custom_grouping_input = st.text_input(T("custom_grouping_label"), key="refine_temp_custom", value=st.session_state.get('refine_temp_custom', ''), placeholder=T("custom_grouping_placeholder"))
 
             if st.button(T("apply_temporal_filter_button"), key="refine_temp_apply"):
                 custom_grouping_list = [f.strip() for f in custom_grouping_input.split(',')] if group_by_val == "custom" and custom_grouping_input else None
