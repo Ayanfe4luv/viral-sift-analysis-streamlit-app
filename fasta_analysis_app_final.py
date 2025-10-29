@@ -3379,7 +3379,7 @@ def main():
 
                     # UPDATED Button logic with color param
                     if st.button(T("generate_chart_btn"), key="vis_generate", use_container_width=True, type="primary"):
-                        if category1 == category2 and selected_chart_key == 'stacked':  # Fixed: Use category1/category2
+                        if selected_chart_key == 'stacked' and category1 == category2:  # ✅ Right order  # Fixed: Use category1/category2
                             st.error("Primary and Secondary categories cannot be the same for Stacked Bar chart.")
                         else:
                             with st.spinner(T("generating_chart")):
