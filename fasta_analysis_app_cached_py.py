@@ -69,6 +69,8 @@ TRANSLATIONS = {
         "theme_dark": "🌙 Dark",
         "theme_auto": "🔄 Auto",
 
+
+
         # NEW: Reset Process Messages
         "reset_spinner_text": "Resetting session...",
         "reset_toast_success": "Session reset successfully!",
@@ -240,6 +242,38 @@ TRANSLATIONS = {
         "accession_preview": "Accession Preview (first 20)",
         "accessions_found": "Found {count} accessions. Download available in '{tab}'.",
         "no_accessions_found": "No valid EPI_ISL accession numbers found in the current active dataset.",
+
+        # EPI Filter Section
+        "filter_by_accessions_title": "🔍 Filter by EPI_ISL Accessions",
+        "filter_by_accessions_desc": "Extract sequences matching specific EPI_ISL accession numbers",
+        "filter_input_method": "Input Method:",
+        "filter_method_text": "📝 Text Input",
+        "filter_method_file": "📄 Upload File",
+        "filter_textarea_label": "Enter EPI_ISL accessions (any format):",
+        "filter_textarea_placeholder": "EPI_ISL_12345\nEPI_ISL_67890\n\nOr: EPI_ISL_12345, EPI_ISL_67890",
+        "filter_textarea_help": "Supports: newlines, commas, spaces, tabs, or any combination",
+        "filter_file_label": "Upload text file with EPI_ISL accessions:",
+        "filter_file_help": "Any format: newlines, commas, spaces, or mixed",
+        "filter_loaded_success": "📁 Loaded {count} unique accessions from file",
+        "filter_preview_title": "Preview: {count} accessions loaded",
+        "filter_preview_more": "... and {count} more",
+        "filter_button": "🔍 Filter Sequences by Accessions",
+        "filter_searching": "Searching for {count} accessions...",
+        "filter_clear_button": "🗑️ Clear Input",
+        "filter_potential_matches": "Potential Matches",
+        "filter_success_toast": "Found {count} sequences!",
+        "filter_success_title": "Filtered sequences ready!",
+        "filter_success_found": "✅ Found **{count}** sequences",
+        "filter_success_matched": "🔖 Matched: {found} / {total} accessions",
+        "filter_success_removed": "📉 Removed: {count} sequences",
+        "filter_success_export": "💾 Download results in the **Export & Reports** tab.",
+        "filter_no_matches_title": "No Matches Found",
+        "filter_no_matches_searched": "Searched for **{count}** accessions but found **0** matching sequences.",
+        "filter_no_matches_suggestions": "**Suggestions:**",
+        "filter_no_matches_verify": "- Verify accession numbers are correct",
+        "filter_no_matches_test": "- Try fewer accessions to test",
+        "filter_no_matches_extract": "- Use 'Extract Accessions' button to see available IDs in your data",
+        "filter_cleared_toast": "Input cleared",
 
         # Export Tab
         "last_report_header": "Last Analysis Report",
@@ -535,6 +569,38 @@ TRANSLATIONS = {
         "accessions_found": "Найдено {count} номеров. Скачать можно на '{tab}'.",
         "no_accessions_found": "Не найдено валидных EPI_ISL номеров в текущем активном наборе.",
 
+         # EPI Filter Section (Russian)
+        "filter_by_accessions_title": "🔍 Фильтр по Номерам EPI_ISL",
+        "filter_by_accessions_desc": "Извлечение последовательностей по конкретным номерам EPI_ISL",
+        "filter_input_method": "Метод Ввода:",
+        "filter_method_text": "📝 Текстовый Ввод",
+        "filter_method_file": "📄 Загрузить Файл",
+        "filter_textarea_label": "Введите номера EPI_ISL (любой формат):",
+        "filter_textarea_placeholder": "EPI_ISL_12345\nEPI_ISL_67890\n\nИли: EPI_ISL_12345, EPI_ISL_67890",
+        "filter_textarea_help": "Поддерживает: переносы строк, запятые, пробелы, табуляцию или их комбинацию",
+        "filter_file_label": "Загрузить текстовый файл с номерами EPI_ISL:",
+        "filter_file_help": "Любой формат: переносы строк, запятые, пробелы или смешанный",
+        "filter_loaded_success": "📁 Загружено {count} уникальных номеров из файла",
+        "filter_preview_title": "Предпросмотр: загружено {count} номеров",
+        "filter_preview_more": "... и еще {count}",
+        "filter_button": "🔍 Фильтровать Последовательности",
+        "filter_searching": "Поиск {count} номеров...",
+        "filter_clear_button": "🗑️ Очистить Ввод",
+        "filter_potential_matches": "Потенциальных Совпадений",
+        "filter_success_toast": "Найдено {count} последовательностей!",
+        "filter_success_title": "Отфильтрованные последовательности готовы!",
+        "filter_success_found": "✅ Найдено **{count}** последовательностей",
+        "filter_success_matched": "🔖 Совпало: {found} / {total} номеров",
+        "filter_success_removed": "📉 Удалено: {count} последовательностей",
+        "filter_success_export": "💾 Скачайте результаты на вкладке **Экспорт и Отчеты**.",
+        "filter_no_matches_title": "Совпадений Не Найдено",
+        "filter_no_matches_searched": "Искали **{count}** номеров, но не нашли **ни одной** подходящей последовательности.",
+        "filter_no_matches_suggestions": "**Предложения:**",
+        "filter_no_matches_verify": "- Проверьте правильность номеров",
+        "filter_no_matches_test": "- Попробуйте меньше номеров для тестирования",
+        "filter_no_matches_extract": "- Используйте кнопку 'Извлечь Номера' для просмотра доступных ID",
+        "filter_cleared_toast": "Ввод очищен",
+
         # Export Tab
         "last_report_header": "Последний Отчет Анализа",
         "report_content": "Содержание Отчета",
@@ -711,6 +777,34 @@ def parse_date(date_str):
         except ValueError:
             continue
     return None
+
+# ========== ADD THIS NEW FUNCTION HERE ==========
+def parse_accessions(text):
+    """
+    Extract all EPI_ISL accessions from any text format.
+    Handles newlines, commas, spaces, tabs, extra text, etc.
+    
+    Args:
+        text: String containing accession numbers in any format
+    
+    Returns:
+        List of unique uppercase accession numbers
+    """
+    import re
+    pattern = r'EPI_ISL_\d+'
+    matches = re.findall(pattern, text, re.IGNORECASE)
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_accessions = []
+    for acc in matches:
+        acc_upper = acc.upper()
+        if acc_upper not in seen:
+            seen.add(acc_upper)
+            unique_accessions.append(acc_upper)
+    
+    return unique_accessions
+# ========== END NEW FUNCTION ==========
 
 def update_status(message_key, status_type="info", log=True):
     """Display status message and optionally log"""
@@ -1294,6 +1388,94 @@ class SequenceAnalyzer:
 
         progress_tracker.complete_operation(f"Found {len(accessions)} unique EPI_ISL accessions")
         return accessions
+
+    def filter_by_accessions(self, target_accessions):
+        """
+        Filter sequences by specific EPI_ISL accession numbers.
+        
+        Args:
+            target_accessions: List of accession strings to search for
+        
+        Returns:
+            Filtered sequences matching the target accessions
+        """
+        operation_name = f"Filter by Accessions ({len(target_accessions)} IDs)"
+        progress_tracker.start_operation(operation_name)
+        
+        if not target_accessions:
+            progress_tracker.log_error("No accessions provided for filtering")
+            return self.sequences
+        
+        # Normalize target accessions (uppercase, strip whitespace)
+        normalized_targets = {acc.strip().upper() for acc in target_accessions}
+        
+        filtered = []
+        removed_headers = []
+        matches_found = {}  # Track which accessions were found
+        
+        for header, seq, metadata in self.sequences:
+            # Check multiple sources for accession
+            isolate_id = str(metadata.get('isolate_id', '')).upper()
+            original_header = str(metadata.get('original_header', '')).upper()
+            header_upper = header.upper()
+            
+            # Search in all relevant fields
+            matched_accession = None
+            for target in normalized_targets:
+                if (target in isolate_id or 
+                    target in original_header or 
+                    target in header_upper):
+                    matched_accession = target
+                    break
+            
+            if matched_accession:
+                filtered.append([header, seq, metadata])
+                matches_found[matched_accession] = matches_found.get(matched_accession, 0) + 1
+            else:
+                removed_headers.append(header)
+        
+        # Generate detailed report
+        found_count = len(matches_found)
+        not_found = normalized_targets - set(matches_found.keys())
+        
+        report_details = (
+            f"\nAccessions searched: {len(normalized_targets)}\n"
+            f"Accessions found: {found_count}\n"
+            f"Sequences matched: {len(filtered)}\n"
+        )
+        
+        if not_found:
+            report_details += f"\nNot found ({len(not_found)}):\n"
+            report_details += "\n".join(list(not_found)[:10])
+            if len(not_found) > 10:
+                report_details += f"\n... and {len(not_found) - 10} more"
+        
+        if matches_found:
+            report_details += "\n\nMatches per accession:\n"
+            for acc, count in sorted(matches_found.items(), key=lambda x: x[1], reverse=True)[:10]:
+                report_details += f"  {acc}: {count} sequence(s)\n"
+        
+        # Update session state with detailed report
+        st.session_state.last_report = (
+            f"Operation: {operation_name}\n"
+            f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"Initial Count: {self.original_count_for_last_op}\n"
+            f"Final Count: {len(filtered)}\n"
+            f"Removed: {len(removed_headers)}\n"
+            f"{report_details}"
+        )
+        
+        if len(filtered) == 0:
+            progress_tracker.log_error("No sequences found matching the provided accessions")
+        else:
+            st.session_state.active_sequences = filtered
+            progress_tracker.complete_operation(
+                f"Found {len(filtered)} sequences matching {found_count} accessions",
+                "complete"
+            )
+        
+        return filtered
+    # ========== END NEW METHOD ==========
 
     def export_clades(self, selected_clades, export_mode='individual', zip_filename='clade_exports'):
         """Group and export sequences by selected clades (non-destructive)."""
@@ -3311,6 +3493,132 @@ def main():
                         custom_grouping=custom_grouping_list
                     )
                     st.rerun()
+            
+            st.markdown("---")
+        
+            # ========== ADD NEW SECTION HERE (BEFORE "Extract Accessions") ==========
+            st.subheader(T("filter_by_accessions_title"))
+            st.caption(T("filter_by_accessions_desc"))
+            
+            filter_method = st.radio(
+                T("filter_input_method"),
+                [T("filter_method_text"), T("filter_method_file")],
+                horizontal=True,
+                key="epi_filter_method"
+            )
+            
+            accessions_to_find = []
+            
+            if filter_method == T("filter_method_text"):
+                accession_input = st.text_area(
+                    T("filter_textarea_label"),
+                    placeholder=T("filter_textarea_placeholder"),
+                    height=150,
+                    key="epi_filter_input",
+                    help=T("filter_textarea_help")
+                )
+                
+                if accession_input:
+                    accessions_to_find = parse_accessions(accession_input)
+            
+            else:  # File Upload
+                uploaded_file = st.file_uploader(
+                    T("filter_file_label"),
+                    type=['txt', 'csv'],
+                    key="epi_filter_file",
+                    help=T("filter_file_help")
+                )
+                
+                if uploaded_file:
+                    try:
+                        content = uploaded_file.getvalue().decode('utf-8')
+                        accessions_to_find = parse_accessions(content)
+                        st.success(T("filter_loaded_success").format(count=len(accessions_to_find)))
+                    except Exception as e:
+                        st.error(f"Error reading file: {e}")
+            
+            # Show preview of loaded accessions
+            if accessions_to_find:
+                with st.expander(T("filter_preview_title").format(count=len(accessions_to_find)), expanded=False):
+                    st.code("\n".join(accessions_to_find[:20]))
+                    if len(accessions_to_find) > 20:
+                        st.caption(T("filter_preview_more").format(count=len(accessions_to_find) - 20))
+            
+            # Filter button
+            filter_col1, filter_col2, filter_col3 = st.columns([2, 1, 1])
+            
+            with filter_col1:
+                if st.button(
+                    T("filter_button"),
+                    type="primary",
+                    disabled=not accessions_to_find,
+                    use_container_width=True,
+                    key="apply_epi_filter"
+                ):
+                    if accessions_to_find:
+                        with st.spinner(T("filter_searching").format(count=len(accessions_to_find))):
+                            filtered = analyzer.filter_by_accessions(accessions_to_find)
+                            time.sleep(0.5)
+                        
+                        # Notifications
+                        if filtered:
+                            # Get match statistics from report
+                            report = st.session_state.get('last_report', '')
+                            import re
+                            found_match = re.search(r'Accessions found: (\d+)', report)
+                            accessions_found = int(found_match.group(1)) if found_match else len(set(
+                                meta.get('isolate_id', '') for _, _, meta in filtered
+                            ))
+                            
+                            st.toast(
+                                T("filter_success_toast").format(count=len(filtered)),
+                                icon="🎯"
+                            )
+                            
+                            st.success(
+                                f"🎉 **{T('filter_success_title')}**\n\n"
+                                f"{T('filter_success_found').format(count=len(filtered))}\n"
+                                f"{T('filter_success_matched').format(found=accessions_found, total=len(accessions_to_find))}\n"
+                                f"{T('filter_success_removed').format(count=analyzer.original_count_for_last_op - len(filtered))}\n\n"
+                                f"{T('filter_success_export')}"
+                            )
+                            
+                            time.sleep(1.5)
+                        else:
+                            st.warning(
+                                f"⚠️ **{T('filter_no_matches_title')}**\n\n"
+                                f"{T('filter_no_matches_searched').format(count=len(accessions_to_find))}\n\n"
+                                f"{T('filter_no_matches_suggestions')}\n"
+                                f"{T('filter_no_matches_verify')}\n"
+                                f"{T('filter_no_matches_test')}\n"
+                                f"{T('filter_no_matches_extract')}"
+                            )
+                            time.sleep(2)
+                        
+                        st.rerun()
+            
+            with filter_col2:
+                if accessions_to_find and st.session_state.active_sequences:
+                    # Preview match count without filtering
+                    preview_count = sum(
+                        1 for _, _, meta in st.session_state.active_sequences
+                        if any(acc.upper() in str(meta.get('isolate_id', '')).upper() or 
+                              acc.upper() in str(meta.get('original_header', '')).upper()
+                              for acc in accessions_to_find)
+                    )
+                    st.metric(T("filter_potential_matches"), preview_count)
+            
+            with filter_col3:
+                if st.button(
+                    T("filter_clear_button"),
+                    use_container_width=True,
+                    key="clear_epi_filter"
+                ):
+                    st.session_state.epi_filter_input = ""
+                    st.toast(T("filter_cleared_toast"), icon="✨")
+                    st.rerun()
+            
+            # ========== END NEW SECTION ==========
 
             st.markdown("---")
             st.subheader(T("extract_accessions_btn"))
@@ -3393,8 +3701,6 @@ def main():
                 display_log = log_data if log_data else T("no_logs_yet")
                 st.text_area(T("log_preview"), value=display_log, height=350, disabled=True, key="export_log_preview")
 
-    # ==================== TAB 6: DOCUMENTATION ====================
-    with tab_map["docs_tab"]:
 
     # ==================== TAB 6: DOCUMENTATION ====================
     with tab_map["docs_tab"]:
