@@ -1641,9 +1641,12 @@ def create_metric_indicator(value, title_key, lang="en"):
     )
     return fig
 
-def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, color="#3b82f6"):
+def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, color="#3b82f6", compact=False):
     """
     Create a gauge indicator chart for displaying metrics.
+    
+    Args:
+        compact: If True, hides delta for small views (like columns)
     """
     # Auto-calculate threshold if not provided
     if threshold is None:
@@ -1659,26 +1662,46 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
         dict(range=[threshold, max_value], color="red")
     ]
     
+    # ✅ SMART: Choose mode based on view type
+    if compact:
+        # Small column view - no delta
+        mode = "gauge+number"
+        domain_y = [0.2, 1]  # Shift up for centering
+        number_size = 36
+        delta_config = None
+    else:
+        # Full-screen view - with delta
+        mode = "gauge+number+delta"
+        domain_y = [0, 1]  # Full height
+        number_size = 40
+        delta_config = {
+            'reference': threshold,
+            'position': "top",
+            'font': {'size': 16, 'color': '#ef4444'},
+            'increasing': {'color': '#ef4444'},
+            'decreasing': {'color': '#22c55e'}
+        }
+    
     # Create the indicator figure
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=value,
-        number={
-            'font': {'color': color, 'size': 32},
+    indicator_config = {
+        'mode': mode,
+        'value': value,
+        'number': {
+            'font': {'color': color, 'size': number_size},
             'suffix': ' bp',
             'valueformat': '.0f'
         },
-        domain={'x': [0, 1], 'y': [0.15, 1]},  # Adjusted to prevent cutoff
-        title={
+        'domain': {'x': [0, 1], 'y': domain_y},
+        'title': {
             'text': title,
-            'font': {'size': 18},
+            'font': {'size': 18 if not compact else 16},
             'align': 'center'
         },
-        gauge={
+        'gauge': {
             'axis': {
                 'range': [None, max_value],
                 'tickwidth': 1,
-                'tickfont': {'size': 12}
+                'tickfont': {'size': 11}
             },
             'bar': {'color': color, 'thickness': 0.75},
             'steps': steps,
@@ -1688,16 +1711,23 @@ def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, co
                 'value': threshold
             }
         }
-    ))
+    }
     
-    # Update layout for compact display
+    # Add delta only if not compact
+    if delta_config:
+        indicator_config['delta'] = delta_config
+    
+    fig = go.Figure(go.Indicator(**indicator_config))
+    
+    # Update layout
     fig.update_layout(
-        height=280,
-        margin=dict(l=30, r=30, t=80, b=30),  # Increased top margin for title
+        height=280 if not compact else 250,
+        margin=dict(l=20, r=20, t=50, b=10),
         paper_bgcolor='rgba(0,0,0,0)'
     )
     
-    return fig    
+    return fig
+
 def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar', color_scheme=None):
     """Create distribution pie or bar charts"""
     if not data_dict:
@@ -3283,7 +3313,8 @@ def main():
                     avg_len,
                     max_value=max(3000, int(avg_len * 1.5)) if avg_len > 0 else 2000,
                     title_key="gauge_title",
-                    lang=current_lang
+                    lang=current_lang,
+                    compact=True
                 ), use_container_width=True)
 
             st.markdown("---")
