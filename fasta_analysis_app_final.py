@@ -1641,28 +1641,34 @@ def create_metric_indicator(value, title_key, lang="en"):
     )
     return fig
 
-
-def create_gauge_indicator(value, max_val, threshold, title, color, lang):
+def create_gauge_indicator(value, max_value, title_key, lang, threshold=None, color="#3b82f6"):
     """
     Create a gauge indicator chart for displaying metrics.
     """
+    # Auto-calculate threshold if not provided
+    if threshold is None:
+        threshold = max_value * 0.75
+    
+    # Get translated title
+    title = get_translation(title_key, lang)
+    
     # Define gauge steps based on threshold (assuming 3 zones: low, medium, high)
     steps = [
         dict(range=[0, threshold * 0.5], color="lightgreen"),
         dict(range=[threshold * 0.5, threshold], color="yellow"),
-        dict(range=[threshold, max_val], color="red")
+        dict(range=[threshold, max_value], color="red")
     ]
     
     # Create the indicator figure
     fig = go.Figure(go.Indicator(
-        mode="gauge+number+delta",  # Includes number and delta automatically
+        mode="gauge+number+delta",
         value=value,
-        number={'font': {'color': color, 'size': 18}},
-        delta={'reference': threshold, 'position': "top", 'font': {'size': 16}},
-        domain={'x': [0, 1], 'y': [0, 0.7]},  # <-- MOVED HERE: This is the fix!
-        title={'text': title, 'font': {'size': 24}},
+        number={'font': {'color': color, 'size': 24}},  # Increased size since no overlap
+        delta={'reference': threshold, 'position': "top", 'font': {'size': 14}},
+        domain={'x': [0, 1], 'y': [0, 0.7]},
+        title={'text': title, 'font': {'size': 18, 'color': '#374151'}},
         gauge={
-            'axis': {'range': [None, max_val], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'axis': {'range': [None, max_value], 'tickwidth': 1, 'tickcolor': "darkblue"},
             'bar': {'color': color},
             'steps': steps,
             'threshold': {
@@ -1673,26 +1679,16 @@ def create_gauge_indicator(value, max_val, threshold, title, color, lang):
         }
     ))
     
-    # Update layout (removed invalid gauge_domain)
+    # Update layout - removed redundant annotation
     fig.update_layout(
         height=220,
-        width=300,
+        margin=dict(l=10, r=10, t=40, b=10),
         paper_bgcolor='rgba(0,0,0,0)',
-        font={'color': "darkblue", 'family': "Arial Black"},
-        # Optional: Manual annotation for value (may duplicate auto-number; remove if not needed)
-        annotations=[
-            dict(
-                text=f"{value:.0f}",
-                x=0.5,
-                y=0.85,  # Positioned above the gauge (thanks to domain y=0.7)
-                font=dict(size=30, color=color),
-                showarrow=False
-            )
-        ]
+        font={'color': "darkblue"}
     )
     
     return fig
-
+    
 def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar', color_scheme=None):
     """Create distribution pie or bar charts"""
     if not data_dict:
