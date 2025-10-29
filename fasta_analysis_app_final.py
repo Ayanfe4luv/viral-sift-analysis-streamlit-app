@@ -3339,15 +3339,50 @@ def main():
                     chart_type_list = list(vis_chart_options.keys())
                     chart_value_list = list(vis_chart_options.values())
 
+                    #selected_chart_index = st.selectbox(
+                    # Define options for visualization using translations
+                    vis_field_options = {
+                        T("vis_field_subtype"): 'type', T("vis_field_segment"): 'segment', T("vis_field_host"): 'host',
+                        T("vis_field_location"): 'location', T("vis_field_clade"): 'clade',
+                        T("vis_field_year"): 'year', T("vis_field_month"): 'month'
+                    }
+
+                    # Chart type options
+                    vis_chart_options = {
+                        T("vis_type_bar"): 'bar', 
+                        T("vis_type_pie"): 'pie',
+                        T("vis_type_line"): 'line', 
+                        T("vis_type_heatmap"): 'heatmap',
+                        T("vis_type_stacked"): 'stacked'
+                    }
+
+                    # ✅ FIXED: Safe index-based selection with validation
+                    chart_type_list = list(vis_chart_options.keys())
+                    chart_value_list = list(vis_chart_options.values())
+
+                    # Get stored index, with validation
+                    stored_index = st.session_state.get('vis_chart_type_index', 0)  
+
+                    # ✅ ADDED: Validate stored index is valid
+                    if not isinstance(stored_index, int) or stored_index >= len(chart_type_list):
+                        stored_index = 0  # Reset to default if invalid
+
                     selected_chart_index = st.selectbox(
                         T("chart_type_label"), 
-                        options=range(len(chart_type_list)),  # Use indices instead of keys
-                        index=st.session_state.get('vis_chart_type_index', 0),
-                        format_func=lambda i: chart_type_list[i],  # Display translated text
+                        options=range(len(chart_type_list)),
+                        index=stored_index,
+                        format_func=lambda i: chart_type_list[i],
                         key="vis_chart_type"
                     )
 
+                    # ✅ ADDED: Ensure selected_chart_index is an integer
+                    if not isinstance(selected_chart_index, int):
+                        selected_chart_index = 0
+
+                    # Get the actual chart type value using the index
                     selected_chart_key = chart_value_list[selected_chart_index]
+                    
+                    # Store the index for persistence
                     st.session_state.vis_chart_type_index = selected_chart_index
 
                     # ADDED Conditional controls
