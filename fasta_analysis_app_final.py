@@ -1772,7 +1772,6 @@ def create_temporal_chart(sequences, interval='month', lang='en', color_scheme=N
     df_data = [{'date': item[2].get('collection_date')} for item in sequences if item[2].get('collection_date')]
     if not df_data:
         progress_tracker.log_error("No date information found for temporal chart.")
-        # Return an empty figure with a title indicating no data
         fig = go.Figure()
         fig.update_layout(title="Temporal Distribution (No Data)", xaxis={'visible': False}, yaxis={'visible': False},
                           annotations=[{'text': 'No date data available', 'xref': 'paper', 'yref': 'paper', 'showarrow': False, 'font': {'size': 16}}])
@@ -1782,39 +1781,42 @@ def create_temporal_chart(sequences, interval='month', lang='en', color_scheme=N
     df['date'] = pd.to_datetime(df['date'])
     df = df.dropna(subset=['date'])
 
-    # Aggregate counts based on interval
     if interval == 'year':
         df['period'] = df['date'].dt.year.astype(str)
     elif interval == 'quarter':
-        # Ensure correct quarterly period string (e.g., 2023-Q1)
         df['period'] = df['date'].dt.to_period('Q').astype(str)
-    else: # Default to month (YYYY-MM)
+    else:
         df['period'] = df['date'].dt.strftime('%Y-%m')
 
     counts = df['period'].value_counts().sort_index()
     counts_df = counts.reset_index()
     counts_df.columns = ['Period', 'Count']
 
-    # Use translation for title
     T = lambda key: get_translation(key, lang)
-    title_text = f"Sequence Count by {interval.capitalize()}" # Fallback
+    title_text = f"Sequence Count by {interval.capitalize()}"
     if interval == 'year': title_text = T("vis_interval_year") + " Count"
     elif interval == 'quarter': title_text = T("vis_interval_quarter") + " Count"
     elif interval == 'month': title_text = T("vis_interval_month") + " Count"
 
+    # ✅ FIXED: Don't pass color_scheme to line_dash_sequence
     fig = px.line(counts_df, x='Period', y='Count',
                   title=title_text,
-                  markers=True, text='Count', line_dash_sequence=color_scheme if isinstance(color_scheme, list) else None)
-    fig.update_traces(textposition="top center", line_dash_sequence=color_scheme if isinstance(color_scheme, list) else None)
+                  markers=True, text='Count')
+    fig.update_traces(textposition="top center")
+    
+    # ✅ FIXED: Apply color to line, not dash
+    if color_scheme:
+        if isinstance(color_scheme, str):  # Single color or scale name
+            fig.update_traces(line=dict(color=color_scheme if color_scheme.startswith('#') else None))
+        elif isinstance(color_scheme, list) and color_scheme:  # List of colors
+            fig.update_traces(line=dict(color=color_scheme[0]))  # Use first color
+    
     fig.update_layout(
         xaxis_title="Time Period", yaxis_title="Number of Sequences",
         margin=dict(t=50, b=20, l=20, r=20),
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'
     )
     progress_tracker.complete_operation("Temporal chart generated")
-    # NEW: For line-specific
-    if color_scheme and isinstance(color_scheme, str):  # Scale for multi-lines if extended
-        fig.update_traces(line=dict(color=color_scheme))
 
     return fig
 
@@ -1982,19 +1984,25 @@ def apply_color_scheme(fig, color_scheme, chart_type, data_len=0):
     """Helper: Apply color scheme to figure based on type."""
     if isinstance(color_scheme, str):  # Scale name
         if 'heatmap' in chart_type or 'line' in chart_type:
-            fig.update_layout(coloraxis_colorbar=dict(title="Intensity"))
+            # For continuous scales
             fig.update_traces(colorscale=color_scheme)
         else:
+            # For bar/pie with continuous coloring
             fig.update_layout(coloraxis_colorscale=color_scheme)
     else:  # List of hex/colors
-        if 'pie' in chart_type or 'bar' in chart_type or 'stacked' in chart_type:
-            # Truncate/extend list to data_len
+        if 'pie' in chart_type:
+            # ✅ FIXED: Use marker.colors for pie charts (correct property)
+            fig.update_traces(marker=dict(colors=color_scheme[:data_len] if data_len else color_scheme))
+        elif 'bar' in chart_type or 'stacked' in chart_type:
+            # ✅ FIXED: For bar charts, use marker.color (not marker_colors)
             colors = color_scheme[:data_len] if data_len else color_scheme
-            fig.update_traces(marker_colors=colors)
+            fig.update_traces(marker=dict(color=colors))
         elif 'line' in chart_type:
-            fig.update_traces(line_color=color_scheme[0] if color_scheme else 'blue')
+            # Line charts use line color, not marker
+            fig.update_traces(line=dict(color=color_scheme[0] if color_scheme else 'blue'))
         elif 'heatmap' in chart_type:
-            fig.update_traces(colorscale=color_scheme[:10])  # Heatmaps use scales, truncate
+            # Heatmaps use colorscale
+            fig.update_traces(colorscale=color_scheme[:10] if len(color_scheme) > 10 else color_scheme)
     return fig
 
 # ==================== CUSTOM CSS ====================
@@ -3105,21 +3113,33 @@ def main():
             # FIXED: Multiselect with dict for lookup
             file_counts = {fname: len(st.session_state.all_files[fname]) for fname in sorted_filenames}
             display_options = [f"**{fname}** ({file_counts[fname]} {T('seqs_abbrev')})" for fname in sorted_filenames]
-            options_dict = {display_str: fname for fname, display_str in zip(sorted_filenames, display_options)}  # NEW: For easy lookup
+            options_dict = {display_str: fname for fname, display_str in zip(sorted_filenames, display_options)}
             
-            # FIXED: Default: Pre-select matching strings (not indices)
-            default_selected = [display_options[i] for i, fname in enumerate(sorted_filenames) if fname in st.session_state.active_filenames]
+            # Build default from current active filenames
+            default_selected = [
+                display_options[i] 
+                for i, fname in enumerate(sorted_filenames) 
+                if fname in st.session_state.active_filenames
+            ]
             
+            # ✅ ADDED: Clear stale session state if options changed (safer approach)
+            if 'manage_file_multiselect' in st.session_state:
+                stored = st.session_state.manage_file_multiselect
+                if not all(opt in display_options for opt in stored):
+                    # Options changed (files added/removed), clear stale data
+                    del st.session_state.manage_file_multiselect
+            
+            # Multiselect with validated default
             selected_indices = st.multiselect(
                 "Select files to activate:",
                 options=display_options,
-                default=st.session_state.get('manage_file_multiselect', []),
+                default=default_selected,  # Use computed default
                 key="manage_file_multiselect",
-                format_func=lambda x: x,  # Keeps bold/count display
+                format_func=lambda x: x,
                 help="Check to include in active dataset. Hold Ctrl/Cmd for multi-select."
             )
             
-            # FIXED: Map back to filenames using dict
+            # Map back to filenames using dict
             selected_files_now = [options_dict[opt] for opt in selected_indices]
             
             # Preview selection count (UX boost)
