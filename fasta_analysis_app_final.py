@@ -3611,7 +3611,7 @@ def main():
                             help="Limit to top N items"
                         )
                     
-                    el:
+                    else:
                         field_options_list = list(vis_field_options.keys())
                         field_values_list = list(vis_field_options.values())
 
