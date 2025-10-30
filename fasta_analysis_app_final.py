@@ -3661,99 +3661,165 @@ def main():
                 
                     # ✅ NEW IMPROVED: Interactive Color Generator Expander
                     with st.expander("🎨 Custom Palette Studio", expanded=False):
-                        num_colors = st.slider("Number of Colors", 3, 12, 8, key="vis_num_colors")
+                    # ✅ REDESIGNED: Custom Palette Studio (Improved UX)
+                    with st.expander("🎨 Custom Palette Studio", expanded=False):
+                        # Slider for color count
+                        num_colors = st.slider(
+                            "Number of Colors", 
+                            3, 12, 8, 
+                            key="vis_num_colors",
+                            help="Choose how many colors for your palette"
+                        )
                         
-                        st.write("**Select Colors:**")
+                        st.markdown("---")
                         
-                        # Create color pickers in rows of 4
+                        # ✅ IMPROVED: Larger, grid-based color pickers
+                        st.write("**🎨 Select Your Colors:**")
+                        
                         custom_colors = []
+                        default_colors = [
+                            "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", 
+                            "#FFEAA7", "#DDA0DD", "#F39B7F", "#8491B4",
+                            "#91D1C2", "#B09C85", "#E64B35", "#4DBBD5"
+                        ]
+                        
+                        # Create 4 columns per row for better spacing
                         cols_per_row = 4
-                        for row in range((num_colors + cols_per_row - 1) // cols_per_row):
+                        num_rows = (num_colors + cols_per_row - 1) // cols_per_row
+                        
+                        for row_idx in range(num_rows):
                             cols = st.columns(cols_per_row)
-                            for col_idx, col in enumerate(cols):
-                                color_idx = row * cols_per_row + col_idx
+                            for col_idx in range(cols_per_row):
+                                color_idx = row_idx * cols_per_row + col_idx
                                 if color_idx < num_colors:
-                                    with col:
-                                        default_colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", 
-                                                         "#FFEAA7", "#DDA0DD", "#F39B7F", "#8491B4",
-                                                         "#91D1C2", "#B09C85", "#E64B35", "#4DBBD5"]
+                                    with cols[col_idx]:
+                                        # ✅ IMPROVED: Larger color picker with label
                                         color = st.color_picker(
-                                            f"Color {color_idx + 1}", 
-                                            default_colors[color_idx % len(default_colors)],
-                                            key=f"vis_color_{color_idx}",
-                                            label_visibility="collapsed"
+                                            f"Color {color_idx + 1}",
+                                            value=default_colors[color_idx % len(default_colors)],
+                                            key=f"vis_color_{color_idx}"
                                         )
                                         custom_colors.append(color)
                         
                         st.markdown("---")
-                        st.write("**Actions:**")
                         
-                        col_btn1, col_btn2, col_btn3 = st.columns(3)
+                        # ✅ IMPROVED: Action buttons with better layout
+                        st.write("**⚡ Quick Actions:**")
                         
-                        with col_btn1:
-                            if st.button("✅ Apply Custom", key="vis_custom_apply", use_container_width=True):
+                        action_cols = st.columns(3)
+                        
+                        with action_cols[0]:
+                            if st.button(
+                                "✅ Apply",
+                                key="vis_custom_apply",
+                                use_container_width=True,
+                                help="Apply selected colors to chart"
+                            ):
                                 st.session_state.custom_palette = custom_colors
-                                st.success("✓ Custom palette applied!")
+                                st.success("✓ Applied!", icon="✅")
                         
-                        with col_btn2:
+                        with action_cols[1]:
                             sample_seq = analyzer.sequences[0][1] if analyzer.sequences else ""
-                            if st.button("🧬 From DNA", key="vis_nuc_palette", use_container_width=True):
+                            if st.button(
+                                "🧬 DNA Colors",
+                                key="vis_nuc_palette",
+                                use_container_width=True,
+                                help="Generate palette from sequence nucleotide composition"
+                            ):
                                 nuc_scheme = nucleotide_palette(sample_seq)
                                 if callable(nuc_scheme):
                                     nuc_colors = [nuc_scheme[i] for i in range(0, 100, 100//num_colors)]
                                 else:
                                     nuc_colors = nuc_scheme[:num_colors]
                                 st.session_state.custom_palette = nuc_colors
-                                st.success("✓ DNA palette generated!")
+                                st.success("✓ DNA palette!", icon="🧬")
+                                st.rerun()
                         
-                        with col_btn3:
-                            if st.button("🎲 Random", key="vis_random_palette", use_container_width=True):
+                        with action_cols[2]:
+                            if st.button(
+                                "🎲 Randomize",
+                                key="vis_random_palette",
+                                use_container_width=True,
+                                help="Generate random vibrant colors"
+                            ):
                                 import random
                                 import colorsys
                                 
                                 random_colors = []
                                 for _ in range(num_colors):
                                     hue = random.randint(0, 360)
-                                    saturation = random.randint(60, 100)
-                                    lightness = random.randint(45, 75)
+                                    saturation = random.randint(65, 95)
+                                    lightness = random.randint(50, 70)
                                     
                                     r, g, b = colorsys.hls_to_rgb(hue/360, lightness/100, saturation/100)
                                     hex_color = f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
                                     random_colors.append(hex_color)
                                 
                                 st.session_state.custom_palette = random_colors
-                                st.success("✓ Random palette generated!")
+                                st.success("✓ Randomized!", icon="🎲")
                                 st.rerun()
                         
+                        # ✅ IMPROVED: Better palette preview
                         if 'custom_palette' in st.session_state and st.session_state.custom_palette:
                             st.markdown("---")
-                            st.write("**Current Palette Preview:**")
+                            st.write("**🎨 Current Palette:**")
                             
-                            swatch_cols = st.columns(min(8, len(st.session_state.custom_palette)))
+                            # Create larger, cleaner swatches
+                            preview_cols = st.columns(min(8, len(st.session_state.custom_palette)))
+                            
                             for i, color in enumerate(st.session_state.custom_palette[:8]):
-                                with swatch_cols[i]:
+                                with preview_cols[i]:
+                                    # Larger swatch with better styling
                                     st.markdown(
-                                        f"<div style='background-color:{color}; width:100%; height:60px; "
-                                        f"border-radius:8px; border:2px solid #ddd;'></div>",
+                                        f"""
+                                        <div style='
+                                            background: linear-gradient(135deg, {color} 0%, {color}dd 100%);
+                                            width: 100%;
+                                            height: 80px;
+                                            border-radius: 12px;
+                                            border: 2px solid rgba(0,0,0,0.1);
+                                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                            display: flex;
+                                            align-items: flex-end;
+                                            justify-content: center;
+                                            padding: 8px;
+                                        '>
+                                            <span style='
+                                                background: rgba(255,255,255,0.9);
+                                                color: #333;
+                                                padding: 4px 8px;
+                                                border-radius: 6px;
+                                                font-size: 11px;
+                                                font-family: monospace;
+                                                font-weight: 600;
+                                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                            '>{color.upper()}</span>
+                                        </div>
+                                        """,
                                         unsafe_allow_html=True
                                     )
-                                    st.caption(color, help=f"Color {i+1}")
                             
                             if len(st.session_state.custom_palette) > 8:
-                                st.caption(f"... +{len(st.session_state.custom_palette) - 8} more colors")
+                                st.caption(f"*+ {len(st.session_state.custom_palette) - 8} more colors in palette*")
+                            
+                            # ✅ IMPROVED: Export button styling
+                            st.markdown("<br>", unsafe_allow_html=True)
                             
                             palette_json = json.dumps({
                                 'colors': st.session_state.custom_palette,
                                 'name': 'Custom Viral Palette',
+                                'count': len(st.session_state.custom_palette),
                                 'date': datetime.now().isoformat()
-                            })
+                            }, indent=2)
+                            
                             st.download_button(
                                 label="💾 Export Palette (JSON)",
                                 data=palette_json,
                                 file_name=f"viral_palette_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
                                 mime="application/json",
                                 key="export_palette",
-                                use_container_width=True
+                                use_container_width=True,
+                                help="Download palette as JSON for reuse"
                             )
                     # END UPDATED Button logic
 
