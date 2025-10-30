@@ -2974,41 +2974,33 @@ def main():
             st.json(debug_data)
         # ========== END TEMP ==========
         
-
     # Main Area
     st.markdown(f"## {T('app_title')}")
-
+    
     st.session_state.status_placeholder = st.empty()
     if st.session_state.status_message:
         update_status(st.session_state.status_message, st.session_state.status_level, log=False)
-
-    # NEW: Tab tracking for navigation (replaces old tab setup)
+    
+    # Tab tracking for navigation
     if 'active_tab' not in st.session_state:
         st.session_state.active_tab = 0  # Default to first tab (Upload)
     
     tab_keys = ["upload_tab", "manage_tab", "analyze_tab", "refine_tab", "export_tab", "docs_tab"]
     tab_labels = [T(key) for key in tab_keys]
-
-    # Create tabs (Streamlit will handle selection visually, but we track it)
+    
+    # Create tabs (Streamlit handles selection)
     tabs = st.tabs(tab_labels)
     
-    # Map tab keys to indices for easy reference
-    tab_map = dict(zip(tab_keys, tabs))  # Map for with blocks
-
-    # Get active tab from query params
+    # Map tab keys to tab objects for easy reference in 'with' blocks
+    tab_map = dict(zip(tab_keys, tabs))
+    
+    # Get active tab from query params (optional for deep linking)
     query_tab = st.query_params.get("tab", "upload")
     if query_tab in tab_keys:
-        # Simulate by hiding other tabs' content (hacky but works)
         st.session_state.active_tab_index = tab_keys.index(query_tab)
     else:
-        st.session_state.active_tab_index = 0       
-
-    # Get translated tab labels
-    tab_labels = [T(key) for key in tab_keys]
+        st.session_state.active_tab_index = 0
     
-    # Create tabs
-    tabs = st.tabs(tab_labels)
-
     # ==================== TAB 1: UPLOAD & SETUP ====================
     with tab_map["upload_tab"]:
         st.header(T("upload_tab"))
