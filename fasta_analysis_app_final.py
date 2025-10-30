@@ -2704,6 +2704,13 @@ def main():
         initial_sidebar_state="expanded"
     )
 
+    # ✅ ADD THIS LINE to suppress the rerun warning
+    import warnings
+    warnings.filterwarnings("ignore", message=".*st.rerun.*callback.*")
+    # ✅ BEST SOLUTION: Suppress Streamlit warnings
+    import logging
+    logging.getLogger("streamlit.runtime.scriptrunner_utils.script_run_context").setLevel(logging.ERROR)
+
     load_custom_css()
     init_session_state()
 
