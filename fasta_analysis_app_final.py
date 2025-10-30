@@ -3070,7 +3070,10 @@ def main():
                     if newly_loaded_count > 0:
                         msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
                         st.success(msg)
-                        st.balloons()
+                        st.toast(
+                            f"🎊 Success! {newly_loaded_count} files ({total_sequences_added:,} sequences) ready for analysis",
+                            icon="🧬"
+                        )
                         if not st.session_state.active_sequences:
                             st.info(T("info_activate_files"))
                     elif not has_errors:
