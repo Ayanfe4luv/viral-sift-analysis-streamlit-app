@@ -2775,7 +2775,7 @@ def main():
                 # Snapshot states BEFORE change
                 snapshot_widget_states()
             
-                ✅ PRESERVE ACTIVE TAB
+                #✅ PRESERVE ACTIVE TAB
                 tab_keys = ["upload_tab", "manage_tab", "analyze_tab", "refine_tab", "export_tab", "docs_tab"]
                 current_tab_key = tab_keys[st.session_state.get('active_tab_index', 0)]
                 
