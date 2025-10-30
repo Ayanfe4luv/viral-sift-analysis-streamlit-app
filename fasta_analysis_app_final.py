@@ -2983,22 +2983,26 @@ def main():
     
     tab_keys = ["upload_tab", "manage_tab", "analyze_tab", "refine_tab", "export_tab", "docs_tab"]
     tab_labels = [T(key) for key in tab_keys]
+
+    # Create tabs (Streamlit will handle selection visually, but we track it)
     tabs = st.tabs(tab_labels)
     
-    # FIXED: Select active tab by index (simulates selection via session state)
-    # st.session_state.active_tab = tabs.index(tabs)  # Update on UI selection
+    # Map tab keys to indices for easy reference
     tab_map = dict(zip(tab_keys, tabs))  # Map for with blocks
 
     # Get active tab from query params
     query_tab = st.query_params.get("tab", "upload")
     if query_tab in tab_keys:
         # Simulate by hiding other tabs' content (hacky but works)
-        for i, key in enumerate(tab_keys):
-            if key == query_tab:
-                st.session_state.active_tab = i
-            else:
-                with tab_map[key]:
-                    st.empty()  # Hide content
+        st.session_state.active_tab_index = tab_keys.index(query_tab)
+    else:
+        st.session_state.active_tab_index = 0       
+
+    # Get translated tab labels
+    tab_labels = [T(key) for key in tab_keys]
+    
+    # Create tabs
+    tabs = st.tabs(tab_labels)
 
     # ==================== TAB 1: UPLOAD & SETUP ====================
     with tab_map["upload_tab"]:
