@@ -78,6 +78,11 @@ TRANSLATIONS = {
         "reset_finalizing": "Finalizing...",
         "reset_toast_success": "Session reset successfully!",
 
+        # NEW: File selection messages
+        "select_files_to_activate": "Select files to activate:",
+        "files_selected_summary": "Selected: {count} files ({seqs} total {unit})",
+        "no_files_selected_yet": "No files selected yet.",
+
         # Upload Tab
         "file_uploader_label": "Upload FASTA files",
         "upload_help_text": "Supports single or multiple files, including .gz compressed",
@@ -274,6 +279,55 @@ TRANSLATIONS = {
         "filter_no_matches_extract": "- Use 'Extract Accessions' button to see available IDs in your data",
         "filter_cleared_toast": "Input cleared",
 
+        # Split & Export Interface
+        "split_export_title": "🗂️ Split & Export by Metadata",
+        "split_export_desc": "Split your dataset into separate FASTA files based on any metadata field",
+        "split_field_label": "📂 Split Dataset By:",
+        "split_field_help": "Choose which metadata field to use for splitting files",
+        "split_data_source": "Data Source:",
+        "split_data_current": "Current",
+        "split_data_original": "Original",
+        "split_data_help": "Current: Use filtered data. Original: Use pre-filter snapshot",
+        "split_accession_note": "ℹ️ **Note:** Splitting by Accession (EPI_ISL) creates one file per sequence. This is useful for extracting individual sequences or creating a batch of single-sequence files.",
+        "split_preview_btn": "🔍 Preview Split",
+        "split_preview_title": "**Preview: Will create {count} separate files**",
+        "split_large_warning": "⚠️ This will create **{count} files** (one per {field}). Consider using filters first to reduce the dataset size.",
+        "split_stats": "📊 **Stats:** {groups} groups | {seqs} total sequences | Avg {avg} seqs/group",
+        "split_no_data": "No valid {field} data found to split.",
+        "split_export_zip_btn": "📦 Export All as ZIP ({files} files, {seqs} seqs)",
+        "split_large_export_warning": "⚠️ Large export: {files} files, {seqs} sequences. This may take a moment...",
+        "split_creating_zip": "Creating ZIP archive with {files} files...",
+        "split_download_zip": "⬇️ Download ZIP ({files} files)",
+        "split_zip_filename": "split_by_{field}_{timestamp}.zip",
+        "split_zip_success": "✅ ZIP created with {files} FASTA files!",
+        "split_individual_caption": "**Or download individually:**",
+        "split_more_in_zip": "*+{count} more in ZIP*",
+        "split_clear_btn": "🗑️ Clear Preview",
+        "split_tips_title": "ℹ️ Tips for Split & Export",
+        "split_tips_content": """**How to use:**
+1. **Select a field** to split by (e.g., Subtype, Location, Year, Accession)
+2. **Choose data source**: Current (after filters) or Original (pre-filter)
+3. **Preview** to see how many files will be created
+4. **Export as ZIP** for all files, or download individual files
+
+**Use cases:**
+- Split by **Subtype**: Get separate files for H5N1, H3N2, etc.
+- Split by **Location**: Organize by country/region
+- Split by **Year**: Create temporal datasets
+- Split by **Segment**: Separate HA, NA, PB1, etc.
+- Split by **Clade**: Group by phylogenetic clades
+- Split by **Accession (EPI_ISL)**: Extract individual sequences by ID
+
+**Tips:**
+- Files are automatically named: `field_value.fasta`
+- Special characters in names are sanitized for compatibility
+- Sequences with "Unknown" values are excluded
+- Use "Current" data after applying filters for refined splits
+- Use "Original" data for complete unfiltered splits
+- **Splitting by Accession** creates one file per sequence (useful for batch processing)
+- For large datasets (>100 groups), consider filtering first to reduce size""",
+        "split_accession_field": "Accession (EPI_ISL)",
+
         # Export Tab
         "last_report_header": "Last Analysis Report",
         "report_content": "Report Content",
@@ -420,6 +474,11 @@ TRANSLATIONS = {
         "reset_reinitializing": "Повторная инициализация...",
         "reset_finalizing": "Завершение...",
         "reset_toast_success": "Сессия успешно сброшена!",
+
+        # NEW: File selection messages
+        "select_files_to_activate": "Выберите файлы для активации:",
+        "files_selected_summary": "Выбрано: {count} файлов ({seqs} всего {unit})",
+        "no_files_selected_yet": "Файлы еще не выбраны.",
 
         # Upload Tab
         "file_uploader_label": "Загрузить файлы FASTA",
@@ -616,6 +675,55 @@ TRANSLATIONS = {
         "filter_no_matches_test": "- Попробуйте меньше номеров для тестирования",
         "filter_no_matches_extract": "- Используйте кнопку 'Извлечь Номера' для просмотра доступных ID",
         "filter_cleared_toast": "Ввод очищен",
+
+        # Split & Export Interface (Russian)
+        "split_export_title": "🗂️ Разделение и Экспорт по Метаданным",
+        "split_export_desc": "Разделите ваш набор данных на отдельные FASTA файлы на основе любого поля метаданных",
+        "split_field_label": "📂 Разделить Набор По:",
+        "split_field_help": "Выберите поле метаданных для разделения файлов",
+        "split_data_source": "Источник Данных:",
+        "split_data_current": "Текущий",
+        "split_data_original": "Оригинальный",
+        "split_data_help": "Текущий: Использовать отфильтрованные данные. Оригинальный: Снимок до фильтра",
+        "split_accession_note": "ℹ️ **Примечание:** Разделение по номеру доступа (EPI_ISL) создает один файл на последовательность. Это полезно для извлечения отдельных последовательностей.",
+        "split_preview_btn": "🔍 Предпросмотр Разделения",
+        "split_preview_title": "**Предпросмотр: Будет создано {count} отдельных файлов**",
+        "split_large_warning": "⚠️ Это создаст **{count} файлов** (один на {field}). Сначала примените фильтры для уменьшения размера набора.",
+        "split_stats": "📊 **Статистика:** {groups} групп | {seqs} всего последовательностей | Средн. {avg} посл./группу",
+        "split_no_data": "Не найдены валидные данные {field} для разделения.",
+        "split_export_zip_btn": "📦 Экспорт Всех как ZIP ({files} файлов, {seqs} посл.)",
+        "split_large_export_warning": "⚠️ Большой экспорт: {files} файлов, {seqs} последовательностей. Это может занять время...",
+        "split_creating_zip": "Создание ZIP архива с {files} файлами...",
+        "split_download_zip": "⬇️ Скачать ZIP ({files} файлов)",
+        "split_zip_filename": "разделение_по_{field}_{timestamp}.zip",
+        "split_zip_success": "✅ ZIP создан с {files} FASTA файлами!",
+        "split_individual_caption": "**Или скачать по отдельности:**",
+        "split_more_in_zip": "*+{count} еще в ZIP*",
+        "split_clear_btn": "🗑️ Очистить Предпросмотр",
+        "split_tips_title": "ℹ️ Советы по Разделению и Экспорту",
+        "split_tips_content": """**Как использовать:**
+1. **Выберите поле** для разделения (напр., Подтип, Местоположение, Год, Номер доступа)
+2. **Выберите источник данных**: Текущий (после фильтров) или Оригинальный (до фильтра)
+3. **Предпросмотр** для просмотра количества создаваемых файлов
+4. **Экспорт как ZIP** для всех файлов или скачайте отдельные файлы
+
+**Случаи использования:**
+- Разделение по **Подтипу**: Отдельные файлы для H5N1, H3N2 и т.д.
+- Разделение по **Местоположению**: Организация по стране/региону
+- Разделение по **Году**: Создание временных наборов
+- Разделение по **Сегменту**: Разделение HA, NA, PB1 и т.д.
+- Разделение по **Кладе**: Группировка по филогенетическим кладам
+- Разделение по **Номеру доступа (EPI_ISL)**: Извлечение отдельных последовательностей по ID
+
+**Советы:**
+- Файлы автоматически именуются: `поле_значение.fasta`
+- Специальные символы в именах санитизированы для совместимости
+- Последовательности со значениями "Unknown" исключаются
+- Используйте "Текущий" данные после применения фильтров
+- Используйте "Оригинальный" данные для полного неотфильтрованного разделения
+- **Разделение по Номеру доступа** создает один файл на последовательность
+- Для больших наборов (>100 групп) сначала примените фильтры""",
+        "split_accession_field": "Номер доступа (EPI_ISL)",
 
         # Export Tab
         "last_report_header": "Последний Отчет Анализа",
@@ -3131,7 +3239,7 @@ def main():
             
             # Multiselect with validated default
             selected_indices = st.multiselect(
-                "Select files to activate:",
+                T("select_files_to_activate"),
                 options=display_options,
                 default=default_selected,  # Use computed default
                 key="manage_file_multiselect",
@@ -3145,7 +3253,11 @@ def main():
             # Preview selection count (UX boost)
             if selected_files_now:
                 total_seqs = sum(file_counts[fname] for fname in selected_files_now)
-                st.info(f"Selected: {len(selected_files_now)} files ({total_seqs:,} total {T('seqs_abbrev')})")
+                st.info(T("files_selected_summary").format(
+                    count=len(selected_files_now), 
+                    seqs=total_seqs, 
+                    unit=T('seqs_abbrev')
+                ))
                 
                 # Build preview data: Seq count + top subtypes per file
                 preview_data = []
@@ -3386,38 +3498,120 @@ def main():
                     st.session_state.vis_chart_type_index = selected_chart_index
 
                     # ADDED Conditional controls
+                    # ✅ FIXED: Conditional controls with safe index-based selection
                     field1, field2, interval, top_n_val = None, None, None, 20
+                    
                     if selected_chart_key in ['bar', 'pie']:
-                        field1_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), index=st.session_state.get('vis_field1_index', 0), key="vis_field1")
-                        field1 = vis_field_options[field1_display]
+                        # Safe field selection
+                        field_options_list = list(vis_field_options.keys())
+                        field_values_list = list(vis_field_options.values())
+
+                        # Validate stored index
+                        stored_field_index = st.session_state.get('vis_field1_index', 0)
+                        if not isinstance(stored_field_index, int) or stored_field_index >= len(field_options_list):
+                            stored_field_index = 0
+                        
+                        selected_field_index = st.selectbox(
+                            T("field_label"), 
+                            options=range(len(field_options_list)),
+                            index=stored_field_index,
+                            format_func=lambda i: field_options_list[i],
+                            key="vis_field1"
+                        )
+                        
+                        if not isinstance(selected_field_index, int):
+                            selected_field_index = 0
+                        
+                        field1 = field_values_list[selected_field_index]
+                        field1_display = field_options_list[selected_field_index]
+                        st.session_state.vis_field1_index = selected_field_index
+                    
                     elif selected_chart_key == 'line':
                         interval_options = {T("vis_interval_month"): 'month', T("vis_interval_quarter"): 'quarter', T("vis_interval_year"): 'year'}
                         interval_display = st.selectbox(T("time_interval_label"), list(interval_options.keys()), key="vis_interval")
                         interval = interval_options[interval_display]
+                    
                     elif selected_chart_key == 'heatmap':
-                        # UPDATED: Field selector for flexibility (from prior generalization)
-                        field_display = st.selectbox(T("field_label"), list(vis_field_options.keys()), index=3, key="vis_heatmap_field")  # Default 'location'
-                        heatmap_field = vis_field_options[field_display]
-                        # ENHANCED: Slider with higher max, step=5, help text
+                        field_options_list = list(vis_field_options.keys())
+                        field_values_list = list(vis_field_options.values())
+                        
+                        stored_heatmap_index = st.session_state.get('vis_heatmap_field_index', 3)
+                        if not isinstance(stored_heatmap_index, int) or stored_heatmap_index >= len(field_options_list):
+                            stored_heatmap_index = 3
+                        
+                        selected_heatmap_index = st.selectbox(
+                            T("field_label"),
+                            options=range(len(field_options_list)),
+                            index=stored_heatmap_index,
+                            format_func=lambda i: field_options_list[i],
+                            key="vis_heatmap_field"
+                        )
+                        
+                        if not isinstance(selected_heatmap_index, int):
+                            selected_heatmap_index = 3
+                        
+                        heatmap_field = field_values_list[selected_heatmap_index]
+                        st.session_state.vis_heatmap_field_index = selected_heatmap_index
+
+                        # Top N slider
                         top_n_val = st.slider(
                             T("top_n_label"),
                             min_value=1,
-                            max_value=100,  # Increased from 50 to allow more than 20
-                            value=st.session_state.get('vis_top_n', 20),  # Your "fixed" default
+                            max_value=100,
+                            value=st.session_state.get('vis_top_n', 20),
                             step=5,
                             key="vis_top_n",
-                            help="Limit to top N items (e.g., locations/hosts); higher values show more detail but may clutter the view."
+                            help="Limit to top N items"
                         )
-
+                    
                     elif selected_chart_key == 'stacked':
-                        # Use different selectbox keys to avoid conflict
-                        cat1_display = st.selectbox(T("category1_label"), list(vis_field_options.keys()), index=3, key="vis_cat1_stacked") # Default 'location'
-                        category1 = vis_field_options[cat1_display]
-                        cat2_display = st.selectbox(T("category2_label"), list(vis_field_options.keys()), index=0, key="vis_cat2_stacked") # Default 'subtype/type'
-                        category2 = vis_field_options[cat2_display]
-                        # NEW: Top N slider with default 15
-                        top_n_val = st.slider(T("top_n_label") + f" ({cat1_display})", 5, 50, 15, 5, key="vis_top_n_stacked",
-                                              help="Limit to top N groups for primary category (e.g., locations); aggregates rest as 'Other'.")
+                        field_options_list = list(vis_field_options.keys())
+                        field_values_list = list(vis_field_options.values())
+
+                        # Category 1
+                        stored_cat1_index = st.session_state.get('vis_cat1_stacked_index', 3)
+                        if not isinstance(stored_cat1_index, int) or stored_cat1_index >= len(field_options_list):
+                            stored_cat1_index = 3
+                        
+                        selected_cat1_index = st.selectbox(
+                            T("category1_label"),
+                            options=range(len(field_options_list)),
+                            index=stored_cat1_index,
+                            format_func=lambda i: field_options_list[i],
+                            key="vis_cat1_stacked"
+                        )
+                        
+                        if not isinstance(selected_cat1_index, int):
+                            selected_cat1_index = 3
+                        
+                        category1 = field_values_list[selected_cat1_index]
+                        st.session_state.vis_cat1_stacked_index = selected_cat1_index
+
+                        # Category 2
+                        stored_cat2_index = st.session_state.get('vis_cat2_stacked_index', 0)
+                        if not isinstance(stored_cat2_index, int) or stored_cat2_index >= len(field_options_list):
+                            stored_cat2_index = 0
+                        
+                        selected_cat2_index = st.selectbox(
+                            T("category2_label"),
+                            options=range(len(field_options_list)),
+                            index=stored_cat2_index,
+                            format_func=lambda i: field_options_list[i],
+                            key="vis_cat2_stacked"
+                        )
+                        
+                        if not isinstance(selected_cat2_index, int):
+                            selected_cat2_index = 0
+                        
+                        category2 = field_values_list[selected_cat2_index]
+                        st.session_state.vis_cat2_stacked_index = selected_cat2_index
+                        
+                        top_n_val = st.slider(
+                            T("top_n_label") + f" ({field_options_list[stored_cat1_index]})", 
+                            5, 50, 15, 5, 
+                            key="vis_top_n_stacked",
+                            help="Limit to top N groups"
+                        )
                     # END ADDED Conditional controls
 
                 with vis_col2:
@@ -3958,6 +4152,213 @@ def main():
                     st.text_area(T("accession_preview"), "\n".join(accessions[:20]), height=150, disabled=True)
                 else:
                     st.warning(T("no_accessions_found"))
+
+            
+            st.markdown("---")
+
+            # ========== TRANSLATED: UNIVERSAL SPLIT & EXPORT INTERFACE ==========
+            st.subheader(T("split_export_title"))
+            st.caption(T("split_export_desc"))
+            
+            if not st.session_state.active_sequences:
+                st.warning(T("no_data_msg"))
+            else:
+                analyzer = SequenceAnalyzer(st.session_state.active_sequences)
+                
+                # Field selection with EPI_ISL support
+                split_field_options = {
+                    T("vis_field_subtype"): 'type',
+                    T("vis_field_segment"): 'segment', 
+                    T("vis_field_host"): 'host',
+                    T("vis_field_location"): 'location',
+                    T("vis_field_clade"): 'clade',
+                    T("vis_field_year"): 'year',
+                    T("vis_field_month"): 'month',
+                    T("split_accession_field"): 'isolate_id'  # ✅ Translated
+                }
+                
+                col_split1, col_split2 = st.columns([2, 1])
+                
+                with col_split1:
+                    split_field_display = st.selectbox(
+                        T("split_field_label"),
+                        options=list(split_field_options.keys()),
+                        key="split_field_selector",
+                        help=T("split_field_help")
+                    )
+                    split_field = split_field_options[split_field_display]
+                
+                with col_split2:
+                    split_data_mode = st.radio(
+                        T("split_data_source"),
+                        [T("split_data_current"), T("split_data_original")],
+                        key="split_data_mode",
+                        horizontal=True,
+                        help=T("split_data_help")
+                    )
+                
+                # Warning for accession splitting
+                if split_field == 'isolate_id':
+                    st.info(T("split_accession_note"), icon="ℹ️")
+                
+                # Preview button
+                if st.button(T("split_preview_btn"), key="preview_split"):
+                    data_mode_val = 'original' if split_data_mode == T("split_data_original") else 'current'
+                    seqs_to_split = st.session_state.original_active_snapshot if data_mode_val == 'original' else st.session_state.active_sequences
+                    
+                    # Group by selected field
+                    groups = defaultdict(list)
+                    for header, seq, metadata in seqs_to_split:
+                        if split_field == 'year':
+                            key = str(metadata['collection_date'].year) if metadata.get('collection_date') else DEFAULT_UNKNOWN
+                        elif split_field == 'month':
+                            key = metadata['collection_date'].strftime('%Y-%m') if metadata.get('collection_date') else DEFAULT_UNKNOWN
+                        elif split_field == 'isolate_id':
+                            key = metadata.get('isolate_id', DEFAULT_UNKNOWN)
+                            if key == DEFAULT_UNKNOWN:
+                                import re
+                                match = re.search(r'EPI_ISL_\d+', header)
+                                if match:
+                                    key = match.group(0)
+                        else:
+                            key = metadata.get(split_field, DEFAULT_UNKNOWN)
+                        
+                        if key != DEFAULT_UNKNOWN:
+                            groups[key].append((header, seq, metadata))
+                    
+                    if groups:
+                        st.write(T("split_preview_title").format(count=len(groups)))
+                        
+                        if len(groups) > 100:
+                            st.warning(
+                                T("split_large_warning").format(count=len(groups), field=split_field_display),
+                                icon="⚠️"
+                            )
+                        
+                        # Preview table
+                        preview_data = []
+                        display_limit = 20 if len(groups) <= 100 else 10
+                        
+                        for key, seqs in sorted(groups.items(), key=lambda x: len(x[1]), reverse=True)[:display_limit]:
+                            preview_data.append({
+                                split_field_display: key,
+                                'Sequences': len(seqs),
+                                'Avg Length': int(sum(len(s[1]) for s in seqs) / len(seqs)) if seqs else 0
+                            })
+                        
+                        preview_df = pd.DataFrame(preview_data)
+                        st.dataframe(preview_df, use_container_width=True, hide_index=True)
+                        
+                        if len(groups) > display_limit:
+                            st.caption(f"... and {len(groups) - display_limit} more groups")
+                        
+                        # Statistics
+                        total_seqs = sum(len(seqs) for seqs in groups.values())
+                        avg_seqs_per_group = total_seqs / len(groups)
+                        st.caption(T("split_stats").format(
+                            groups=len(groups),
+                            seqs=total_seqs,
+                            avg=f"{avg_seqs_per_group:.1f}"
+                        ))
+                        
+                        st.session_state.split_preview_groups = groups
+                        st.session_state.split_field_name = split_field
+                    else:
+                        st.warning(T("split_no_data").format(field=split_field_display))
+                
+                # Export section
+                if 'split_preview_groups' in st.session_state and st.session_state.split_preview_groups:
+                    groups = st.session_state.split_preview_groups
+                    split_field_name = st.session_state.split_field_name
+                    
+                    st.markdown("---")
+                    
+                    export_col1, export_col2 = st.columns([2, 1])
+                    
+                    with export_col1:
+                        total_files = len(groups)
+                        total_seqs = sum(len(seqs) for seqs in groups.values())
+                        
+                        if total_files > 100:
+                            st.warning(
+                                T("split_large_export_warning").format(files=total_files, seqs=total_seqs),
+                                icon="⏳"
+                            )
+                        
+                        if st.button(
+                            T("split_export_zip_btn").format(files=total_files, seqs=total_seqs),
+                            key="export_split_zip",
+                            type="primary",
+                            use_container_width=True
+                        ):
+                            with st.spinner(T("split_creating_zip").format(files=total_files)):
+                                zip_buffer = io.BytesIO()
+                                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                                    for key, seqs in groups.items():
+                                        safe_key = str(key).replace('/', '_').replace('\\', '_').replace('|', '_').replace(' ', '_')
+                                        safe_key = safe_key.replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_')
+                                        safe_key = safe_key.replace('<', '_').replace('>', '_')
+                                        
+                                        filename = f"{split_field_name}_{safe_key}.fasta"
+                                        
+                                        fasta_io = io.StringIO()
+                                        for header, seq, _ in seqs:
+                                            h = header if header.startswith('>') else '>' + header
+                                            fasta_io.write(f"{h}\n{seq}\n")
+                                        
+                                        zipf.writestr(filename, fasta_io.getvalue())
+                                
+                                zip_buffer.seek(0)
+                                st.download_button(
+                                    label=T("split_download_zip").format(files=total_files),
+                                    data=zip_buffer.getvalue(),
+                                    file_name=f"split_by_{split_field_name}_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
+                                    mime="application/zip",
+                                    key="download_split_zip",
+                                    use_container_width=True
+                                )
+                                st.success(T("split_zip_success").format(files=total_files))
+                    
+                    with export_col2:
+                        st.caption(T("split_individual_caption"))
+                        
+                        individual_limit = 3 if len(groups) > 50 else 5
+                        
+                        for key, seqs in sorted(groups.items(), key=lambda x: len(x[1]), reverse=True)[:individual_limit]:
+                            safe_key = str(key).replace('/', '_').replace('\\', '_').replace('|', '_').replace(' ', '_')
+                            safe_key = safe_key.replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_')
+                            
+                            fasta_io = io.StringIO()
+                            for header, seq, _ in seqs:
+                                h = header if header.startswith('>') else '>' + header
+                                fasta_io.write(f"{h}\n{seq}\n")
+                            
+                            display_key = str(key)[:30] + '...' if len(str(key)) > 30 else str(key)
+                            
+                            st.download_button(
+                                label=f"📄 {display_key} ({len(seqs)} seqs)",
+                                data=fasta_io.getvalue(),
+                                file_name=f"{split_field_name}_{safe_key}.fasta",
+                                mime="text/plain",
+                                key=f"download_split_{safe_key[:50]}",
+                                use_container_width=True
+                            )
+                        
+                        if len(groups) > individual_limit:
+                            st.caption(T("split_more_in_zip").format(count=len(groups) - individual_limit))
+                    
+                    if st.button(T("split_clear_btn"), key="clear_split_preview"):
+                        if 'split_preview_groups' in st.session_state:
+                            del st.session_state.split_preview_groups
+                        if 'split_field_name' in st.session_state:
+                            del st.session_state.split_field_name
+                        st.rerun()
+                
+                # Tips expander
+                with st.expander(T("split_tips_title")):
+                    st.markdown(T("split_tips_content"))
+            
+            # ========== END TRANSLATED INTERFACE ==========
 
     # ==================== TAB 5: EXPORT & REPORTS ====================
     with tab_map["export_tab"]:
