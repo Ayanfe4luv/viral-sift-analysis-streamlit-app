@@ -104,6 +104,12 @@ TRANSLATIONS = {
         "gdrive_success": "Google Drive mounted successfully at /content/drive.",
         "gdrive_fail": "Could not mount Google Drive (not in a compatible environment).",
 
+        # Upload Success Messages
+        "upload_success_toast": "✅ Success! {count} files ({seqs} sequences) ready for analysis",
+        "upload_files_metric": "Files Loaded",
+        "upload_sequences_metric": "Total Sequences",
+        "upload_avg_metric": "Avg per File",
+
         # Manage Tab
         "file_manager_empty_title": "No Files Loaded Yet",
         "file_manager_empty_subtitle": "Upload FASTA files via the methods above.",
@@ -532,6 +538,12 @@ TRANSLATIONS = {
         "active_dataset": "Активный Набор",
         "active_dataset_info": "Набор данных в данный момент не активен. Выберите файлы выше и нажмите 'Активировать Выбранные'.",
 
+        # Upload Success Messages (Russian)
+        "upload_success_toast": "✅ Успех! {count} файлов ({seqs} последовательностей) готовы к анализу",
+        "upload_files_metric": "Загружено Файлов",
+        "upload_sequences_metric": "Всего Последовательностей",
+        "upload_avg_metric": "Средн. на Файл",
+        
         # Analyze Tab
         "no_active_dataset_title": "⚠️ Нет Активного Набора",
         "no_active_dataset_msg": "Пожалуйста, активируйте набор данных на вкладке **{tab}** перед запуском анализа.",
@@ -3071,7 +3083,10 @@ def main():
                         msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
                         st.success(msg)
                         st.toast(
-                            f"🎊 Success! {newly_loaded_count} files ({total_sequences_added:,} sequences) ready for analysis",
+                            T("upload_success_toast").format(
+                                count=newly_loaded_count,
+                                seqs=f"{total_sequences_added:,}"
+                            ),
                             icon="🧬"
                         )
                         if not st.session_state.active_sequences:
@@ -3123,6 +3138,10 @@ def main():
                                     st.session_state.all_files[filename] = sequences
                                     st.session_state.original_sequences[filename] = sequences
                                     st.success(T("downloaded_processed").format(filename=filename, seqs=len(sequences)))
+                                    st.toast(
+                                        T("upload_success_toast").format(count=1, seqs=f"{len(sequences):,}"),
+                                        icon="🧬"
+                                    )
                                     st.session_state.active_filenames = [filename]
                                     st.session_state.active_sequences = sequences
                                     st.info(T("activated_file_info").format(filename=filename))
@@ -3194,12 +3213,13 @@ def main():
                                         total_sequences_added += len(sequences)
 
                             if newly_loaded_count > 0:
+                                # Use Option A, B, or C from above
                                 msg = T("loaded_files").format(count=newly_loaded_count, seqs=total_sequences_added)
-                                st.success(msg)
-                                st.balloons()
+                                st.success(msg, icon="✅")
+                                st.toast(T("upload_success_toast").format(count=newly_loaded_count, seqs=f"{total_sequences_added:,}"), icon="🧬")
                                 if not st.session_state.active_sequences:
                                     st.info(T("info_activate_files"))
-                            else:
+                            elif not has_errors:
                                 st.warning(T("no_new_files"))
                         except Exception as e:
                             progress_tracker.log_error(f"Failed to load from Google Drive: {str(e)}")
