@@ -1839,31 +1839,32 @@ def create_distribution_chart(data_dict, title_key, lang="en", chart_type='bar',
 
     if chart_type.lower() == 'pie':
         fig = px.pie(df, values='Count', names='Category', title=f"{title}",
-                     color_discrete_sequence=color_scheme)
+                     color_discrete_sequence=color_scheme if isinstance(color_scheme, list) else None)
         fig.update_traces(textposition='inside', textinfo='percent+label', pull=[0.05]*len(df))
         fig.update_layout(legend_title_text='Categories', showlegend=True)
-    else:
-        # POLISH: Conditional discrete vs. continuous for bar
-        if isinstance(color_scheme, list) and len(color_scheme) >= 2:  # Discrete list scheme
+    else:  # Bar chart
+        # ✅ FIXED: Proper color handling for bar charts
+        if isinstance(color_scheme, list) and len(color_scheme) >= 2:
+            # Discrete list scheme
             fig = px.bar(df.sort_values('Count', ascending=True),
                          y='Category', x='Count', title=f"{title}", text_auto=True,
                          orientation='h',
-                         color='Category',  # Color each bar by category
-                         color_discrete_sequence=color_scheme)  # Apply discrete colors
-            fig.update_layout(yaxis_title=None, xaxis_title="Count", showlegend=False,  # No legend needed (categories on y)
+                         color='Category',
+                         color_discrete_sequence=color_scheme)  # ✅ Use discrete sequence
+            fig.update_layout(yaxis_title=None, xaxis_title="Count", showlegend=False,
                               coloraxis_showscale=False)
             fig.update_yaxes(categoryorder='total ascending')
-        else:  # Continuous fallback (gradient by count)
+        else:
+            # Single color or continuous (use default or single color)
+            single_color = color_scheme[0] if isinstance(color_scheme, list) else (color_scheme if isinstance(color_scheme, str) and color_scheme.startswith('#') else '#3b82f6')
             fig = px.bar(df.sort_values('Count', ascending=True),
                          y='Category', x='Count', title=f"{title}", text_auto=True,
-                         orientation='h',
-                         color='Count',
-                         color_continuous_scale=color_scheme)
-            fig.update_layout(yaxis_title=None, xaxis_title="Count", coloraxis_showscale=False)
+                         orientation='h')
+            fig.update_traces(marker_color=single_color)  # ✅ Apply single color
+            fig.update_layout(yaxis_title=None, xaxis_title="Count")
             fig.update_yaxes(categoryorder='total ascending')
 
-    if color_scheme:
-        fig = apply_color_scheme(fig, color_scheme, chart_type, len(df))
+    # ✅ REMOVED: No double color application - colors already applied above
 
     fig.update_layout(
         margin=dict(t=50, b=20, l=20, r=20),
@@ -2090,28 +2091,42 @@ def nucleotide_palette(seq_sample):
 
 def apply_color_scheme(fig, color_scheme, chart_type, data_len=0):
     """Helper: Apply color scheme to figure based on type."""
+    if not color_scheme:
+        return fig
+    
     if isinstance(color_scheme, str):  # Scale name
-        if 'heatmap' in chart_type or 'line' in chart_type:
-            # For continuous scales
+        if 'heatmap' in chart_type:
+            # Heatmaps use colorscale directly
             fig.update_traces(colorscale=color_scheme)
-        else:
-            # For bar/pie with continuous coloring
+        elif 'line' in chart_type:
+            # Line charts use line color
+            fig.update_traces(line=dict(color=color_scheme if color_scheme.startswith('#') else None))
+        elif 'bar' in chart_type or 'stacked' in chart_type:
+            # ✅ FIXED: Bar charts - use marker.color with colorscale via layout
             fig.update_layout(coloraxis_colorscale=color_scheme)
+        elif 'pie' in chart_type:
+            # Pie charts don't use colorscale the same way
+            pass
     else:  # List of hex/colors
         if 'pie' in chart_type:
-            # ✅ FIXED: Use marker.colors for pie charts (correct property)
-            fig.update_traces(marker=dict(colors=color_scheme[:data_len] if data_len else color_scheme))
+            # ✅ CORRECT: Pie uses marker.colors (plural)
+            colors = color_scheme[:data_len] if data_len else color_scheme
+            fig.update_traces(marker=dict(colors=colors))
         elif 'bar' in chart_type or 'stacked' in chart_type:
-            # ✅ FIXED: For bar charts, use marker.color (not marker_colors)
+            # ✅ FIXED: Bar charts use marker.color (singular)
             colors = color_scheme[:data_len] if data_len else color_scheme
             fig.update_traces(marker=dict(color=colors))
         elif 'line' in chart_type:
-            # Line charts use line color, not marker
-            fig.update_traces(line=dict(color=color_scheme[0] if color_scheme else 'blue'))
+            # Line charts use line color
+            color = color_scheme[0] if color_scheme else 'blue'
+            fig.update_traces(line=dict(color=color))
         elif 'heatmap' in chart_type:
-            # Heatmaps use colorscale
-            fig.update_traces(colorscale=color_scheme[:10] if len(color_scheme) > 10 else color_scheme)
+            # Heatmaps use colorscale (list of colors)
+            colors = color_scheme[:10] if len(color_scheme) > 10 else color_scheme
+            fig.update_traces(colorscale=colors)
+    
     return fig
+ 
 
 # ==================== CUSTOM CSS ====================
 def load_custom_css():
@@ -3616,7 +3631,8 @@ def main():
 
                 with vis_col2:
                     # Add vertical space to align button
-                    for _ in range(5 if selected_chart_key not in ['stacked','heatmap'] else (7 if selected_chart_key=='stacked' else 6) ): st.write("")
+                    for _ in range(5 if selected_chart_key not in ['stacked','heatmap'] else (7 if selected_chart_key=='stacked' else 6) ):
+                        st.write("")
                 
                     # Pre-built Color Schemes Selectbox
                     if selected_chart_key in schemes_by_chart:
@@ -3660,7 +3676,6 @@ def main():
                                     progress_tracker.log_error(f"Chart generation failed: {e}")
                 
                     # ✅ NEW IMPROVED: Interactive Color Generator Expander
-                    with st.expander("🎨 Custom Palette Studio", expanded=False):
                     # ✅ REDESIGNED: Custom Palette Studio (Improved UX)
                     with st.expander("🎨 Custom Palette Studio", expanded=False):
                         # Slider for color count
