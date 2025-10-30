@@ -2774,11 +2774,16 @@ def main():
             if current_selection != st.session_state.lang:
                 # Snapshot states BEFORE change
                 snapshot_widget_states()
+            
+                ✅ PRESERVE ACTIVE TAB
+                tab_keys = ["upload_tab", "manage_tab", "analyze_tab", "refine_tab", "export_tab", "docs_tab"]
+                current_tab_key = tab_keys[st.session_state.get('active_tab_index', 0)]
+                
                 st.session_state.lang = current_selection
                 # Persist to query params
-                st.query_params.update({"lang": current_selection})
+                st.query_params.update({"lang": current_selection, "tab": current_tab_key})
                 # Optional: Toast confirmation
-                st.toast(f"✅ Switched to {lang_options[current_selection]} – Data preserved!", icon="🌐")
+                st.toast(f"✅ Switched to {lang_options[current_selection]}", icon="🌐")
                 # Rerun for full UI refresh (safe now with snapshot)
                 st.rerun()
     
@@ -3606,7 +3611,7 @@ def main():
                             help="Limit to top N items"
                         )
                     
-                    elif selected_chart_key == 'stacked':
+                    el:
                         field_options_list = list(vis_field_options.keys())
                         field_values_list = list(vis_field_options.values())
 
